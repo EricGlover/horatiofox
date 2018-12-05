@@ -1,0 +1,11 @@
+{
+  "name": "ericglover/horatio",
+  "type": "project",
+  "authors": [
+    {
+      "name": "Eric Glover",
+      "email": "horatiofox0@gmail.com"
+    }
+  ],
+  "require": {}
+}
