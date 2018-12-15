@@ -1,5 +1,5 @@
 <?php
-  # setup static files 
-  
+  # setup static files
+
   # for running locally let's just poop out index.html
-  readfile(__DIR__ . "/index.html");
+  readfile(__DIR__ . "/web/index.html");

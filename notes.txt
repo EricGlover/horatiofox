@@ -6,3 +6,11 @@ cd /semantic
 gulp build
 # then move everything in /semantic/dist to web/lib/semantic
 # dance in the streets
+
+my linode Server has it's horatiofox.com data in
+/var/www/horatiofox.com
+nginx config is in
+/etc/nginx/
+
+also note I need to walk through linode's guide on Nginx setups...
+my nginx.conf is all kinds of fucked
