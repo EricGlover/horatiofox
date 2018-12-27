@@ -1,6 +1,5 @@
 <?php
 
-
   function http2ServerPush(string $uri, string $as) : void
   {
     header("Link: <{$uri}>; rel=preload; as=$as", false);

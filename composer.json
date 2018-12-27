@@ -7,5 +7,13 @@
       "email": "horatiofox0@gmail.com"
     }
   ],
-  "require": {}
+  "require": {
+    "silex/silex": "^2.3",
+    "monolog/monolog": "^1.24"
+  },
+  "autoload": {
+    "psr-4": {
+      "Foxy\\": "src/Foxy"
+    }
+  }
 }
