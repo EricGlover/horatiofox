@@ -40,15 +40,19 @@
   $app = new Application();
 
   // build routes
-  $app->get("/", function(Request $request) {
+  $app->get("/web", function() {
+    return false;
+  });
+  $app->get("/", function(Request $request) use($log) {
+    $log->warning("/ running");
     $index = file_get_contents(__DIR__ . "/web/index.html");
     return new Response($index);
   });
   $app->get("/test", function(Request $request) {
     return new Response("hello test");
   });
-  $app->all("*", function() use($log) {
-    $log->info("ohhh noes");
+  $app->get("", function() use($log) {
+    $log->warning("ohhh noes");
     return false;
   });
   // handle request

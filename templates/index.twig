@@ -29,12 +29,22 @@
     <div class="ui header item">
       <a href="/" class="link">HoratioFox Games</a>
     </div>
-    <div class="item">
-      <div id="sign-up-btn" class="ui primary button">Sign up</div>
+{% if loggedIn == true %}
+    <div class="ui right aligned item">
+      <span>Hello {{user.username}}</span>
     </div>
-    <div class="item">
-      <div id="login-btn" class="ui button">Login</div>
+    <div class="right aligned item">
+      <button id="logout-btn" class="ui button">Logout</button>
     </div>
+{% else %}
+    <div class="right item">
+      <button id="sign-up-btn" class="ui primary button">Sign up</div>
+    </div>
+    <div class="right item">
+      <button id="login-btn" class="ui button">Login</div>
+    </div>
+{% endif %}
+
     <!-- <div class="ui right aligned category search item">
       <div class="ui transparent icon input">
         <input class="prompt" type="text" placeholder="Search animals...">
@@ -43,6 +53,9 @@
       <div class="ui results"></div>
     </div> -->
   </nav>
+
+  <!-- body -->
+
   <div class="ui container segment">
     <h1>HoratioFox Games</h1>
     <p>Hello, world! And welcome to HoratioFox Games!</p>
@@ -86,6 +99,8 @@
       </div>
     </div>
   </div> -->
+
+  <!-- templates for dialogs -->
 
   <div id="login" class="ui modal">
     <i class="close icon"></i>

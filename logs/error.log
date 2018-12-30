@@ -1,0 +1,2022 @@
+[29-Dec-2018 21:35:48 America/Chicago] logged in 
+[29-Dec-2018 21:35:48 America/Chicago] Foxy\Entities\User Object
+(
+    [id:Foxy\Entities\User:private] => 6
+    [email:Foxy\Entities\User:private] => bob@gmail.com
+    [username:Foxy\Entities\User:private] => bob
+    [password:Foxy\Entities\User:private] => $2y$10$Pad.cmG0MYeYAUcOM0oQmunrwcmU28jDnwn68GD0mZ/ei2JMzTgSy
+    [firstName:Foxy\Entities\User:private] => 
+    [lastName:Foxy\Entities\User:private] => 
+    [name:Foxy\Entities\User:private] => 
+    [joinedAt] => 2018-12-29 20:03:06
+    [lastLogin] => 2018-12-29 20:16:44
+    [avatarImg] => 
+    [active] => 1
+    [token] => 
+)
+
+[29-Dec-2018 21:35:48 America/Chicago] Array
+(
+    [user] => Array
+        (
+            [id] => 6
+        )
+
+)
+
+[29-Dec-2018 21:35:48 America/Chicago] running landing page
+[29-Dec-2018 21:35:48 America/Chicago]  looking for /Users/ericglover/Desktop/Programming/sites/horatio/templates/index.twig
+[29-Dec-2018 21:36:30 America/Chicago] logged in 
+[29-Dec-2018 21:36:30 America/Chicago] Foxy\Entities\User Object
+(
+    [id:Foxy\Entities\User:private] => 6
+    [email:Foxy\Entities\User:private] => bob@gmail.com
+    [username:Foxy\Entities\User:private] => bob
+    [password:Foxy\Entities\User:private] => $2y$10$Pad.cmG0MYeYAUcOM0oQmunrwcmU28jDnwn68GD0mZ/ei2JMzTgSy
+    [firstName:Foxy\Entities\User:private] => 
+    [lastName:Foxy\Entities\User:private] => 
+    [name:Foxy\Entities\User:private] => 
+    [joinedAt] => 2018-12-29 20:03:06
+    [lastLogin] => 2018-12-29 20:16:44
+    [avatarImg] => 
+    [active] => 1
+    [token] => 
+)
+
+[29-Dec-2018 21:36:30 America/Chicago] Array
+(
+    [user] => Array
+        (
+            [id] => 6
+        )
+
+)
+
+[29-Dec-2018 21:36:30 America/Chicago] running landing page
+[29-Dec-2018 21:36:30 America/Chicago] The "/Users/ericglover/Desktop/Programming/sites/horatio/src/Foxy/Actions/templates" directory does not exist ("/Users/ericglover/Desktop/Programming/sites/horatio/src/Foxy/Actions/templates").
+[29-Dec-2018 21:36:56 America/Chicago] logged in 
+[29-Dec-2018 21:36:56 America/Chicago] Foxy\Entities\User Object
+(
+    [id:Foxy\Entities\User:private] => 6
+    [email:Foxy\Entities\User:private] => bob@gmail.com
+    [username:Foxy\Entities\User:private] => bob
+    [password:Foxy\Entities\User:private] => $2y$10$Pad.cmG0MYeYAUcOM0oQmunrwcmU28jDnwn68GD0mZ/ei2JMzTgSy
+    [firstName:Foxy\Entities\User:private] => 
+    [lastName:Foxy\Entities\User:private] => 
+    [name:Foxy\Entities\User:private] => 
+    [joinedAt] => 2018-12-29 20:03:06
+    [lastLogin] => 2018-12-29 20:16:44
+    [avatarImg] => 
+    [active] => 1
+    [token] => 
+)
+
+[29-Dec-2018 21:36:56 America/Chicago] Array
+(
+    [user] => Array
+        (
+            [id] => 6
+        )
+
+)
+
+[29-Dec-2018 21:36:56 America/Chicago] running landing page
+[29-Dec-2018 21:36:56 America/Chicago] Unable to find template "index.html" (looked into: /Users/ericglover/Desktop/Programming/sites/horatio/src/Foxy/Actions/../../../templates).
+[29-Dec-2018 21:37:16 America/Chicago] logged in 
+[29-Dec-2018 21:37:16 America/Chicago] Foxy\Entities\User Object
+(
+    [id:Foxy\Entities\User:private] => 6
+    [email:Foxy\Entities\User:private] => bob@gmail.com
+    [username:Foxy\Entities\User:private] => bob
+    [password:Foxy\Entities\User:private] => $2y$10$Pad.cmG0MYeYAUcOM0oQmunrwcmU28jDnwn68GD0mZ/ei2JMzTgSy
+    [firstName:Foxy\Entities\User:private] => 
+    [lastName:Foxy\Entities\User:private] => 
+    [name:Foxy\Entities\User:private] => 
+    [joinedAt] => 2018-12-29 20:03:06
+    [lastLogin] => 2018-12-29 20:16:44
+    [avatarImg] => 
+    [active] => 1
+    [token] => 
+)
+
+[29-Dec-2018 21:37:16 America/Chicago] Array
+(
+    [user] => Array
+        (
+            [id] => 6
+        )
+
+)
+
+[29-Dec-2018 21:37:16 America/Chicago] running landing page
+[29-Dec-2018 21:40:37 America/Chicago] logged in 
+[29-Dec-2018 21:40:37 America/Chicago] Foxy\Entities\User Object
+(
+    [id:Foxy\Entities\User:private] => 6
+    [email:Foxy\Entities\User:private] => bob@gmail.com
+    [username:Foxy\Entities\User:private] => bob
+    [password:Foxy\Entities\User:private] => $2y$10$Pad.cmG0MYeYAUcOM0oQmunrwcmU28jDnwn68GD0mZ/ei2JMzTgSy
+    [firstName:Foxy\Entities\User:private] => 
+    [lastName:Foxy\Entities\User:private] => 
+    [name:Foxy\Entities\User:private] => 
+    [joinedAt] => 2018-12-29 20:03:06
+    [lastLogin] => 2018-12-29 20:16:44
+    [avatarImg] => 
+    [active] => 1
+    [token] => 
+)
+
+[29-Dec-2018 21:40:37 America/Chicago] Array
+(
+    [user] => Array
+        (
+            [id] => 6
+        )
+
+)
+
+[29-Dec-2018 21:40:44 America/Chicago] logged in 
+[29-Dec-2018 21:40:44 America/Chicago] Foxy\Entities\User Object
+(
+    [id:Foxy\Entities\User:private] => 6
+    [email:Foxy\Entities\User:private] => bob@gmail.com
+    [username:Foxy\Entities\User:private] => bob
+    [password:Foxy\Entities\User:private] => $2y$10$Pad.cmG0MYeYAUcOM0oQmunrwcmU28jDnwn68GD0mZ/ei2JMzTgSy
+    [firstName:Foxy\Entities\User:private] => 
+    [lastName:Foxy\Entities\User:private] => 
+    [name:Foxy\Entities\User:private] => 
+    [joinedAt] => 2018-12-29 20:03:06
+    [lastLogin] => 2018-12-29 20:16:44
+    [avatarImg] => 
+    [active] => 1
+    [token] => 
+)
+
+[29-Dec-2018 21:40:44 America/Chicago] Array
+(
+    [user] => Array
+        (
+            [id] => 6
+        )
+
+)
+
+[29-Dec-2018 21:41:26 America/Chicago] logged in 
+[29-Dec-2018 21:41:26 America/Chicago] Foxy\Entities\User Object
+(
+    [id:Foxy\Entities\User:private] => 6
+    [email:Foxy\Entities\User:private] => bob@gmail.com
+    [username:Foxy\Entities\User:private] => bob
+    [password:Foxy\Entities\User:private] => $2y$10$Pad.cmG0MYeYAUcOM0oQmunrwcmU28jDnwn68GD0mZ/ei2JMzTgSy
+    [firstName:Foxy\Entities\User:private] => 
+    [lastName:Foxy\Entities\User:private] => 
+    [name:Foxy\Entities\User:private] => 
+    [joinedAt] => 2018-12-29 20:03:06
+    [lastLogin] => 2018-12-29 20:16:44
+    [avatarImg] => 
+    [active] => 1
+    [token] => 
+)
+
+[29-Dec-2018 21:41:26 America/Chicago] Array
+(
+    [user] => Array
+        (
+            [id] => 6
+        )
+
+)
+
+[29-Dec-2018 21:41:26 America/Chicago] user = 
+[29-Dec-2018 21:41:26 America/Chicago] Foxy\Entities\User Object
+(
+    [id:Foxy\Entities\User:private] => 6
+    [email:Foxy\Entities\User:private] => bob@gmail.com
+    [username:Foxy\Entities\User:private] => bob
+    [password:Foxy\Entities\User:private] => $2y$10$Pad.cmG0MYeYAUcOM0oQmunrwcmU28jDnwn68GD0mZ/ei2JMzTgSy
+    [firstName:Foxy\Entities\User:private] => 
+    [lastName:Foxy\Entities\User:private] => 
+    [name:Foxy\Entities\User:private] => 
+    [joinedAt] => 2018-12-29 20:03:06
+    [lastLogin] => 2018-12-29 20:16:44
+    [avatarImg] => 
+    [active] => 1
+    [token] => 
+)
+
+[29-Dec-2018 21:42:30 America/Chicago] logged in 
+[29-Dec-2018 21:42:30 America/Chicago] Foxy\Entities\User Object
+(
+    [id:Foxy\Entities\User:private] => 6
+    [email:Foxy\Entities\User:private] => bob@gmail.com
+    [username:Foxy\Entities\User:private] => bob
+    [password:Foxy\Entities\User:private] => $2y$10$Pad.cmG0MYeYAUcOM0oQmunrwcmU28jDnwn68GD0mZ/ei2JMzTgSy
+    [firstName:Foxy\Entities\User:private] => 
+    [lastName:Foxy\Entities\User:private] => 
+    [name:Foxy\Entities\User:private] => 
+    [joinedAt] => 2018-12-29 20:03:06
+    [lastLogin] => 2018-12-29 20:16:44
+    [avatarImg] => 
+    [active] => 1
+    [token] => 
+)
+
+[29-Dec-2018 21:42:30 America/Chicago] Array
+(
+    [user] => Array
+        (
+            [id] => 6
+        )
+
+)
+
+[29-Dec-2018 21:42:30 America/Chicago] user = 
+[29-Dec-2018 21:42:30 America/Chicago] Foxy\Entities\User Object
+(
+    [id:Foxy\Entities\User:private] => 6
+    [email:Foxy\Entities\User:private] => bob@gmail.com
+    [username:Foxy\Entities\User:private] => bob
+    [password:Foxy\Entities\User:private] => $2y$10$Pad.cmG0MYeYAUcOM0oQmunrwcmU28jDnwn68GD0mZ/ei2JMzTgSy
+    [firstName:Foxy\Entities\User:private] => 
+    [lastName:Foxy\Entities\User:private] => 
+    [name:Foxy\Entities\User:private] => 
+    [joinedAt] => 2018-12-29 20:03:06
+    [lastLogin] => 2018-12-29 20:16:44
+    [avatarImg] => 
+    [active] => 1
+    [token] => 
+)
+
+[29-Dec-2018 21:42:41 America/Chicago] logged in 
+[29-Dec-2018 21:42:41 America/Chicago] Foxy\Entities\User Object
+(
+    [id:Foxy\Entities\User:private] => 6
+    [email:Foxy\Entities\User:private] => bob@gmail.com
+    [username:Foxy\Entities\User:private] => bob
+    [password:Foxy\Entities\User:private] => $2y$10$Pad.cmG0MYeYAUcOM0oQmunrwcmU28jDnwn68GD0mZ/ei2JMzTgSy
+    [firstName:Foxy\Entities\User:private] => 
+    [lastName:Foxy\Entities\User:private] => 
+    [name:Foxy\Entities\User:private] => 
+    [joinedAt] => 2018-12-29 20:03:06
+    [lastLogin] => 2018-12-29 20:16:44
+    [avatarImg] => 
+    [active] => 1
+    [token] => 
+)
+
+[29-Dec-2018 21:42:41 America/Chicago] Array
+(
+    [user] => Array
+        (
+            [id] => 6
+        )
+
+)
+
+[29-Dec-2018 21:42:41 America/Chicago] user = 
+[29-Dec-2018 21:42:41 America/Chicago] Foxy\Entities\User Object
+(
+    [id:Foxy\Entities\User:private] => 6
+    [email:Foxy\Entities\User:private] => bob@gmail.com
+    [username:Foxy\Entities\User:private] => bob
+    [password:Foxy\Entities\User:private] => $2y$10$Pad.cmG0MYeYAUcOM0oQmunrwcmU28jDnwn68GD0mZ/ei2JMzTgSy
+    [firstName:Foxy\Entities\User:private] => 
+    [lastName:Foxy\Entities\User:private] => 
+    [name:Foxy\Entities\User:private] => 
+    [joinedAt] => 2018-12-29 20:03:06
+    [lastLogin] => 2018-12-29 20:16:44
+    [avatarImg] => 
+    [active] => 1
+    [token] => 
+)
+
+[29-Dec-2018 21:43:54 America/Chicago] logged in 
+[29-Dec-2018 21:43:54 America/Chicago] Foxy\Entities\User Object
+(
+    [id:Foxy\Entities\User:private] => 6
+    [email:Foxy\Entities\User:private] => bob@gmail.com
+    [username:Foxy\Entities\User:private] => bob
+    [password:Foxy\Entities\User:private] => $2y$10$Pad.cmG0MYeYAUcOM0oQmunrwcmU28jDnwn68GD0mZ/ei2JMzTgSy
+    [firstName:Foxy\Entities\User:private] => 
+    [lastName:Foxy\Entities\User:private] => 
+    [name:Foxy\Entities\User:private] => 
+    [joinedAt] => 2018-12-29 20:03:06
+    [lastLogin] => 2018-12-29 20:16:44
+    [avatarImg] => 
+    [active] => 1
+    [token] => 
+)
+
+[29-Dec-2018 21:43:54 America/Chicago] Array
+(
+    [user] => Array
+        (
+            [id] => 6
+        )
+
+)
+
+[29-Dec-2018 21:43:54 America/Chicago] user = 
+[29-Dec-2018 21:43:54 America/Chicago] Foxy\Entities\User Object
+(
+    [id:Foxy\Entities\User:private] => 6
+    [email:Foxy\Entities\User:private] => bob@gmail.com
+    [username:Foxy\Entities\User:private] => bob
+    [password:Foxy\Entities\User:private] => $2y$10$Pad.cmG0MYeYAUcOM0oQmunrwcmU28jDnwn68GD0mZ/ei2JMzTgSy
+    [firstName:Foxy\Entities\User:private] => 
+    [lastName:Foxy\Entities\User:private] => 
+    [name:Foxy\Entities\User:private] => 
+    [joinedAt] => 2018-12-29 20:03:06
+    [lastLogin] => 2018-12-29 20:16:44
+    [avatarImg] => 
+    [active] => 1
+    [token] => 
+)
+
+[29-Dec-2018 21:46:06 America/Chicago] logged in 
+[29-Dec-2018 21:46:06 America/Chicago] Foxy\Entities\User Object
+(
+    [id:Foxy\Entities\User:private] => 6
+    [email:Foxy\Entities\User:private] => bob@gmail.com
+    [username:Foxy\Entities\User:private] => bob
+    [password:Foxy\Entities\User:private] => $2y$10$Pad.cmG0MYeYAUcOM0oQmunrwcmU28jDnwn68GD0mZ/ei2JMzTgSy
+    [firstName:Foxy\Entities\User:private] => 
+    [lastName:Foxy\Entities\User:private] => 
+    [name:Foxy\Entities\User:private] => 
+    [joinedAt] => 2018-12-29 20:03:06
+    [lastLogin] => 2018-12-29 20:16:44
+    [avatarImg] => 
+    [active] => 1
+    [token] => 
+)
+
+[29-Dec-2018 21:46:06 America/Chicago] Array
+(
+    [user] => Array
+        (
+            [id] => 6
+        )
+
+)
+
+[29-Dec-2018 21:46:06 America/Chicago] user = 
+[29-Dec-2018 21:46:06 America/Chicago] Foxy\Entities\User Object
+(
+    [id:Foxy\Entities\User:private] => 6
+    [email:Foxy\Entities\User:private] => bob@gmail.com
+    [username:Foxy\Entities\User:private] => bob
+    [password:Foxy\Entities\User:private] => $2y$10$Pad.cmG0MYeYAUcOM0oQmunrwcmU28jDnwn68GD0mZ/ei2JMzTgSy
+    [firstName:Foxy\Entities\User:private] => 
+    [lastName:Foxy\Entities\User:private] => 
+    [name:Foxy\Entities\User:private] => 
+    [joinedAt] => 2018-12-29 20:03:06
+    [lastLogin] => 2018-12-29 20:16:44
+    [avatarImg] => 
+    [active] => 1
+    [token] => 
+)
+
+[29-Dec-2018 21:46:06 America/Chicago] Unexpected operator of value "=". Did you try to use "===" or "!==" for strict comparison? Use "is same as(value)" instead.
+[29-Dec-2018 21:46:35 America/Chicago] logged in 
+[29-Dec-2018 21:46:35 America/Chicago] Foxy\Entities\User Object
+(
+    [id:Foxy\Entities\User:private] => 6
+    [email:Foxy\Entities\User:private] => bob@gmail.com
+    [username:Foxy\Entities\User:private] => bob
+    [password:Foxy\Entities\User:private] => $2y$10$Pad.cmG0MYeYAUcOM0oQmunrwcmU28jDnwn68GD0mZ/ei2JMzTgSy
+    [firstName:Foxy\Entities\User:private] => 
+    [lastName:Foxy\Entities\User:private] => 
+    [name:Foxy\Entities\User:private] => 
+    [joinedAt] => 2018-12-29 20:03:06
+    [lastLogin] => 2018-12-29 20:16:44
+    [avatarImg] => 
+    [active] => 1
+    [token] => 
+)
+
+[29-Dec-2018 21:46:35 America/Chicago] Array
+(
+    [user] => Array
+        (
+            [id] => 6
+        )
+
+)
+
+[29-Dec-2018 21:46:35 America/Chicago] user = 
+[29-Dec-2018 21:46:35 America/Chicago] Foxy\Entities\User Object
+(
+    [id:Foxy\Entities\User:private] => 6
+    [email:Foxy\Entities\User:private] => bob@gmail.com
+    [username:Foxy\Entities\User:private] => bob
+    [password:Foxy\Entities\User:private] => $2y$10$Pad.cmG0MYeYAUcOM0oQmunrwcmU28jDnwn68GD0mZ/ei2JMzTgSy
+    [firstName:Foxy\Entities\User:private] => 
+    [lastName:Foxy\Entities\User:private] => 
+    [name:Foxy\Entities\User:private] => 
+    [joinedAt] => 2018-12-29 20:03:06
+    [lastLogin] => 2018-12-29 20:16:44
+    [avatarImg] => 
+    [active] => 1
+    [token] => 
+)
+
+[29-Dec-2018 21:48:10 America/Chicago] logged in 
+[29-Dec-2018 21:48:10 America/Chicago] Foxy\Entities\User Object
+(
+    [id:Foxy\Entities\User:private] => 6
+    [email:Foxy\Entities\User:private] => bob@gmail.com
+    [username:Foxy\Entities\User:private] => bob
+    [password:Foxy\Entities\User:private] => $2y$10$Pad.cmG0MYeYAUcOM0oQmunrwcmU28jDnwn68GD0mZ/ei2JMzTgSy
+    [firstName:Foxy\Entities\User:private] => 
+    [lastName:Foxy\Entities\User:private] => 
+    [name:Foxy\Entities\User:private] => 
+    [joinedAt] => 2018-12-29 20:03:06
+    [lastLogin] => 2018-12-29 20:16:44
+    [avatarImg] => 
+    [active] => 1
+    [token] => 
+)
+
+[29-Dec-2018 21:48:10 America/Chicago] Array
+(
+    [user] => Array
+        (
+            [id] => 6
+        )
+
+)
+
+[29-Dec-2018 21:48:10 America/Chicago] user = 
+[29-Dec-2018 21:48:10 America/Chicago] Foxy\Entities\User Object
+(
+    [id:Foxy\Entities\User:private] => 6
+    [email:Foxy\Entities\User:private] => bob@gmail.com
+    [username:Foxy\Entities\User:private] => bob
+    [password:Foxy\Entities\User:private] => $2y$10$Pad.cmG0MYeYAUcOM0oQmunrwcmU28jDnwn68GD0mZ/ei2JMzTgSy
+    [firstName:Foxy\Entities\User:private] => 
+    [lastName:Foxy\Entities\User:private] => 
+    [name:Foxy\Entities\User:private] => 
+    [joinedAt] => 2018-12-29 20:03:06
+    [lastLogin] => 2018-12-29 20:16:44
+    [avatarImg] => 
+    [active] => 1
+    [token] => 
+)
+
+[29-Dec-2018 21:49:08 America/Chicago] logged in 
+[29-Dec-2018 21:49:08 America/Chicago] Foxy\Entities\User Object
+(
+    [id:Foxy\Entities\User:private] => 6
+    [email:Foxy\Entities\User:private] => bob@gmail.com
+    [username:Foxy\Entities\User:private] => bob
+    [password:Foxy\Entities\User:private] => $2y$10$Pad.cmG0MYeYAUcOM0oQmunrwcmU28jDnwn68GD0mZ/ei2JMzTgSy
+    [firstName:Foxy\Entities\User:private] => 
+    [lastName:Foxy\Entities\User:private] => 
+    [name:Foxy\Entities\User:private] => 
+    [joinedAt] => 2018-12-29 20:03:06
+    [lastLogin] => 2018-12-29 20:16:44
+    [avatarImg] => 
+    [active] => 1
+    [token] => 
+)
+
+[29-Dec-2018 21:49:08 America/Chicago] Array
+(
+    [user] => Array
+        (
+            [id] => 6
+        )
+
+)
+
+[29-Dec-2018 21:49:08 America/Chicago] user = 
+[29-Dec-2018 21:49:08 America/Chicago] Foxy\Entities\User Object
+(
+    [id:Foxy\Entities\User:private] => 6
+    [email:Foxy\Entities\User:private] => bob@gmail.com
+    [username:Foxy\Entities\User:private] => bob
+    [password:Foxy\Entities\User:private] => $2y$10$Pad.cmG0MYeYAUcOM0oQmunrwcmU28jDnwn68GD0mZ/ei2JMzTgSy
+    [firstName:Foxy\Entities\User:private] => 
+    [lastName:Foxy\Entities\User:private] => 
+    [name:Foxy\Entities\User:private] => 
+    [joinedAt] => 2018-12-29 20:03:06
+    [lastLogin] => 2018-12-29 20:16:44
+    [avatarImg] => 
+    [active] => 1
+    [token] => 
+)
+
+[29-Dec-2018 21:49:30 America/Chicago] logged in 
+[29-Dec-2018 21:49:30 America/Chicago] Foxy\Entities\User Object
+(
+    [id:Foxy\Entities\User:private] => 6
+    [email:Foxy\Entities\User:private] => bob@gmail.com
+    [username:Foxy\Entities\User:private] => bob
+    [password:Foxy\Entities\User:private] => $2y$10$Pad.cmG0MYeYAUcOM0oQmunrwcmU28jDnwn68GD0mZ/ei2JMzTgSy
+    [firstName:Foxy\Entities\User:private] => 
+    [lastName:Foxy\Entities\User:private] => 
+    [name:Foxy\Entities\User:private] => 
+    [joinedAt] => 2018-12-29 20:03:06
+    [lastLogin] => 2018-12-29 20:16:44
+    [avatarImg] => 
+    [active] => 1
+    [token] => 
+)
+
+[29-Dec-2018 21:49:30 America/Chicago] Array
+(
+    [user] => Array
+        (
+            [id] => 6
+        )
+
+)
+
+[29-Dec-2018 21:49:30 America/Chicago] user = 
+[29-Dec-2018 21:49:30 America/Chicago] Foxy\Entities\User Object
+(
+    [id:Foxy\Entities\User:private] => 6
+    [email:Foxy\Entities\User:private] => bob@gmail.com
+    [username:Foxy\Entities\User:private] => bob
+    [password:Foxy\Entities\User:private] => $2y$10$Pad.cmG0MYeYAUcOM0oQmunrwcmU28jDnwn68GD0mZ/ei2JMzTgSy
+    [firstName:Foxy\Entities\User:private] => 
+    [lastName:Foxy\Entities\User:private] => 
+    [name:Foxy\Entities\User:private] => 
+    [joinedAt] => 2018-12-29 20:03:06
+    [lastLogin] => 2018-12-29 20:16:44
+    [avatarImg] => 
+    [active] => 1
+    [token] => 
+)
+
+[29-Dec-2018 21:49:39 America/Chicago] logged in 
+[29-Dec-2018 21:49:39 America/Chicago] Foxy\Entities\User Object
+(
+    [id:Foxy\Entities\User:private] => 6
+    [email:Foxy\Entities\User:private] => bob@gmail.com
+    [username:Foxy\Entities\User:private] => bob
+    [password:Foxy\Entities\User:private] => $2y$10$Pad.cmG0MYeYAUcOM0oQmunrwcmU28jDnwn68GD0mZ/ei2JMzTgSy
+    [firstName:Foxy\Entities\User:private] => 
+    [lastName:Foxy\Entities\User:private] => 
+    [name:Foxy\Entities\User:private] => 
+    [joinedAt] => 2018-12-29 20:03:06
+    [lastLogin] => 2018-12-29 20:16:44
+    [avatarImg] => 
+    [active] => 1
+    [token] => 
+)
+
+[29-Dec-2018 21:49:39 America/Chicago] Array
+(
+    [user] => Array
+        (
+            [id] => 6
+        )
+
+)
+
+[29-Dec-2018 21:49:39 America/Chicago] user = 
+[29-Dec-2018 21:49:39 America/Chicago] Foxy\Entities\User Object
+(
+    [id:Foxy\Entities\User:private] => 6
+    [email:Foxy\Entities\User:private] => bob@gmail.com
+    [username:Foxy\Entities\User:private] => bob
+    [password:Foxy\Entities\User:private] => $2y$10$Pad.cmG0MYeYAUcOM0oQmunrwcmU28jDnwn68GD0mZ/ei2JMzTgSy
+    [firstName:Foxy\Entities\User:private] => 
+    [lastName:Foxy\Entities\User:private] => 
+    [name:Foxy\Entities\User:private] => 
+    [joinedAt] => 2018-12-29 20:03:06
+    [lastLogin] => 2018-12-29 20:16:44
+    [avatarImg] => 
+    [active] => 1
+    [token] => 
+)
+
+[29-Dec-2018 21:50:01 America/Chicago] logged in 
+[29-Dec-2018 21:50:01 America/Chicago] Foxy\Entities\User Object
+(
+    [id:Foxy\Entities\User:private] => 6
+    [email:Foxy\Entities\User:private] => bob@gmail.com
+    [username:Foxy\Entities\User:private] => bob
+    [password:Foxy\Entities\User:private] => $2y$10$Pad.cmG0MYeYAUcOM0oQmunrwcmU28jDnwn68GD0mZ/ei2JMzTgSy
+    [firstName:Foxy\Entities\User:private] => 
+    [lastName:Foxy\Entities\User:private] => 
+    [name:Foxy\Entities\User:private] => 
+    [joinedAt] => 2018-12-29 20:03:06
+    [lastLogin] => 2018-12-29 20:16:44
+    [avatarImg] => 
+    [active] => 1
+    [token] => 
+)
+
+[29-Dec-2018 21:50:01 America/Chicago] Array
+(
+    [user] => Array
+        (
+            [id] => 6
+        )
+
+)
+
+[29-Dec-2018 21:50:01 America/Chicago] user = 
+[29-Dec-2018 21:50:01 America/Chicago] Foxy\Entities\User Object
+(
+    [id:Foxy\Entities\User:private] => 6
+    [email:Foxy\Entities\User:private] => bob@gmail.com
+    [username:Foxy\Entities\User:private] => bob
+    [password:Foxy\Entities\User:private] => $2y$10$Pad.cmG0MYeYAUcOM0oQmunrwcmU28jDnwn68GD0mZ/ei2JMzTgSy
+    [firstName:Foxy\Entities\User:private] => 
+    [lastName:Foxy\Entities\User:private] => 
+    [name:Foxy\Entities\User:private] => 
+    [joinedAt] => 2018-12-29 20:03:06
+    [lastLogin] => 2018-12-29 20:16:44
+    [avatarImg] => 
+    [active] => 1
+    [token] => 
+)
+
+[29-Dec-2018 21:59:44 America/Chicago] logged in 
+[29-Dec-2018 21:59:44 America/Chicago] Foxy\Entities\User Object
+(
+    [id:Foxy\Entities\User:private] => 6
+    [email:Foxy\Entities\User:private] => bob@gmail.com
+    [username:Foxy\Entities\User:private] => bob
+    [password:Foxy\Entities\User:private] => $2y$10$Pad.cmG0MYeYAUcOM0oQmunrwcmU28jDnwn68GD0mZ/ei2JMzTgSy
+    [firstName:Foxy\Entities\User:private] => 
+    [lastName:Foxy\Entities\User:private] => 
+    [name:Foxy\Entities\User:private] => 
+    [joinedAt] => 2018-12-29 20:03:06
+    [lastLogin] => 2018-12-29 20:16:44
+    [avatarImg] => 
+    [active] => 1
+    [token] => 
+)
+
+[29-Dec-2018 21:59:44 America/Chicago] Array
+(
+    [user] => Array
+        (
+            [id] => 6
+        )
+
+)
+
+[29-Dec-2018 21:59:44 America/Chicago] user = 
+[29-Dec-2018 21:59:44 America/Chicago] Foxy\Entities\User Object
+(
+    [id:Foxy\Entities\User:private] => 6
+    [email:Foxy\Entities\User:private] => bob@gmail.com
+    [username:Foxy\Entities\User:private] => bob
+    [password:Foxy\Entities\User:private] => $2y$10$Pad.cmG0MYeYAUcOM0oQmunrwcmU28jDnwn68GD0mZ/ei2JMzTgSy
+    [firstName:Foxy\Entities\User:private] => 
+    [lastName:Foxy\Entities\User:private] => 
+    [name:Foxy\Entities\User:private] => 
+    [joinedAt] => 2018-12-29 20:03:06
+    [lastLogin] => 2018-12-29 20:16:44
+    [avatarImg] => 
+    [active] => 1
+    [token] => 
+)
+
+[29-Dec-2018 22:04:42 America/Chicago] logged in 
+[29-Dec-2018 22:04:42 America/Chicago] Foxy\Entities\User Object
+(
+    [id:Foxy\Entities\User:private] => 6
+    [email:Foxy\Entities\User:private] => bob@gmail.com
+    [username:Foxy\Entities\User:private] => bob
+    [password:Foxy\Entities\User:private] => $2y$10$Pad.cmG0MYeYAUcOM0oQmunrwcmU28jDnwn68GD0mZ/ei2JMzTgSy
+    [firstName:Foxy\Entities\User:private] => 
+    [lastName:Foxy\Entities\User:private] => 
+    [name:Foxy\Entities\User:private] => 
+    [joinedAt] => 2018-12-29 20:03:06
+    [lastLogin] => 2018-12-29 20:16:44
+    [avatarImg] => 
+    [active] => 1
+    [token] => 
+)
+
+[29-Dec-2018 22:04:42 America/Chicago] Array
+(
+    [user] => Array
+        (
+            [id] => 6
+        )
+
+)
+
+[29-Dec-2018 22:04:42 America/Chicago] user = 
+[29-Dec-2018 22:04:42 America/Chicago] Foxy\Entities\User Object
+(
+    [id:Foxy\Entities\User:private] => 6
+    [email:Foxy\Entities\User:private] => bob@gmail.com
+    [username:Foxy\Entities\User:private] => bob
+    [password:Foxy\Entities\User:private] => $2y$10$Pad.cmG0MYeYAUcOM0oQmunrwcmU28jDnwn68GD0mZ/ei2JMzTgSy
+    [firstName:Foxy\Entities\User:private] => 
+    [lastName:Foxy\Entities\User:private] => 
+    [name:Foxy\Entities\User:private] => 
+    [joinedAt] => 2018-12-29 20:03:06
+    [lastLogin] => 2018-12-29 20:16:44
+    [avatarImg] => 
+    [active] => 1
+    [token] => 
+)
+
+[29-Dec-2018 22:04:46 America/Chicago] logged in 
+[29-Dec-2018 22:04:46 America/Chicago] Foxy\Entities\User Object
+(
+    [id:Foxy\Entities\User:private] => 6
+    [email:Foxy\Entities\User:private] => bob@gmail.com
+    [username:Foxy\Entities\User:private] => bob
+    [password:Foxy\Entities\User:private] => $2y$10$Pad.cmG0MYeYAUcOM0oQmunrwcmU28jDnwn68GD0mZ/ei2JMzTgSy
+    [firstName:Foxy\Entities\User:private] => 
+    [lastName:Foxy\Entities\User:private] => 
+    [name:Foxy\Entities\User:private] => 
+    [joinedAt] => 2018-12-29 20:03:06
+    [lastLogin] => 2018-12-29 20:16:44
+    [avatarImg] => 
+    [active] => 1
+    [token] => 
+)
+
+[29-Dec-2018 22:04:46 America/Chicago] Array
+(
+    [user] => Array
+        (
+            [id] => 6
+        )
+
+)
+
+[29-Dec-2018 22:04:46 America/Chicago] user = 
+[29-Dec-2018 22:04:46 America/Chicago] Foxy\Entities\User Object
+(
+    [id:Foxy\Entities\User:private] => 6
+    [email:Foxy\Entities\User:private] => bob@gmail.com
+    [username:Foxy\Entities\User:private] => bob
+    [password:Foxy\Entities\User:private] => $2y$10$Pad.cmG0MYeYAUcOM0oQmunrwcmU28jDnwn68GD0mZ/ei2JMzTgSy
+    [firstName:Foxy\Entities\User:private] => 
+    [lastName:Foxy\Entities\User:private] => 
+    [name:Foxy\Entities\User:private] => 
+    [joinedAt] => 2018-12-29 20:03:06
+    [lastLogin] => 2018-12-29 20:16:44
+    [avatarImg] => 
+    [active] => 1
+    [token] => 
+)
+
+[29-Dec-2018 22:05:00 America/Chicago] logged in 
+[29-Dec-2018 22:05:00 America/Chicago] Foxy\Entities\User Object
+(
+    [id:Foxy\Entities\User:private] => 6
+    [email:Foxy\Entities\User:private] => bob@gmail.com
+    [username:Foxy\Entities\User:private] => bob
+    [password:Foxy\Entities\User:private] => $2y$10$Pad.cmG0MYeYAUcOM0oQmunrwcmU28jDnwn68GD0mZ/ei2JMzTgSy
+    [firstName:Foxy\Entities\User:private] => 
+    [lastName:Foxy\Entities\User:private] => 
+    [name:Foxy\Entities\User:private] => 
+    [joinedAt] => 2018-12-29 20:03:06
+    [lastLogin] => 2018-12-29 20:16:44
+    [avatarImg] => 
+    [active] => 1
+    [token] => 
+)
+
+[29-Dec-2018 22:05:00 America/Chicago] Array
+(
+    [user] => Array
+        (
+            [id] => 6
+        )
+
+)
+
+[29-Dec-2018 22:05:00 America/Chicago] user = 
+[29-Dec-2018 22:05:00 America/Chicago] Foxy\Entities\User Object
+(
+    [id:Foxy\Entities\User:private] => 6
+    [email:Foxy\Entities\User:private] => bob@gmail.com
+    [username:Foxy\Entities\User:private] => bob
+    [password:Foxy\Entities\User:private] => $2y$10$Pad.cmG0MYeYAUcOM0oQmunrwcmU28jDnwn68GD0mZ/ei2JMzTgSy
+    [firstName:Foxy\Entities\User:private] => 
+    [lastName:Foxy\Entities\User:private] => 
+    [name:Foxy\Entities\User:private] => 
+    [joinedAt] => 2018-12-29 20:03:06
+    [lastLogin] => 2018-12-29 20:16:44
+    [avatarImg] => 
+    [active] => 1
+    [token] => 
+)
+
+[29-Dec-2018 22:05:33 America/Chicago] logged in 
+[29-Dec-2018 22:05:33 America/Chicago] Foxy\Entities\User Object
+(
+    [id:Foxy\Entities\User:private] => 6
+    [email:Foxy\Entities\User:private] => bob@gmail.com
+    [username:Foxy\Entities\User:private] => bob
+    [password:Foxy\Entities\User:private] => $2y$10$Pad.cmG0MYeYAUcOM0oQmunrwcmU28jDnwn68GD0mZ/ei2JMzTgSy
+    [firstName:Foxy\Entities\User:private] => 
+    [lastName:Foxy\Entities\User:private] => 
+    [name:Foxy\Entities\User:private] => 
+    [joinedAt] => 2018-12-29 20:03:06
+    [lastLogin] => 2018-12-29 20:16:44
+    [avatarImg] => 
+    [active] => 1
+    [token] => 
+)
+
+[29-Dec-2018 22:05:33 America/Chicago] Array
+(
+    [user] => Array
+        (
+            [id] => 6
+        )
+
+)
+
+[29-Dec-2018 22:05:33 America/Chicago] user = 
+[29-Dec-2018 22:05:33 America/Chicago] Foxy\Entities\User Object
+(
+    [id:Foxy\Entities\User:private] => 6
+    [email:Foxy\Entities\User:private] => bob@gmail.com
+    [username:Foxy\Entities\User:private] => bob
+    [password:Foxy\Entities\User:private] => $2y$10$Pad.cmG0MYeYAUcOM0oQmunrwcmU28jDnwn68GD0mZ/ei2JMzTgSy
+    [firstName:Foxy\Entities\User:private] => 
+    [lastName:Foxy\Entities\User:private] => 
+    [name:Foxy\Entities\User:private] => 
+    [joinedAt] => 2018-12-29 20:03:06
+    [lastLogin] => 2018-12-29 20:16:44
+    [avatarImg] => 
+    [active] => 1
+    [token] => 
+)
+
+[29-Dec-2018 22:05:36 America/Chicago] No route found for "GET /logout": Method Not Allowed (Allow: POST)
+[29-Dec-2018 22:06:21 America/Chicago] logged in 
+[29-Dec-2018 22:06:21 America/Chicago] Foxy\Entities\User Object
+(
+    [id:Foxy\Entities\User:private] => 6
+    [email:Foxy\Entities\User:private] => bob@gmail.com
+    [username:Foxy\Entities\User:private] => bob
+    [password:Foxy\Entities\User:private] => $2y$10$Pad.cmG0MYeYAUcOM0oQmunrwcmU28jDnwn68GD0mZ/ei2JMzTgSy
+    [firstName:Foxy\Entities\User:private] => 
+    [lastName:Foxy\Entities\User:private] => 
+    [name:Foxy\Entities\User:private] => 
+    [joinedAt] => 2018-12-29 20:03:06
+    [lastLogin] => 2018-12-29 20:16:44
+    [avatarImg] => 
+    [active] => 1
+    [token] => 
+)
+
+[29-Dec-2018 22:06:21 America/Chicago] Array
+(
+    [user] => Array
+        (
+            [id] => 6
+        )
+
+)
+
+[29-Dec-2018 22:06:21 America/Chicago] user = 
+[29-Dec-2018 22:06:21 America/Chicago] Foxy\Entities\User Object
+(
+    [id:Foxy\Entities\User:private] => 6
+    [email:Foxy\Entities\User:private] => bob@gmail.com
+    [username:Foxy\Entities\User:private] => bob
+    [password:Foxy\Entities\User:private] => $2y$10$Pad.cmG0MYeYAUcOM0oQmunrwcmU28jDnwn68GD0mZ/ei2JMzTgSy
+    [firstName:Foxy\Entities\User:private] => 
+    [lastName:Foxy\Entities\User:private] => 
+    [name:Foxy\Entities\User:private] => 
+    [joinedAt] => 2018-12-29 20:03:06
+    [lastLogin] => 2018-12-29 20:16:44
+    [avatarImg] => 
+    [active] => 1
+    [token] => 
+)
+
+[29-Dec-2018 22:06:23 America/Chicago] logged in 
+[29-Dec-2018 22:06:23 America/Chicago] Foxy\Entities\User Object
+(
+    [id:Foxy\Entities\User:private] => 6
+    [email:Foxy\Entities\User:private] => bob@gmail.com
+    [username:Foxy\Entities\User:private] => bob
+    [password:Foxy\Entities\User:private] => $2y$10$Pad.cmG0MYeYAUcOM0oQmunrwcmU28jDnwn68GD0mZ/ei2JMzTgSy
+    [firstName:Foxy\Entities\User:private] => 
+    [lastName:Foxy\Entities\User:private] => 
+    [name:Foxy\Entities\User:private] => 
+    [joinedAt] => 2018-12-29 20:03:06
+    [lastLogin] => 2018-12-29 20:16:44
+    [avatarImg] => 
+    [active] => 1
+    [token] => 
+)
+
+[29-Dec-2018 22:06:23 America/Chicago] Array
+(
+    [user] => Array
+        (
+            [id] => 6
+        )
+
+)
+
+[29-Dec-2018 22:06:23 America/Chicago] PHP Fatal error:  Uncaught Error: Class 'Foxy\Actions\Mapper' not found in /Users/ericglover/Desktop/Programming/sites/horatio/src/Foxy/Actions/Logout.php:26
+Stack trace:
+#0 /Users/ericglover/Desktop/Programming/sites/horatio/vendor/symfony/http-kernel/HttpKernel.php(150): Foxy\Actions\Logout->__invoke(Object(Symfony\Component\HttpFoundation\Request), Object(Silex\Application))
+#1 /Users/ericglover/Desktop/Programming/sites/horatio/vendor/symfony/http-kernel/HttpKernel.php(67): Symfony\Component\HttpKernel\HttpKernel->handleRaw(Object(Symfony\Component\HttpFoundation\Request), 1)
+#2 /Users/ericglover/Desktop/Programming/sites/horatio/vendor/silex/silex/src/Silex/Application.php(496): Symfony\Component\HttpKernel\HttpKernel->handle(Object(Symfony\Component\HttpFoundation\Request), 1, true)
+#3 /Users/ericglover/Desktop/Programming/sites/horatio/vendor/silex/silex/src/Silex/Application.php(477): Silex\Application->handle(Object(Symfony\Component\HttpFoundation\Request))
+#4 /Users/ericglover/Desktop/Programming/sites/horatio/index in /Users/ericglover/Desktop/Programming/sites/horatio/src/Foxy/Actions/Logout.php on line 26
+[29-Dec-2018 22:06:23 America/Chicago] logged in 
+[29-Dec-2018 22:06:24 America/Chicago] Foxy\Entities\User Object
+(
+    [id:Foxy\Entities\User:private] => 6
+    [email:Foxy\Entities\User:private] => bob@gmail.com
+    [username:Foxy\Entities\User:private] => bob
+    [password:Foxy\Entities\User:private] => $2y$10$Pad.cmG0MYeYAUcOM0oQmunrwcmU28jDnwn68GD0mZ/ei2JMzTgSy
+    [firstName:Foxy\Entities\User:private] => 
+    [lastName:Foxy\Entities\User:private] => 
+    [name:Foxy\Entities\User:private] => 
+    [joinedAt] => 2018-12-29 20:03:06
+    [lastLogin] => 2018-12-29 20:16:44
+    [avatarImg] => 
+    [active] => 1
+    [token] => 
+)
+
+[29-Dec-2018 22:06:24 America/Chicago] Array
+(
+    [user] => Array
+        (
+            [id] => 6
+        )
+
+)
+
+[29-Dec-2018 22:06:24 America/Chicago] user = 
+[29-Dec-2018 22:06:24 America/Chicago] Foxy\Entities\User Object
+(
+    [id:Foxy\Entities\User:private] => 6
+    [email:Foxy\Entities\User:private] => bob@gmail.com
+    [username:Foxy\Entities\User:private] => bob
+    [password:Foxy\Entities\User:private] => $2y$10$Pad.cmG0MYeYAUcOM0oQmunrwcmU28jDnwn68GD0mZ/ei2JMzTgSy
+    [firstName:Foxy\Entities\User:private] => 
+    [lastName:Foxy\Entities\User:private] => 
+    [name:Foxy\Entities\User:private] => 
+    [joinedAt] => 2018-12-29 20:03:06
+    [lastLogin] => 2018-12-29 20:16:44
+    [avatarImg] => 
+    [active] => 1
+    [token] => 
+)
+
+[29-Dec-2018 22:06:29 America/Chicago] logged in 
+[29-Dec-2018 22:06:29 America/Chicago] Foxy\Entities\User Object
+(
+    [id:Foxy\Entities\User:private] => 6
+    [email:Foxy\Entities\User:private] => bob@gmail.com
+    [username:Foxy\Entities\User:private] => bob
+    [password:Foxy\Entities\User:private] => $2y$10$Pad.cmG0MYeYAUcOM0oQmunrwcmU28jDnwn68GD0mZ/ei2JMzTgSy
+    [firstName:Foxy\Entities\User:private] => 
+    [lastName:Foxy\Entities\User:private] => 
+    [name:Foxy\Entities\User:private] => 
+    [joinedAt] => 2018-12-29 20:03:06
+    [lastLogin] => 2018-12-29 20:16:44
+    [avatarImg] => 
+    [active] => 1
+    [token] => 
+)
+
+[29-Dec-2018 22:06:29 America/Chicago] Array
+(
+    [user] => Array
+        (
+            [id] => 6
+        )
+
+)
+
+[29-Dec-2018 22:06:29 America/Chicago] user = 
+[29-Dec-2018 22:06:29 America/Chicago] Foxy\Entities\User Object
+(
+    [id:Foxy\Entities\User:private] => 6
+    [email:Foxy\Entities\User:private] => bob@gmail.com
+    [username:Foxy\Entities\User:private] => bob
+    [password:Foxy\Entities\User:private] => $2y$10$Pad.cmG0MYeYAUcOM0oQmunrwcmU28jDnwn68GD0mZ/ei2JMzTgSy
+    [firstName:Foxy\Entities\User:private] => 
+    [lastName:Foxy\Entities\User:private] => 
+    [name:Foxy\Entities\User:private] => 
+    [joinedAt] => 2018-12-29 20:03:06
+    [lastLogin] => 2018-12-29 20:16:44
+    [avatarImg] => 
+    [active] => 1
+    [token] => 
+)
+
+[29-Dec-2018 22:07:32 America/Chicago] logged in 
+[29-Dec-2018 22:07:32 America/Chicago] Foxy\Entities\User Object
+(
+    [id:Foxy\Entities\User:private] => 6
+    [email:Foxy\Entities\User:private] => bob@gmail.com
+    [username:Foxy\Entities\User:private] => bob
+    [password:Foxy\Entities\User:private] => $2y$10$Pad.cmG0MYeYAUcOM0oQmunrwcmU28jDnwn68GD0mZ/ei2JMzTgSy
+    [firstName:Foxy\Entities\User:private] => 
+    [lastName:Foxy\Entities\User:private] => 
+    [name:Foxy\Entities\User:private] => 
+    [joinedAt] => 2018-12-29 20:03:06
+    [lastLogin] => 2018-12-29 20:16:44
+    [avatarImg] => 
+    [active] => 1
+    [token] => 
+)
+
+[29-Dec-2018 22:07:32 America/Chicago] Array
+(
+    [user] => Array
+        (
+            [id] => 6
+        )
+
+)
+
+[29-Dec-2018 22:07:32 America/Chicago] user = 
+[29-Dec-2018 22:07:32 America/Chicago] Foxy\Entities\User Object
+(
+    [id:Foxy\Entities\User:private] => 6
+    [email:Foxy\Entities\User:private] => bob@gmail.com
+    [username:Foxy\Entities\User:private] => bob
+    [password:Foxy\Entities\User:private] => $2y$10$Pad.cmG0MYeYAUcOM0oQmunrwcmU28jDnwn68GD0mZ/ei2JMzTgSy
+    [firstName:Foxy\Entities\User:private] => 
+    [lastName:Foxy\Entities\User:private] => 
+    [name:Foxy\Entities\User:private] => 
+    [joinedAt] => 2018-12-29 20:03:06
+    [lastLogin] => 2018-12-29 20:16:44
+    [avatarImg] => 
+    [active] => 1
+    [token] => 
+)
+
+[29-Dec-2018 22:07:34 America/Chicago] logged in 
+[29-Dec-2018 22:07:34 America/Chicago] Foxy\Entities\User Object
+(
+    [id:Foxy\Entities\User:private] => 6
+    [email:Foxy\Entities\User:private] => bob@gmail.com
+    [username:Foxy\Entities\User:private] => bob
+    [password:Foxy\Entities\User:private] => $2y$10$Pad.cmG0MYeYAUcOM0oQmunrwcmU28jDnwn68GD0mZ/ei2JMzTgSy
+    [firstName:Foxy\Entities\User:private] => 
+    [lastName:Foxy\Entities\User:private] => 
+    [name:Foxy\Entities\User:private] => 
+    [joinedAt] => 2018-12-29 20:03:06
+    [lastLogin] => 2018-12-29 20:16:44
+    [avatarImg] => 
+    [active] => 1
+    [token] => 
+)
+
+[29-Dec-2018 22:07:34 America/Chicago] Array
+(
+    [user] => Array
+        (
+            [id] => 6
+        )
+
+)
+
+[29-Dec-2018 22:07:34 America/Chicago] PHP Fatal error:  Uncaught Error: Class 'Foxy\Actions\Mapper' not found in /Users/ericglover/Desktop/Programming/sites/horatio/src/Foxy/Actions/Logout.php:26
+Stack trace:
+#0 /Users/ericglover/Desktop/Programming/sites/horatio/vendor/symfony/http-kernel/HttpKernel.php(150): Foxy\Actions\Logout->__invoke(Object(Symfony\Component\HttpFoundation\Request), Object(Silex\Application))
+#1 /Users/ericglover/Desktop/Programming/sites/horatio/vendor/symfony/http-kernel/HttpKernel.php(67): Symfony\Component\HttpKernel\HttpKernel->handleRaw(Object(Symfony\Component\HttpFoundation\Request), 1)
+#2 /Users/ericglover/Desktop/Programming/sites/horatio/vendor/silex/silex/src/Silex/Application.php(496): Symfony\Component\HttpKernel\HttpKernel->handle(Object(Symfony\Component\HttpFoundation\Request), 1, true)
+#3 /Users/ericglover/Desktop/Programming/sites/horatio/vendor/silex/silex/src/Silex/Application.php(477): Silex\Application->handle(Object(Symfony\Component\HttpFoundation\Request))
+#4 /Users/ericglover/Desktop/Programming/sites/horatio/index in /Users/ericglover/Desktop/Programming/sites/horatio/src/Foxy/Actions/Logout.php on line 26
+[29-Dec-2018 22:07:34 America/Chicago] logged in 
+[29-Dec-2018 22:07:34 America/Chicago] Foxy\Entities\User Object
+(
+    [id:Foxy\Entities\User:private] => 6
+    [email:Foxy\Entities\User:private] => bob@gmail.com
+    [username:Foxy\Entities\User:private] => bob
+    [password:Foxy\Entities\User:private] => $2y$10$Pad.cmG0MYeYAUcOM0oQmunrwcmU28jDnwn68GD0mZ/ei2JMzTgSy
+    [firstName:Foxy\Entities\User:private] => 
+    [lastName:Foxy\Entities\User:private] => 
+    [name:Foxy\Entities\User:private] => 
+    [joinedAt] => 2018-12-29 20:03:06
+    [lastLogin] => 2018-12-29 20:16:44
+    [avatarImg] => 
+    [active] => 1
+    [token] => 
+)
+
+[29-Dec-2018 22:07:34 America/Chicago] Array
+(
+    [user] => Array
+        (
+            [id] => 6
+        )
+
+)
+
+[29-Dec-2018 22:07:34 America/Chicago] user = 
+[29-Dec-2018 22:07:34 America/Chicago] Foxy\Entities\User Object
+(
+    [id:Foxy\Entities\User:private] => 6
+    [email:Foxy\Entities\User:private] => bob@gmail.com
+    [username:Foxy\Entities\User:private] => bob
+    [password:Foxy\Entities\User:private] => $2y$10$Pad.cmG0MYeYAUcOM0oQmunrwcmU28jDnwn68GD0mZ/ei2JMzTgSy
+    [firstName:Foxy\Entities\User:private] => 
+    [lastName:Foxy\Entities\User:private] => 
+    [name:Foxy\Entities\User:private] => 
+    [joinedAt] => 2018-12-29 20:03:06
+    [lastLogin] => 2018-12-29 20:16:44
+    [avatarImg] => 
+    [active] => 1
+    [token] => 
+)
+
+[29-Dec-2018 22:07:53 America/Chicago] logged in 
+[29-Dec-2018 22:07:53 America/Chicago] Foxy\Entities\User Object
+(
+    [id:Foxy\Entities\User:private] => 6
+    [email:Foxy\Entities\User:private] => bob@gmail.com
+    [username:Foxy\Entities\User:private] => bob
+    [password:Foxy\Entities\User:private] => $2y$10$Pad.cmG0MYeYAUcOM0oQmunrwcmU28jDnwn68GD0mZ/ei2JMzTgSy
+    [firstName:Foxy\Entities\User:private] => 
+    [lastName:Foxy\Entities\User:private] => 
+    [name:Foxy\Entities\User:private] => 
+    [joinedAt] => 2018-12-29 20:03:06
+    [lastLogin] => 2018-12-29 20:16:44
+    [avatarImg] => 
+    [active] => 1
+    [token] => 
+)
+
+[29-Dec-2018 22:07:53 America/Chicago] Array
+(
+    [user] => Array
+        (
+            [id] => 6
+        )
+
+)
+
+[29-Dec-2018 22:07:53 America/Chicago] user = 
+[29-Dec-2018 22:07:53 America/Chicago] Foxy\Entities\User Object
+(
+    [id:Foxy\Entities\User:private] => 6
+    [email:Foxy\Entities\User:private] => bob@gmail.com
+    [username:Foxy\Entities\User:private] => bob
+    [password:Foxy\Entities\User:private] => $2y$10$Pad.cmG0MYeYAUcOM0oQmunrwcmU28jDnwn68GD0mZ/ei2JMzTgSy
+    [firstName:Foxy\Entities\User:private] => 
+    [lastName:Foxy\Entities\User:private] => 
+    [name:Foxy\Entities\User:private] => 
+    [joinedAt] => 2018-12-29 20:03:06
+    [lastLogin] => 2018-12-29 20:16:44
+    [avatarImg] => 
+    [active] => 1
+    [token] => 
+)
+
+[29-Dec-2018 22:07:59 America/Chicago] logged in 
+[29-Dec-2018 22:07:59 America/Chicago] Foxy\Entities\User Object
+(
+    [id:Foxy\Entities\User:private] => 6
+    [email:Foxy\Entities\User:private] => bob@gmail.com
+    [username:Foxy\Entities\User:private] => bob
+    [password:Foxy\Entities\User:private] => $2y$10$Pad.cmG0MYeYAUcOM0oQmunrwcmU28jDnwn68GD0mZ/ei2JMzTgSy
+    [firstName:Foxy\Entities\User:private] => 
+    [lastName:Foxy\Entities\User:private] => 
+    [name:Foxy\Entities\User:private] => 
+    [joinedAt] => 2018-12-29 20:03:06
+    [lastLogin] => 2018-12-29 20:16:44
+    [avatarImg] => 
+    [active] => 1
+    [token] => 
+)
+
+[29-Dec-2018 22:07:59 America/Chicago] Array
+(
+    [user] => Array
+        (
+            [id] => 6
+        )
+
+)
+
+[29-Dec-2018 22:07:59 America/Chicago] PHP Fatal error:  Uncaught Error: Class 'Foxy\Actions\Mapper' not found in /Users/ericglover/Desktop/Programming/sites/horatio/src/Foxy/Actions/Logout.php:26
+Stack trace:
+#0 /Users/ericglover/Desktop/Programming/sites/horatio/vendor/symfony/http-kernel/HttpKernel.php(150): Foxy\Actions\Logout->__invoke(Object(Symfony\Component\HttpFoundation\Request), Object(Silex\Application))
+#1 /Users/ericglover/Desktop/Programming/sites/horatio/vendor/symfony/http-kernel/HttpKernel.php(67): Symfony\Component\HttpKernel\HttpKernel->handleRaw(Object(Symfony\Component\HttpFoundation\Request), 1)
+#2 /Users/ericglover/Desktop/Programming/sites/horatio/vendor/silex/silex/src/Silex/Application.php(496): Symfony\Component\HttpKernel\HttpKernel->handle(Object(Symfony\Component\HttpFoundation\Request), 1, true)
+#3 /Users/ericglover/Desktop/Programming/sites/horatio/vendor/silex/silex/src/Silex/Application.php(477): Silex\Application->handle(Object(Symfony\Component\HttpFoundation\Request))
+#4 /Users/ericglover/Desktop/Programming/sites/horatio/index in /Users/ericglover/Desktop/Programming/sites/horatio/src/Foxy/Actions/Logout.php on line 26
+[29-Dec-2018 22:07:59 America/Chicago] logged in 
+[29-Dec-2018 22:07:59 America/Chicago] Foxy\Entities\User Object
+(
+    [id:Foxy\Entities\User:private] => 6
+    [email:Foxy\Entities\User:private] => bob@gmail.com
+    [username:Foxy\Entities\User:private] => bob
+    [password:Foxy\Entities\User:private] => $2y$10$Pad.cmG0MYeYAUcOM0oQmunrwcmU28jDnwn68GD0mZ/ei2JMzTgSy
+    [firstName:Foxy\Entities\User:private] => 
+    [lastName:Foxy\Entities\User:private] => 
+    [name:Foxy\Entities\User:private] => 
+    [joinedAt] => 2018-12-29 20:03:06
+    [lastLogin] => 2018-12-29 20:16:44
+    [avatarImg] => 
+    [active] => 1
+    [token] => 
+)
+
+[29-Dec-2018 22:07:59 America/Chicago] Array
+(
+    [user] => Array
+        (
+            [id] => 6
+        )
+
+)
+
+[29-Dec-2018 22:07:59 America/Chicago] user = 
+[29-Dec-2018 22:07:59 America/Chicago] Foxy\Entities\User Object
+(
+    [id:Foxy\Entities\User:private] => 6
+    [email:Foxy\Entities\User:private] => bob@gmail.com
+    [username:Foxy\Entities\User:private] => bob
+    [password:Foxy\Entities\User:private] => $2y$10$Pad.cmG0MYeYAUcOM0oQmunrwcmU28jDnwn68GD0mZ/ei2JMzTgSy
+    [firstName:Foxy\Entities\User:private] => 
+    [lastName:Foxy\Entities\User:private] => 
+    [name:Foxy\Entities\User:private] => 
+    [joinedAt] => 2018-12-29 20:03:06
+    [lastLogin] => 2018-12-29 20:16:44
+    [avatarImg] => 
+    [active] => 1
+    [token] => 
+)
+
+[29-Dec-2018 22:08:01 America/Chicago] logged in 
+[29-Dec-2018 22:08:01 America/Chicago] Foxy\Entities\User Object
+(
+    [id:Foxy\Entities\User:private] => 6
+    [email:Foxy\Entities\User:private] => bob@gmail.com
+    [username:Foxy\Entities\User:private] => bob
+    [password:Foxy\Entities\User:private] => $2y$10$Pad.cmG0MYeYAUcOM0oQmunrwcmU28jDnwn68GD0mZ/ei2JMzTgSy
+    [firstName:Foxy\Entities\User:private] => 
+    [lastName:Foxy\Entities\User:private] => 
+    [name:Foxy\Entities\User:private] => 
+    [joinedAt] => 2018-12-29 20:03:06
+    [lastLogin] => 2018-12-29 20:16:44
+    [avatarImg] => 
+    [active] => 1
+    [token] => 
+)
+
+[29-Dec-2018 22:08:01 America/Chicago] Array
+(
+    [user] => Array
+        (
+            [id] => 6
+        )
+
+)
+
+[29-Dec-2018 22:08:01 America/Chicago] PHP Fatal error:  Uncaught Error: Class 'Foxy\Actions\Mapper' not found in /Users/ericglover/Desktop/Programming/sites/horatio/src/Foxy/Actions/Logout.php:26
+Stack trace:
+#0 /Users/ericglover/Desktop/Programming/sites/horatio/vendor/symfony/http-kernel/HttpKernel.php(150): Foxy\Actions\Logout->__invoke(Object(Symfony\Component\HttpFoundation\Request), Object(Silex\Application))
+#1 /Users/ericglover/Desktop/Programming/sites/horatio/vendor/symfony/http-kernel/HttpKernel.php(67): Symfony\Component\HttpKernel\HttpKernel->handleRaw(Object(Symfony\Component\HttpFoundation\Request), 1)
+#2 /Users/ericglover/Desktop/Programming/sites/horatio/vendor/silex/silex/src/Silex/Application.php(496): Symfony\Component\HttpKernel\HttpKernel->handle(Object(Symfony\Component\HttpFoundation\Request), 1, true)
+#3 /Users/ericglover/Desktop/Programming/sites/horatio/vendor/silex/silex/src/Silex/Application.php(477): Silex\Application->handle(Object(Symfony\Component\HttpFoundation\Request))
+#4 /Users/ericglover/Desktop/Programming/sites/horatio/index in /Users/ericglover/Desktop/Programming/sites/horatio/src/Foxy/Actions/Logout.php on line 26
+[29-Dec-2018 22:08:01 America/Chicago] logged in 
+[29-Dec-2018 22:08:01 America/Chicago] Foxy\Entities\User Object
+(
+    [id:Foxy\Entities\User:private] => 6
+    [email:Foxy\Entities\User:private] => bob@gmail.com
+    [username:Foxy\Entities\User:private] => bob
+    [password:Foxy\Entities\User:private] => $2y$10$Pad.cmG0MYeYAUcOM0oQmunrwcmU28jDnwn68GD0mZ/ei2JMzTgSy
+    [firstName:Foxy\Entities\User:private] => 
+    [lastName:Foxy\Entities\User:private] => 
+    [name:Foxy\Entities\User:private] => 
+    [joinedAt] => 2018-12-29 20:03:06
+    [lastLogin] => 2018-12-29 20:16:44
+    [avatarImg] => 
+    [active] => 1
+    [token] => 
+)
+
+[29-Dec-2018 22:08:01 America/Chicago] Array
+(
+    [user] => Array
+        (
+            [id] => 6
+        )
+
+)
+
+[29-Dec-2018 22:08:01 America/Chicago] user = 
+[29-Dec-2018 22:08:01 America/Chicago] Foxy\Entities\User Object
+(
+    [id:Foxy\Entities\User:private] => 6
+    [email:Foxy\Entities\User:private] => bob@gmail.com
+    [username:Foxy\Entities\User:private] => bob
+    [password:Foxy\Entities\User:private] => $2y$10$Pad.cmG0MYeYAUcOM0oQmunrwcmU28jDnwn68GD0mZ/ei2JMzTgSy
+    [firstName:Foxy\Entities\User:private] => 
+    [lastName:Foxy\Entities\User:private] => 
+    [name:Foxy\Entities\User:private] => 
+    [joinedAt] => 2018-12-29 20:03:06
+    [lastLogin] => 2018-12-29 20:16:44
+    [avatarImg] => 
+    [active] => 1
+    [token] => 
+)
+
+[29-Dec-2018 22:09:09 America/Chicago] logged in 
+[29-Dec-2018 22:09:09 America/Chicago] Foxy\Entities\User Object
+(
+    [id:Foxy\Entities\User:private] => 6
+    [email:Foxy\Entities\User:private] => bob@gmail.com
+    [username:Foxy\Entities\User:private] => bob
+    [password:Foxy\Entities\User:private] => $2y$10$Pad.cmG0MYeYAUcOM0oQmunrwcmU28jDnwn68GD0mZ/ei2JMzTgSy
+    [firstName:Foxy\Entities\User:private] => 
+    [lastName:Foxy\Entities\User:private] => 
+    [name:Foxy\Entities\User:private] => 
+    [joinedAt] => 2018-12-29 20:03:06
+    [lastLogin] => 2018-12-29 20:16:44
+    [avatarImg] => 
+    [active] => 1
+    [token] => 
+)
+
+[29-Dec-2018 22:09:09 America/Chicago] Array
+(
+    [user] => Array
+        (
+            [id] => 6
+        )
+
+)
+
+[29-Dec-2018 22:09:09 America/Chicago] user = 
+[29-Dec-2018 22:09:09 America/Chicago] Foxy\Entities\User Object
+(
+    [id:Foxy\Entities\User:private] => 6
+    [email:Foxy\Entities\User:private] => bob@gmail.com
+    [username:Foxy\Entities\User:private] => bob
+    [password:Foxy\Entities\User:private] => $2y$10$Pad.cmG0MYeYAUcOM0oQmunrwcmU28jDnwn68GD0mZ/ei2JMzTgSy
+    [firstName:Foxy\Entities\User:private] => 
+    [lastName:Foxy\Entities\User:private] => 
+    [name:Foxy\Entities\User:private] => 
+    [joinedAt] => 2018-12-29 20:03:06
+    [lastLogin] => 2018-12-29 20:16:44
+    [avatarImg] => 
+    [active] => 1
+    [token] => 
+)
+
+[29-Dec-2018 22:09:14 America/Chicago] logged in 
+[29-Dec-2018 22:09:14 America/Chicago] Foxy\Entities\User Object
+(
+    [id:Foxy\Entities\User:private] => 6
+    [email:Foxy\Entities\User:private] => bob@gmail.com
+    [username:Foxy\Entities\User:private] => bob
+    [password:Foxy\Entities\User:private] => $2y$10$Pad.cmG0MYeYAUcOM0oQmunrwcmU28jDnwn68GD0mZ/ei2JMzTgSy
+    [firstName:Foxy\Entities\User:private] => 
+    [lastName:Foxy\Entities\User:private] => 
+    [name:Foxy\Entities\User:private] => 
+    [joinedAt] => 2018-12-29 20:03:06
+    [lastLogin] => 2018-12-29 20:16:44
+    [avatarImg] => 
+    [active] => 1
+    [token] => 
+)
+
+[29-Dec-2018 22:09:14 America/Chicago] Array
+(
+    [user] => Array
+        (
+            [id] => 6
+        )
+
+)
+
+[29-Dec-2018 22:09:14 America/Chicago] PHP Fatal error:  Uncaught Error: Class 'Foxy\Actions\Mapper' not found in /Users/ericglover/Desktop/Programming/sites/horatio/src/Foxy/Actions/Logout.php:26
+Stack trace:
+#0 /Users/ericglover/Desktop/Programming/sites/horatio/vendor/symfony/http-kernel/HttpKernel.php(150): Foxy\Actions\Logout->__invoke(Object(Symfony\Component\HttpFoundation\Request), Object(Silex\Application))
+#1 /Users/ericglover/Desktop/Programming/sites/horatio/vendor/symfony/http-kernel/HttpKernel.php(67): Symfony\Component\HttpKernel\HttpKernel->handleRaw(Object(Symfony\Component\HttpFoundation\Request), 1)
+#2 /Users/ericglover/Desktop/Programming/sites/horatio/vendor/silex/silex/src/Silex/Application.php(496): Symfony\Component\HttpKernel\HttpKernel->handle(Object(Symfony\Component\HttpFoundation\Request), 1, true)
+#3 /Users/ericglover/Desktop/Programming/sites/horatio/vendor/silex/silex/src/Silex/Application.php(477): Silex\Application->handle(Object(Symfony\Component\HttpFoundation\Request))
+#4 /Users/ericglover/Desktop/Programming/sites/horatio/index in /Users/ericglover/Desktop/Programming/sites/horatio/src/Foxy/Actions/Logout.php on line 26
+[29-Dec-2018 22:09:14 America/Chicago] logged in 
+[29-Dec-2018 22:09:14 America/Chicago] Foxy\Entities\User Object
+(
+    [id:Foxy\Entities\User:private] => 6
+    [email:Foxy\Entities\User:private] => bob@gmail.com
+    [username:Foxy\Entities\User:private] => bob
+    [password:Foxy\Entities\User:private] => $2y$10$Pad.cmG0MYeYAUcOM0oQmunrwcmU28jDnwn68GD0mZ/ei2JMzTgSy
+    [firstName:Foxy\Entities\User:private] => 
+    [lastName:Foxy\Entities\User:private] => 
+    [name:Foxy\Entities\User:private] => 
+    [joinedAt] => 2018-12-29 20:03:06
+    [lastLogin] => 2018-12-29 20:16:44
+    [avatarImg] => 
+    [active] => 1
+    [token] => 
+)
+
+[29-Dec-2018 22:09:14 America/Chicago] Array
+(
+    [user] => Array
+        (
+            [id] => 6
+        )
+
+)
+
+[29-Dec-2018 22:09:14 America/Chicago] user = 
+[29-Dec-2018 22:09:14 America/Chicago] Foxy\Entities\User Object
+(
+    [id:Foxy\Entities\User:private] => 6
+    [email:Foxy\Entities\User:private] => bob@gmail.com
+    [username:Foxy\Entities\User:private] => bob
+    [password:Foxy\Entities\User:private] => $2y$10$Pad.cmG0MYeYAUcOM0oQmunrwcmU28jDnwn68GD0mZ/ei2JMzTgSy
+    [firstName:Foxy\Entities\User:private] => 
+    [lastName:Foxy\Entities\User:private] => 
+    [name:Foxy\Entities\User:private] => 
+    [joinedAt] => 2018-12-29 20:03:06
+    [lastLogin] => 2018-12-29 20:16:44
+    [avatarImg] => 
+    [active] => 1
+    [token] => 
+)
+
+[29-Dec-2018 22:10:05 America/Chicago] logged in 
+[29-Dec-2018 22:10:05 America/Chicago] Foxy\Entities\User Object
+(
+    [id:Foxy\Entities\User:private] => 6
+    [email:Foxy\Entities\User:private] => bob@gmail.com
+    [username:Foxy\Entities\User:private] => bob
+    [password:Foxy\Entities\User:private] => $2y$10$Pad.cmG0MYeYAUcOM0oQmunrwcmU28jDnwn68GD0mZ/ei2JMzTgSy
+    [firstName:Foxy\Entities\User:private] => 
+    [lastName:Foxy\Entities\User:private] => 
+    [name:Foxy\Entities\User:private] => 
+    [joinedAt] => 2018-12-29 20:03:06
+    [lastLogin] => 2018-12-29 20:16:44
+    [avatarImg] => 
+    [active] => 1
+    [token] => 
+)
+
+[29-Dec-2018 22:10:05 America/Chicago] Array
+(
+    [user] => Array
+        (
+            [id] => 6
+        )
+
+)
+
+[29-Dec-2018 22:10:05 America/Chicago] PHP Fatal error:  Uncaught Error: Class 'Foxy\Actions\Mapper' not found in /Users/ericglover/Desktop/Programming/sites/horatio/src/Foxy/Actions/Logout.php:26
+Stack trace:
+#0 /Users/ericglover/Desktop/Programming/sites/horatio/vendor/symfony/http-kernel/HttpKernel.php(150): Foxy\Actions\Logout->__invoke(Object(Symfony\Component\HttpFoundation\Request), Object(Silex\Application))
+#1 /Users/ericglover/Desktop/Programming/sites/horatio/vendor/symfony/http-kernel/HttpKernel.php(67): Symfony\Component\HttpKernel\HttpKernel->handleRaw(Object(Symfony\Component\HttpFoundation\Request), 1)
+#2 /Users/ericglover/Desktop/Programming/sites/horatio/vendor/silex/silex/src/Silex/Application.php(496): Symfony\Component\HttpKernel\HttpKernel->handle(Object(Symfony\Component\HttpFoundation\Request), 1, true)
+#3 /Users/ericglover/Desktop/Programming/sites/horatio/vendor/silex/silex/src/Silex/Application.php(477): Silex\Application->handle(Object(Symfony\Component\HttpFoundation\Request))
+#4 /Users/ericglover/Desktop/Programming/sites/horatio/index in /Users/ericglover/Desktop/Programming/sites/horatio/src/Foxy/Actions/Logout.php on line 26
+[29-Dec-2018 22:10:05 America/Chicago] logged in 
+[29-Dec-2018 22:10:05 America/Chicago] Foxy\Entities\User Object
+(
+    [id:Foxy\Entities\User:private] => 6
+    [email:Foxy\Entities\User:private] => bob@gmail.com
+    [username:Foxy\Entities\User:private] => bob
+    [password:Foxy\Entities\User:private] => $2y$10$Pad.cmG0MYeYAUcOM0oQmunrwcmU28jDnwn68GD0mZ/ei2JMzTgSy
+    [firstName:Foxy\Entities\User:private] => 
+    [lastName:Foxy\Entities\User:private] => 
+    [name:Foxy\Entities\User:private] => 
+    [joinedAt] => 2018-12-29 20:03:06
+    [lastLogin] => 2018-12-29 20:16:44
+    [avatarImg] => 
+    [active] => 1
+    [token] => 
+)
+
+[29-Dec-2018 22:10:05 America/Chicago] Array
+(
+    [user] => Array
+        (
+            [id] => 6
+        )
+
+)
+
+[29-Dec-2018 22:10:05 America/Chicago] user = 
+[29-Dec-2018 22:10:05 America/Chicago] Foxy\Entities\User Object
+(
+    [id:Foxy\Entities\User:private] => 6
+    [email:Foxy\Entities\User:private] => bob@gmail.com
+    [username:Foxy\Entities\User:private] => bob
+    [password:Foxy\Entities\User:private] => $2y$10$Pad.cmG0MYeYAUcOM0oQmunrwcmU28jDnwn68GD0mZ/ei2JMzTgSy
+    [firstName:Foxy\Entities\User:private] => 
+    [lastName:Foxy\Entities\User:private] => 
+    [name:Foxy\Entities\User:private] => 
+    [joinedAt] => 2018-12-29 20:03:06
+    [lastLogin] => 2018-12-29 20:16:44
+    [avatarImg] => 
+    [active] => 1
+    [token] => 
+)
+
+[29-Dec-2018 22:10:35 America/Chicago] logged in 
+[29-Dec-2018 22:10:35 America/Chicago] Foxy\Entities\User Object
+(
+    [id:Foxy\Entities\User:private] => 6
+    [email:Foxy\Entities\User:private] => bob@gmail.com
+    [username:Foxy\Entities\User:private] => bob
+    [password:Foxy\Entities\User:private] => $2y$10$Pad.cmG0MYeYAUcOM0oQmunrwcmU28jDnwn68GD0mZ/ei2JMzTgSy
+    [firstName:Foxy\Entities\User:private] => 
+    [lastName:Foxy\Entities\User:private] => 
+    [name:Foxy\Entities\User:private] => 
+    [joinedAt] => 2018-12-29 20:03:06
+    [lastLogin] => 2018-12-29 20:16:44
+    [avatarImg] => 
+    [active] => 1
+    [token] => 
+)
+
+[29-Dec-2018 22:10:35 America/Chicago] Array
+(
+    [user] => Array
+        (
+            [id] => 6
+        )
+
+)
+
+[29-Dec-2018 22:10:35 America/Chicago] PHP Fatal error:  Uncaught TypeError: Return value of Foxy\Entities\User::getLastLogin() must be an instance of DateTime, string returned in /Users/ericglover/Desktop/Programming/sites/horatio/src/Foxy/Entities/User.php:71
+Stack trace:
+#0 /Users/ericglover/Desktop/Programming/sites/horatio/src/Foxy/Mappers/UserMapper.php(104): Foxy\Entities\User->getLastLogin()
+#1 /Users/ericglover/Desktop/Programming/sites/horatio/src/Foxy/Actions/Logout.php(27): Foxy\Mappers\UserMapper->update(Object(Foxy\Entities\User))
+#2 /Users/ericglover/Desktop/Programming/sites/horatio/vendor/symfony/http-kernel/HttpKernel.php(150): Foxy\Actions\Logout->__invoke(Object(Symfony\Component\HttpFoundation\Request), Object(Silex\Application))
+#3 /Users/ericglover/Desktop/Programming/sites/horatio/vendor/symfony/http-kernel/HttpKernel.php(67): Symfony\Component\HttpKernel\HttpKernel->handleRaw(Object(Symfony\Component\HttpFoundation\Request), 1)
+#4 /Users/ericglover/Desktop/Programming/sites/horatio/vendor/silex/silex/src/Silex/Application.php(496): Symfony\ in /Users/ericglover/Desktop/Programming/sites/horatio/src/Foxy/Entities/User.php on line 71
+[29-Dec-2018 22:10:35 America/Chicago] logged in 
+[29-Dec-2018 22:10:35 America/Chicago] Foxy\Entities\User Object
+(
+    [id:Foxy\Entities\User:private] => 6
+    [email:Foxy\Entities\User:private] => bob@gmail.com
+    [username:Foxy\Entities\User:private] => bob
+    [password:Foxy\Entities\User:private] => $2y$10$Pad.cmG0MYeYAUcOM0oQmunrwcmU28jDnwn68GD0mZ/ei2JMzTgSy
+    [firstName:Foxy\Entities\User:private] => 
+    [lastName:Foxy\Entities\User:private] => 
+    [name:Foxy\Entities\User:private] => 
+    [joinedAt] => 2018-12-29 20:03:06
+    [lastLogin] => 2018-12-29 20:16:44
+    [avatarImg] => 
+    [active] => 1
+    [token] => 
+)
+
+[29-Dec-2018 22:10:35 America/Chicago] Array
+(
+    [user] => Array
+        (
+            [id] => 6
+        )
+
+)
+
+[29-Dec-2018 22:10:35 America/Chicago] user = 
+[29-Dec-2018 22:10:35 America/Chicago] Foxy\Entities\User Object
+(
+    [id:Foxy\Entities\User:private] => 6
+    [email:Foxy\Entities\User:private] => bob@gmail.com
+    [username:Foxy\Entities\User:private] => bob
+    [password:Foxy\Entities\User:private] => $2y$10$Pad.cmG0MYeYAUcOM0oQmunrwcmU28jDnwn68GD0mZ/ei2JMzTgSy
+    [firstName:Foxy\Entities\User:private] => 
+    [lastName:Foxy\Entities\User:private] => 
+    [name:Foxy\Entities\User:private] => 
+    [joinedAt] => 2018-12-29 20:03:06
+    [lastLogin] => 2018-12-29 20:16:44
+    [avatarImg] => 
+    [active] => 1
+    [token] => 
+)
+
+[29-Dec-2018 22:11:51 America/Chicago] logged in 
+[29-Dec-2018 22:11:51 America/Chicago] Foxy\Entities\User Object
+(
+    [id:Foxy\Entities\User:private] => 6
+    [email:Foxy\Entities\User:private] => bob@gmail.com
+    [username:Foxy\Entities\User:private] => bob
+    [password:Foxy\Entities\User:private] => $2y$10$Pad.cmG0MYeYAUcOM0oQmunrwcmU28jDnwn68GD0mZ/ei2JMzTgSy
+    [firstName:Foxy\Entities\User:private] => 
+    [lastName:Foxy\Entities\User:private] => 
+    [name:Foxy\Entities\User:private] => 
+    [joinedAt] => DateTime Object
+        (
+            [date] => 2018-12-29 20:03:06.000000
+            [timezone_type] => 3
+            [timezone] => America/Chicago
+        )
+
+    [lastLogin] => DateTime Object
+        (
+            [date] => 2018-12-29 20:16:44.000000
+            [timezone_type] => 3
+            [timezone] => America/Chicago
+        )
+
+    [avatarImg] => 
+    [active] => 1
+    [token] => 
+)
+
+[29-Dec-2018 22:11:51 America/Chicago] Array
+(
+    [user] => Array
+        (
+            [id] => 6
+        )
+
+)
+
+[29-Dec-2018 22:11:51 America/Chicago] user = 
+[29-Dec-2018 22:11:51 America/Chicago] Foxy\Entities\User Object
+(
+    [id:Foxy\Entities\User:private] => 6
+    [email:Foxy\Entities\User:private] => bob@gmail.com
+    [username:Foxy\Entities\User:private] => bob
+    [password:Foxy\Entities\User:private] => $2y$10$Pad.cmG0MYeYAUcOM0oQmunrwcmU28jDnwn68GD0mZ/ei2JMzTgSy
+    [firstName:Foxy\Entities\User:private] => 
+    [lastName:Foxy\Entities\User:private] => 
+    [name:Foxy\Entities\User:private] => 
+    [joinedAt] => DateTime Object
+        (
+            [date] => 2018-12-29 20:03:06.000000
+            [timezone_type] => 3
+            [timezone] => America/Chicago
+        )
+
+    [lastLogin] => DateTime Object
+        (
+            [date] => 2018-12-29 20:16:44.000000
+            [timezone_type] => 3
+            [timezone] => America/Chicago
+        )
+
+    [avatarImg] => 
+    [active] => 1
+    [token] => 
+)
+
+[29-Dec-2018 22:11:53 America/Chicago] logged in 
+[29-Dec-2018 22:11:53 America/Chicago] Foxy\Entities\User Object
+(
+    [id:Foxy\Entities\User:private] => 6
+    [email:Foxy\Entities\User:private] => bob@gmail.com
+    [username:Foxy\Entities\User:private] => bob
+    [password:Foxy\Entities\User:private] => $2y$10$Pad.cmG0MYeYAUcOM0oQmunrwcmU28jDnwn68GD0mZ/ei2JMzTgSy
+    [firstName:Foxy\Entities\User:private] => 
+    [lastName:Foxy\Entities\User:private] => 
+    [name:Foxy\Entities\User:private] => 
+    [joinedAt] => DateTime Object
+        (
+            [date] => 2018-12-29 20:03:06.000000
+            [timezone_type] => 3
+            [timezone] => America/Chicago
+        )
+
+    [lastLogin] => DateTime Object
+        (
+            [date] => 2018-12-29 20:16:44.000000
+            [timezone_type] => 3
+            [timezone] => America/Chicago
+        )
+
+    [avatarImg] => 
+    [active] => 1
+    [token] => 
+)
+
+[29-Dec-2018 22:11:53 America/Chicago] Array
+(
+    [user] => Array
+        (
+            [id] => 6
+        )
+
+)
+
+[29-Dec-2018 22:11:53 America/Chicago] Array
+(
+    [:email] => bob@gmail.com
+    [:username] => bob
+    [:password] => $2y$10$Pad.cmG0MYeYAUcOM0oQmunrwcmU28jDnwn68GD0mZ/ei2JMzTgSy
+    [:firstName] => 
+    [:lastName] => 
+    [:lastLogin] => 2018-12-29 20:16:44
+    [:avatarImg] => 
+    [:active] => 0
+    [:token] => 
+    [:id] => 6
+)
+
+[29-Dec-2018 22:11:53 America/Chicago] not logged in
+[29-Dec-2018 22:11:53 America/Chicago] Array
+(
+)
+
+[29-Dec-2018 22:11:53 America/Chicago] Identifier "user" is not defined.
+[29-Dec-2018 22:12:13 America/Chicago] not logged in
+[29-Dec-2018 22:12:13 America/Chicago] Array
+(
+)
+
+[29-Dec-2018 22:12:13 America/Chicago] Identifier "user" is not defined.
+[29-Dec-2018 22:12:15 America/Chicago] not logged in
+[29-Dec-2018 22:12:15 America/Chicago] Array
+(
+)
+
+[29-Dec-2018 22:12:15 America/Chicago] Identifier "user" is not defined.
+[29-Dec-2018 22:13:46 America/Chicago] not logged in
+[29-Dec-2018 22:13:46 America/Chicago] 
+[29-Dec-2018 22:13:46 America/Chicago] Array
+(
+)
+
+[29-Dec-2018 22:13:46 America/Chicago] user = 
+[29-Dec-2018 22:13:46 America/Chicago] 
+[29-Dec-2018 22:14:23 America/Chicago] not logged in
+[29-Dec-2018 22:14:23 America/Chicago] 
+[29-Dec-2018 22:14:23 America/Chicago] Array
+(
+)
+
+[29-Dec-2018 22:14:23 America/Chicago] user = 
+[29-Dec-2018 22:14:23 America/Chicago] 
+[29-Dec-2018 22:14:31 America/Chicago] not logged in
+[29-Dec-2018 22:14:31 America/Chicago] 
+[29-Dec-2018 22:14:31 America/Chicago] Array
+(
+)
+
+[29-Dec-2018 22:14:31 America/Chicago] user not found
+[29-Dec-2018 22:14:54 America/Chicago] not logged in
+[29-Dec-2018 22:14:54 America/Chicago] 
+[29-Dec-2018 22:14:54 America/Chicago] Array
+(
+)
+
+[29-Dec-2018 22:14:54 America/Chicago] pass no match
+[29-Dec-2018 22:15:02 America/Chicago] not logged in
+[29-Dec-2018 22:15:02 America/Chicago] 
+[29-Dec-2018 22:15:02 America/Chicago] Array
+(
+)
+
+[29-Dec-2018 22:15:02 America/Chicago] Array
+(
+    [:email] => bob@gmail.com
+    [:username] => bob
+    [:password] => $2y$10$Pad.cmG0MYeYAUcOM0oQmunrwcmU28jDnwn68GD0mZ/ei2JMzTgSy
+    [:firstName] => 
+    [:lastName] => 
+    [:lastLogin] => 2018-12-29 22:15:02
+    [:avatarImg] => 
+    [:active] => 1
+    [:token] => 
+    [:id] => 6
+)
+
+[29-Dec-2018 22:15:43 America/Chicago] logged in 
+[29-Dec-2018 22:15:43 America/Chicago] Foxy\Entities\User Object
+(
+    [id:Foxy\Entities\User:private] => 6
+    [email:Foxy\Entities\User:private] => bob@gmail.com
+    [username:Foxy\Entities\User:private] => bob
+    [password:Foxy\Entities\User:private] => $2y$10$Pad.cmG0MYeYAUcOM0oQmunrwcmU28jDnwn68GD0mZ/ei2JMzTgSy
+    [firstName:Foxy\Entities\User:private] => 
+    [lastName:Foxy\Entities\User:private] => 
+    [name:Foxy\Entities\User:private] => 
+    [joinedAt] => DateTime Object
+        (
+            [date] => 2018-12-29 20:03:06.000000
+            [timezone_type] => 3
+            [timezone] => America/Chicago
+        )
+
+    [lastLogin] => DateTime Object
+        (
+            [date] => 2018-12-29 22:15:02.000000
+            [timezone_type] => 3
+            [timezone] => America/Chicago
+        )
+
+    [avatarImg] => 
+    [active] => 1
+    [token] => 
+)
+
+[29-Dec-2018 22:15:43 America/Chicago] Array
+(
+    [user] => Array
+        (
+            [id] => 6
+        )
+
+)
+
+[29-Dec-2018 22:15:43 America/Chicago] user = 
+[29-Dec-2018 22:15:43 America/Chicago] Foxy\Entities\User Object
+(
+    [id:Foxy\Entities\User:private] => 6
+    [email:Foxy\Entities\User:private] => bob@gmail.com
+    [username:Foxy\Entities\User:private] => bob
+    [password:Foxy\Entities\User:private] => $2y$10$Pad.cmG0MYeYAUcOM0oQmunrwcmU28jDnwn68GD0mZ/ei2JMzTgSy
+    [firstName:Foxy\Entities\User:private] => 
+    [lastName:Foxy\Entities\User:private] => 
+    [name:Foxy\Entities\User:private] => 
+    [joinedAt] => DateTime Object
+        (
+            [date] => 2018-12-29 20:03:06.000000
+            [timezone_type] => 3
+            [timezone] => America/Chicago
+        )
+
+    [lastLogin] => DateTime Object
+        (
+            [date] => 2018-12-29 22:15:02.000000
+            [timezone_type] => 3
+            [timezone] => America/Chicago
+        )
+
+    [avatarImg] => 
+    [active] => 1
+    [token] => 
+)
+
+[29-Dec-2018 22:15:47 America/Chicago] logged in 
+[29-Dec-2018 22:15:47 America/Chicago] Foxy\Entities\User Object
+(
+    [id:Foxy\Entities\User:private] => 6
+    [email:Foxy\Entities\User:private] => bob@gmail.com
+    [username:Foxy\Entities\User:private] => bob
+    [password:Foxy\Entities\User:private] => $2y$10$Pad.cmG0MYeYAUcOM0oQmunrwcmU28jDnwn68GD0mZ/ei2JMzTgSy
+    [firstName:Foxy\Entities\User:private] => 
+    [lastName:Foxy\Entities\User:private] => 
+    [name:Foxy\Entities\User:private] => 
+    [joinedAt] => DateTime Object
+        (
+            [date] => 2018-12-29 20:03:06.000000
+            [timezone_type] => 3
+            [timezone] => America/Chicago
+        )
+
+    [lastLogin] => DateTime Object
+        (
+            [date] => 2018-12-29 22:15:02.000000
+            [timezone_type] => 3
+            [timezone] => America/Chicago
+        )
+
+    [avatarImg] => 
+    [active] => 1
+    [token] => 
+)
+
+[29-Dec-2018 22:15:47 America/Chicago] Array
+(
+    [user] => Array
+        (
+            [id] => 6
+        )
+
+)
+
+[29-Dec-2018 22:15:47 America/Chicago] Array
+(
+    [:email] => bob@gmail.com
+    [:username] => bob
+    [:password] => $2y$10$Pad.cmG0MYeYAUcOM0oQmunrwcmU28jDnwn68GD0mZ/ei2JMzTgSy
+    [:firstName] => 
+    [:lastName] => 
+    [:lastLogin] => 2018-12-29 22:15:02
+    [:avatarImg] => 
+    [:active] => 0
+    [:token] => 
+    [:id] => 6
+)
+
+[29-Dec-2018 22:15:47 America/Chicago] not logged in
+[29-Dec-2018 22:15:47 America/Chicago] 
+[29-Dec-2018 22:15:47 America/Chicago] Array
+(
+)
+
+[29-Dec-2018 22:15:47 America/Chicago] user = 
+[29-Dec-2018 22:15:47 America/Chicago] 
+[29-Dec-2018 22:15:57 America/Chicago] not logged in
+[29-Dec-2018 22:15:57 America/Chicago] 
+[29-Dec-2018 22:15:57 America/Chicago] Array
+(
+)
+
+[29-Dec-2018 22:15:57 America/Chicago] user not found
+[29-Dec-2018 22:16:08 America/Chicago] not logged in
+[29-Dec-2018 22:16:08 America/Chicago] 
+[29-Dec-2018 22:16:08 America/Chicago] Array
+(
+)
+
+[29-Dec-2018 22:16:08 America/Chicago] Array
+(
+    [:email] => bob@gmail.com
+    [:username] => bob
+    [:password] => $2y$10$Pad.cmG0MYeYAUcOM0oQmunrwcmU28jDnwn68GD0mZ/ei2JMzTgSy
+    [:firstName] => 
+    [:lastName] => 
+    [:lastLogin] => 2018-12-29 22:16:08
+    [:avatarImg] => 
+    [:active] => 1
+    [:token] => 
+    [:id] => 6
+)
+
+[29-Dec-2018 22:16:08 America/Chicago] logged in 
+[29-Dec-2018 22:16:08 America/Chicago] Foxy\Entities\User Object
+(
+    [id:Foxy\Entities\User:private] => 6
+    [email:Foxy\Entities\User:private] => bob@gmail.com
+    [username:Foxy\Entities\User:private] => bob
+    [password:Foxy\Entities\User:private] => $2y$10$Pad.cmG0MYeYAUcOM0oQmunrwcmU28jDnwn68GD0mZ/ei2JMzTgSy
+    [firstName:Foxy\Entities\User:private] => 
+    [lastName:Foxy\Entities\User:private] => 
+    [name:Foxy\Entities\User:private] => 
+    [joinedAt] => DateTime Object
+        (
+            [date] => 2018-12-29 20:03:06.000000
+            [timezone_type] => 3
+            [timezone] => America/Chicago
+        )
+
+    [lastLogin] => DateTime Object
+        (
+            [date] => 2018-12-29 22:16:08.000000
+            [timezone_type] => 3
+            [timezone] => America/Chicago
+        )
+
+    [avatarImg] => 
+    [active] => 1
+    [token] => 
+)
+
+[29-Dec-2018 22:16:08 America/Chicago] Array
+(
+    [user] => Array
+        (
+            [id] => 6
+        )
+
+)
+
+[29-Dec-2018 22:16:08 America/Chicago] user = 
+[29-Dec-2018 22:16:08 America/Chicago] Foxy\Entities\User Object
+(
+    [id:Foxy\Entities\User:private] => 6
+    [email:Foxy\Entities\User:private] => bob@gmail.com
+    [username:Foxy\Entities\User:private] => bob
+    [password:Foxy\Entities\User:private] => $2y$10$Pad.cmG0MYeYAUcOM0oQmunrwcmU28jDnwn68GD0mZ/ei2JMzTgSy
+    [firstName:Foxy\Entities\User:private] => 
+    [lastName:Foxy\Entities\User:private] => 
+    [name:Foxy\Entities\User:private] => 
+    [joinedAt] => DateTime Object
+        (
+            [date] => 2018-12-29 20:03:06.000000
+            [timezone_type] => 3
+            [timezone] => America/Chicago
+        )
+
+    [lastLogin] => DateTime Object
+        (
+            [date] => 2018-12-29 22:16:08.000000
+            [timezone_type] => 3
+            [timezone] => America/Chicago
+        )
+
+    [avatarImg] => 
+    [active] => 1
+    [token] => 
+)
+
+[29-Dec-2018 22:18:16 America/Chicago] Array
+(
+    [:email] => bob@gmail.com
+    [:username] => bob
+    [:password] => $2y$10$Pad.cmG0MYeYAUcOM0oQmunrwcmU28jDnwn68GD0mZ/ei2JMzTgSy
+    [:firstName] => 
+    [:lastName] => 
+    [:lastLogin] => 2018-12-29 22:16:08
+    [:avatarImg] => 
+    [:active] => 0
+    [:token] => 
+    [:id] => 6
+)
+

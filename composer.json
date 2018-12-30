@@ -9,11 +9,18 @@
   ],
   "require": {
     "silex/silex": "^2.3",
-    "monolog/monolog": "^1.24"
+    "monolog/monolog": "^1.24",
+    "php": "7.2",
+    "twig/twig": "^2.6"
   },
   "autoload": {
     "psr-4": {
-      "Foxy\\": "src/Foxy"
+      "Foxy\\": "src/Foxy/"
+    }
+  },
+  "config": {
+    "platform": {
+      "php": "7.2"
     }
   }
 }
