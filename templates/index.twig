@@ -5,9 +5,9 @@
   <meta charset="utf-8">
   <title>HoratioFox</title>
   <meta name="author" content="Eric Glover">
-  <meta name="description" content="">
+  <meta name="description" content="Game site.">
   <meta name="viewport" content="width=device-width, initial-scale=1">
-  <meta name="google-site-verification" content="V3hjZurJSQkS2Wi3VX0f1nQ7RysKH_r4GHKeppHKd44" />
+  <!-- <meta name="google-site-verification" content="V3hjZurJSQkS2Wi3VX0f1nQ7RysKH_r4GHKeppHKd44" /> -->
 
   <!-- Semantic UI -->
   <link rel="stylesheet" type="text/css" href="/web/lib/semantic/semantic.min.css">
@@ -25,34 +25,7 @@
 </head>
 
 <body>
-  <nav class="ui small top attached stackable menu">
-    <div class="ui header item">
-      <a href="/" class="link">HoratioFox Games</a>
-    </div>
-{% if loggedIn == true %}
-    <div class="ui right aligned item">
-      <span>Hello {{user.username}}</span>
-    </div>
-    <div class="right aligned item">
-      <button id="logout-btn" class="ui button">Logout</button>
-    </div>
-{% else %}
-    <div class="right item">
-      <button id="sign-up-btn" class="ui primary button">Sign up</div>
-    </div>
-    <div class="right item">
-      <button id="login-btn" class="ui button">Login</div>
-    </div>
-{% endif %}
-
-    <!-- <div class="ui right aligned category search item">
-      <div class="ui transparent icon input">
-        <input class="prompt" type="text" placeholder="Search animals...">
-        <i class="ui search icon"></i>
-      </div>
-      <div class="ui results"></div>
-    </div> -->
-  </nav>
+  {{ include('/partials/navbar.twig') }}
 
   <!-- body -->
 
@@ -99,64 +72,5 @@
       </div>
     </div>
   </div> -->
-
-  <!-- templates for dialogs -->
-
-  <div id="login" class="ui modal">
-    <i class="close icon"></i>
-    <div class="header">
-      Login
-    </div>
-    <div class="content">
-      <form class="ui form" method="POST" action="/login">
-        <div class="field">
-          <label for="email">Email</label>
-          <input type="email" name="email" autocomplete="off">
-        </div>
-        <div class="field">
-          <label for="password">Password</label>
-          <input type="password" name="password" autocomplete="off">
-        </div>
-      </form>
-    </div>
-    <div class="actions">
-      <button id="login-btn" class="ui primary button">Login</button>
-    </div>
-  </div>
-
-
-  <div id="sign-up" class="ui modal">
-    <i class="close icon"></i>
-    <div class="header">
-      Create an Account
-    </div>
-    <div class="content">
-      <form class="ui form" method="POST" action="/users">
-        <div class="field">
-          <label for="username">Username</label>
-          <input type="text" name="username" autocomplete="off">
-        </div>
-
-        <div class="field">
-          <label for="email">Email</label>
-          <input type="email" name="email" autocomplete="off">
-        </div>
-        <div class="field">
-          <label for="password">Password</label>
-          <input type="text" name="password" autocomplete="off">
-        </div>
-      </form>
-    </div>
-    <div class="actions">
-      <button id="submit" class="ui primary button">Submit</button>
-    </div>
-  </div>
-
-  <!-- <template id="login">
-    <div>Login</div>
-  </template> -->
-
-
-
 </body>
 </html>

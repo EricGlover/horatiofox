@@ -41,13 +41,13 @@
       $user = $mapper->getUserByEmail($email);
       if(empty($user)) {
         error_log("user not found");
-        return new Response("Incorrect email and / or password", 400);
+        return new Response("Incorrect email and / or password", 401);
       }
 
       //check password
       if(!$user->verifyPassword($password)) {
         error_log("pass no match");
-        return new Response("Incorrect email and / or password", 400);
+        return new Response("Incorrect email and / or password", 401);
       }
 
       //log them in

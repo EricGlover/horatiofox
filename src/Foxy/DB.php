@@ -11,10 +11,18 @@
     /** @var bool **/
     private static $init = false;
 
+    private static $host = "localhost";
+    private static $dbname = "horatio_fox";
+
     private static function init()
     {
+      include(__DIR__ . "/../../config.php");
+      $host = self::$host;
+      $dbname = self::$dbname;
+      $user = $config["DB_USERNAME"];
+      $password = $config["DB_PASSWORD"];
       try {
-        self::$pdo = new \PDO('mysql:host=localhost;dbname=horatio_fox', "root", "");
+        self::$pdo = new \PDO("mysql:host=$host;dbname=$dbname", $user, $passowrd);
       } catch (\Exception $e) {
         error_log("pdo error");
         error_log($e->getMessage());

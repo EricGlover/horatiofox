@@ -46,6 +46,10 @@
     {
       return $this->email;
     }
+    public function setEmail(string $email) : void
+    {
+      $this->email = $email;
+    }
     public function getPassword() : string
     {
       return $this->password;
@@ -54,13 +58,25 @@
     {
       return $this->username;
     }
+    public function setUsername(string $username) : void
+    {
+      $this->username = $username;
+    }
     public function getFirstName() : ?string
     {
       return $this->firstName;
     }
+    public function setFirstName(string $firstName) : void
+    {
+      $this->firstName = $firstName;
+    }
     public function getLastName() : ?string
     {
       return $this->lastName;
+    }
+    public function setLastName(string $lastName) : void
+    {
+      $this->lastName = $lastName;
     }
     public function getJoinedAt() : \DateTime
     {
@@ -73,6 +89,10 @@
     public function getAvatarImg() : ?string
     {
       return $this->avatarImg;
+    }
+    public function setAvatarImg(string $img) : void
+    {
+      $this->avatarImg = $img;
     }
     public function getToken() : ?string
     {
@@ -103,6 +123,6 @@
     public function logout() : void
     {
       $this->active = false;
-      //todo:: log playtime for this session 
+      //todo:: log playtime for this session
     }
   }

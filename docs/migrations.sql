@@ -34,3 +34,6 @@ CHANGE COLUMN `last_log_in` `last_login` DATETIME NOT NULL DEFAULT CURRENT_TIMES
 
 ALTER TABLE `horatio_fox`.`users`
 CHANGE COLUMN `password` `password` VARCHAR(255) NOT NULL ;
+
+ALTER TABLE `horatio_fox`.`users`
+DROP INDEX `username_UNIQUE` ;
