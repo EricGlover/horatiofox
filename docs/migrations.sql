@@ -37,3 +37,6 @@ CHANGE COLUMN `password` `password` VARCHAR(255) NOT NULL ;
 
 ALTER TABLE `horatio_fox`.`users`
 DROP INDEX `username_UNIQUE` ;
+
+ALTER TABLE `horatio_fox`.`users`
+CHANGE COLUMN `name` `name` VARCHAR(91) GENERATED ALWAYS AS (concat(`first_name`,' ',`last_name`)) VIRTUAL ;

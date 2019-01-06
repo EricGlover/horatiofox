@@ -2962,3 +2962,45 @@ Stack trace:
 
 [01-Jan-2019 18:59:02 America/Chicago] running global error handler
 [01-Jan-2019 18:59:06 America/Chicago] running global error handler
+[05-Jan-2019 17:50:20 America/Chicago] Array
+(
+    [:email] => bob@gmail.com
+    [:username] => bob
+    [:password] => $2y$10$Pad.cmG0MYeYAUcOM0oQmunrwcmU28jDnwn68GD0mZ/ei2JMzTgSy
+    [:firstName] => Eric
+    [:lastName] => Glover
+    [:lastLogin] => 2019-01-05 17:50:20
+    [:avatarImg] => 
+    [:active] => 1
+    [:token] => 
+    [:id] => 6
+)
+
+[05-Jan-2019 18:11:03 America/Chicago] Array
+(
+    [:email] => bob@gmail.com
+    [:username] => bobster
+    [:password] => $2y$10$Pad.cmG0MYeYAUcOM0oQmunrwcmU28jDnwn68GD0mZ/ei2JMzTgSy
+    [:firstName] => Eric
+    [:lastName] => Glover
+    [:lastLogin] => 2019-01-05 17:50:20
+    [:avatarImg] => 
+    [:active] => 1
+    [:token] => 
+    [:id] => 6
+)
+
+[05-Jan-2019 18:22:32 America/Chicago] Array
+(
+    [:email] => bob@gmail.com
+    [:username] => bobster
+    [:password] => $2y$10$Pad.cmG0MYeYAUcOM0oQmunrwcmU28jDnwn68GD0mZ/ei2JMzTgSy
+    [:firstName] => Eric
+    [:lastName] => Glover
+    [:lastLogin] => 2019-01-05 17:50:20
+    [:avatarImg] => 
+    [:active] => 1
+    [:token] => 
+    [:id] => 6
+)
+

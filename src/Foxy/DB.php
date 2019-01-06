@@ -22,7 +22,7 @@
       $user = $config["DB_USERNAME"];
       $password = $config["DB_PASSWORD"];
       try {
-        self::$pdo = new \PDO("mysql:host=$host;dbname=$dbname", $user, $passowrd);
+        self::$pdo = new \PDO("mysql:host=$host;dbname=$dbname", $user, $password);
       } catch (\Exception $e) {
         error_log("pdo error");
         error_log($e->getMessage());

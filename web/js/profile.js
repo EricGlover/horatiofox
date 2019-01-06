@@ -22,7 +22,7 @@ function handleCancel(e) {
   e.stopPropagation();
   e.preventDefault();
   //reset the form
-  $("form").remove();
+  $("form#edit-profile").remove();
   let $tmp = $oldForm;
   $oldForm = $tmp.clone();
   $("#form-container").prepend($tmp);
@@ -80,7 +80,7 @@ $(document).ready(function() {
   let nav = new Navbar();
   nav.init();
   // save an old copy
-  $oldForm = $("form")
+  $oldForm = $("form#edit-profile")
     .clone()
     .detach();
   register();
