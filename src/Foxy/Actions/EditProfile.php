@@ -21,10 +21,16 @@
       $user = $app["user"];
 
       $body = $request->request;
-      $email = $body->get("email");
-      $username = $body->get("username");
-      $firstName = $body->get("firstName");
-      $lastName = $body->get("lastName");
+      $email = \strip_tags($body->get("email"));
+
+      // validate email
+      if(!filter_var($email, FILTER_VALIDATE_EMAIL)) {
+        return new Response("Invalid email address", 400);
+      }
+
+      $username = \strip_tags($body->get("username"));
+      $firstName = \strip_tags($body->get("firstName"));
+      $lastName = \strip_tags($body->get("lastName"));
       $user->setEmail($email);
       $user->setUsername($username);
       $user->setFirstName($firstName);

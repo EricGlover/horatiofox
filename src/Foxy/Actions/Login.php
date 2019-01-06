@@ -20,8 +20,8 @@
       if(!$request->request->has("email") || !$request->request->has("password")) {
         return new Response("", Response::HTTP_BAD_REQUEST);
       }
-      $email = $request->request->get("email");
-      $password = $request->request->get("password");
+      $email = \strip_tags($request->request->get("email"));
+      $password = \strip_tags($request->request->get("password"));
 
       // if they're already logged in
       /** @var User **/

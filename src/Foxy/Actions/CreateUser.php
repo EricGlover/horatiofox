@@ -35,22 +35,22 @@
     public function __invoke(Request $request)
     {
       $body = $request->request;
-      $email = $body->get("email");
+      $email = \strip_tags($body->get("email"));
       // validate email
       if(!filter_var($email, FILTER_VALIDATE_EMAIL)) {
         return new Response("Invalid email address", 400);
       }
 
       // validate password
-      $password = $body->get("password");
+      $password = \strip_tags($body->get("password"));
       if(!$this->isValidPassword($password)) {
         return new Response("Invalid password", 400);
       }
 
       //TODO:: TEST STRIP TAGS
-      $username = $body->get("username");
-      $firstName = $body->get("firstName");
-      $lastName = $body->get("lastName");
+      $username = \strip_tags($body->get("username"));
+      $firstName = \strip_tags($body->get("firstName"));
+      $lastName = \strip_tags($body->get("lastName"));
       $user = new User($email, $password, $username, $firstName, $lastName);
       $user->login();
 
