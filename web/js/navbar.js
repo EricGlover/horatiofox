@@ -123,10 +123,64 @@ function Navbar() {
       .then(() => $btn.removeClass("loading"));
   }
 
+  function handleConfirmInput(e) {
+    e.stopPropagation();
+    let confirmVal = this.value;
+    let password = $("#sign-up input[name='password']").val();
+    if (confirmVal !== password) {
+      $(this)
+        .closest(".field")
+        .addClass("error");
+    } else {
+      $(this)
+        .closest(".field")
+        .removeClass("error");
+    }
+    renderSignupValid(isSignupValid());
+  }
+
+  // change an input to concealed or show
+  function handleToggleShowInput(e) {
+    $(this).toggleClass("slash");
+    let $input = $(this).siblings("input");
+    if ($input.attr("type") === "password") {
+      $input.attr("type", "text");
+    } else {
+      $input.attr("type", "password");
+    }
+  }
+
+  function isSignupValid() {
+    // matching passwords
+    let password = $("#sign-up input[name='password']").val();
+    let confirmVal = $("#sign-up input[name='confirm-password']").val();
+    if (password !== confirmVal) {
+      return false;
+    }
+    return true;
+  }
+
+  function renderSignupValid(isValid) {
+    let $signupForm = $("#sign-up");
+    if (isValid) {
+      $signupForm.find("#submit").removeClass("disabled");
+    } else {
+      $signupForm.find("#submit").addClass("disabled");
+    }
+  }
+
   function register() {
+    let $signUpModal = $("#sign-up");
     $("#sign-up-btn").on("click", handleOpenSignUp);
     $("#login-btn").on("click", handleOpenLogin);
     $("#logout-btn").on("click", handleLogout);
+
+    // sign up modal key handler
+    $signUpModal
+      .find("input[name='confirm-password']")
+      .on("input", handleConfirmInput);
+
+    $(".eye.slash").on("click", handleToggleShowInput);
 
     // set close handler for messages
     $(".message .close")

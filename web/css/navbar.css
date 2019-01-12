@@ -1,0 +1,14 @@
+.validation-icon.success {
+  color: green;
+  display: none;
+}
+
+.validation-icon.error {
+  color: red;
+  display: none;
+}
+
+.align-row-center {
+  display: flex;
+  align-items: center;
+}

@@ -18,6 +18,7 @@
     public $avatarImg;
     public $active;
     public $token;
+    private $verified;
 
 
     public function __construct(string $email, string $password, string $username = null, string $firstName = null, string $lastName = null, string $avatarImg = null, bool $hashForMe = true)
@@ -32,6 +33,7 @@
       $this->firstName = $firstName;
       $this->lastName = $lastName;
       $this->avatarImg = $avatarImg;
+      $this->verified = false;
     }
 
     public function getId() : int
@@ -112,6 +114,16 @@
     public function verifyPassword(string $password) : bool
     {
       return password_verify($password, $this->password);
+    }
+
+    public function isVerified() : bool
+    {
+      return $this->verified;
+    }
+
+    public function setVerified(bool $verified)
+    {
+      $this->verified = $verified;
     }
 
     public function login() : void

@@ -8,18 +8,8 @@
   use Monolog\Logger;
   use Monolog\Handler\StreamHandler;
   use Silex\Application;
-  use Foxy\Middleware\Authenticate;
-  use Foxy\Middleware\DecodeJson;
-  use Foxy\Middleware\LoggedInOnly;
-  use Foxy\Actions\Login;
-  use Foxy\Actions\Logout;
-  use Foxy\Actions\GetLandingPage;
-  use Foxy\Actions\GetProfilePage;
-  use Foxy\Actions\CreateUser;
-  use Foxy\Actions\EditProfile;
-  use Symfony\Component\HttpFoundation\Request;
-  use Symfony\Component\HttpFoundation\Response;
-  use Symfony\Component\HttpFoundation\JsonResponse;
+  use Foxy\ApplicationBuilder;
+
 
   ini_set("log_errors", 1);
   ini_set("error_log", __DIR__ . "/../logs/error.log");
@@ -47,33 +37,8 @@
   //set timezone
   date_default_timezone_set("America/Chicago");
 
-  // setup Silex app
-  $app = new Application();
-  $app->error(function(\Exception $e) {
-    error_log($e->getMessage());
-    error_log("running app error");
-    return new Response("error", 500);
-  });
-
-  // setup middleware
-  $app->before(new DecodeJson());
-
-  // authenticate
-  $app->before(new Authenticate());
-  // authorize
-
-  // build routes
-  $app->get("/", new GetLandingPage());
-  $app->get("/profile", new GetProfilePage())->before(new LoggedInOnly());
-
-  // login
-  $app->post("/login", new Login());
-  // logout
-  $app->post("/logout", new Logout());
-  // create user
-  $app->post("/users", new CreateUser());
-  // edit user
-  $app->put("/editProfile", new EditProfile())->before(new LoggedInOnly());
-
+  $builder = new ApplicationBuilder();
+  $app = $builder->buildApp();
+  
   // handle request
   $app->run();

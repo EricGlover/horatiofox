@@ -1,0 +1,31 @@
+locally start up php server
+cd into /web
+php -S localhost:8080
+
+then whenever you build semantic do this ...
+cd /semantic
+gulp build
+# then move everything in /semantic/dist to web/lib/semantic
+# dance in the streets
+
+my linode Server has it's horatiofox.com data in
+/var/www/horatiofox.com
+
+nginx config is in
+/etc/nginx/
+config for horatiofox at
+/etc/nginx/conf.d/
+
+note: the root of my nginx location is now /web
+
+
+
+===== pushing code
+locally push to origin
+on linodeServer pull down from origin master
+you may need to stash stuff first
+
+=== mysql stuff
+on the linodeServer you gotta ssh in and then
+mysql -u 'root' -p
+mysql -u 'foxy' -p

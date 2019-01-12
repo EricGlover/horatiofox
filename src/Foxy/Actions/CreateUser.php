@@ -70,6 +70,8 @@
       $_SESSION["user"] = ["id" => $user->getId()];
       session_write_close();
 
+      //send verification email
+
       return new Response();
     }
   }
