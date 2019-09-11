@@ -29,3 +29,9 @@ you may need to stash stuff first
 on the linodeServer you gotta ssh in and then
 mysql -u 'root' -p
 mysql -u 'foxy' -p
+
+
+=== notes
+if you name a directory in /web something then you can't have that be
+part of a url as well because nginx will try to serve up a file instead
+of routing it to the app
