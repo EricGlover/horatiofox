@@ -31,6 +31,7 @@
     $log->error($ex->getTraceAsString());
     throw $ex;
   };
+  
   set_error_handler($errorHandler);
   set_exception_handler($exceptionHandler);
 
@@ -39,6 +40,6 @@
 
   $builder = new ApplicationBuilder();
   $app = $builder->buildApp();
-  
+
   // handle request
   $app->run();

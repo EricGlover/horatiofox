@@ -15,6 +15,7 @@
   use Foxy\Actions\CreateUser;
   use Foxy\Actions\EditProfile;
   use Foxy\Actions\WorkingTitle;
+  use Foxy\Actions\Pong;
   use Symfony\Component\HttpFoundation\Request;
   use Symfony\Component\HttpFoundation\Response;
   use Symfony\Component\HttpFoundation\JsonResponse;
@@ -54,8 +55,10 @@
       $app->get("/", new GetLandingPage());
 
       // games
+      // unfinished game
       $app->get("/games/workingTitle", new WorkingTitle());
-
+      // pong
+      $app->get("/games/pong", new Pong());
 
       $app->get("/profile", new GetProfilePage())->before(new LoggedInOnly());
 

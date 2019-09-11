@@ -1,0 +1,44 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+  <meta charset="utf-8">
+  <title>HoratioFox</title>
+  <meta name="author" content="Eric Glover">
+  <meta name="description" content="Game site">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+
+  <!-- Semantic UI -->
+  <link rel="stylesheet" type="text/css" href="/lib/semantic/semantic.min.css">
+  <script
+  src="https://code.jquery.com/jquery-3.1.1.min.js"
+  integrity="sha256-hVVnYaiADRTO2PzUGmuLJr8BLUSjGIZsDYGmIJLv2b8="
+  crossorigin="anonymous"></script>
+  <script type="text/javascript" src="/lib/semantic/semantic.min.js"></script>
+
+  <link rel="stylesheet" href="/css/index.css">
+  <link rel="stylesheet" href="/css/navbar.css">
+  <!-- TODO::: SETUP THE DEFAULTS FOR MODULES NOT BEING SUPPORTED  -->
+  <!-- IT'S IN THE GOOGLE WEB DEVELOPER GUIDE I THINK -->
+  <script type="module" src="/js/Errors.js"></script>
+  <script src="/gamesDir/pong/Pong.v1.GL/TemplateData/UnityProgress.js"></script>
+  <script src="/gamesDir/pong/Pong.v1.GL/Build/UnityLoader.js"></script>
+  <script>
+    var unityInstance = UnityLoader.instantiate("unityContainer", "/gamesDir/pong/Pong.v1.GL/Build/Pong.v1.GL.json", {onProgress: UnityProgress});
+  </script>
+</head>
+
+<body>
+  {{ include('/partials/navbar.twig') }}
+  <div class="webgl-content">
+        <div id="unityContainer" style="width: 960px; height: 600px"></div>
+        <div class="footer">
+          <div class="webgl-logo"></div>
+          <div class="fullscreen" onclick="unityInstance.SetFullscreen(1)"></div>
+          <div class="title">Pong</div>
+        </div>
+      </div>
+  <!-- body -->
+  <!-- Working title game  -->
+</body>
+</html>
