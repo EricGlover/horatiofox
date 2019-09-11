@@ -32,7 +32,7 @@
         return new Response("Before switching accounts you need to logout of your current one", 400);
       } else if (!empty($user) && $user->getActive()) {   //they're logged in, maybe on a different device ?
         return new Response("Please logout first", 400);
-      } else if (!empty($user) && $user->isVerified()) {
+      } else if (false && !empty($user) && $user->isVerified()) { // email verifaction not done yet
         return new Reponse("Please check your email and verify your account.");
       } else if (empty($user)) {
         return new Response("Sorry something went wrong", 500);
