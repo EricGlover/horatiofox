@@ -21,10 +21,10 @@
   <!-- TODO::: SETUP THE DEFAULTS FOR MODULES NOT BEING SUPPORTED  -->
   <!-- IT'S IN THE GOOGLE WEB DEVELOPER GUIDE I THINK -->
   <script type="module" src="/js/Errors.js"></script>
-  <script src="/gamesDir/pong/Pong.v1.GL/TemplateData/UnityProgress.js"></script>
-  <script src="/gamesDir/pong/Pong.v1.GL/Build/UnityLoader.js"></script>
+  <script src="/gamesDir/pong/TemplateData/UnityProgress.js"></script>
+  <script src="/gamesDir/pong/Build/UnityLoader.js"></script>
   <script>
-    var unityInstance = UnityLoader.instantiate("unityContainer", "/gamesDir/pong/Pong.v1.GL/Build/Pong.v1.GL.json", {onProgress: UnityProgress});
+    var unityInstance = UnityLoader.instantiate("unityContainer", "/gamesDir/pong/Build/Pong.v1.2.GL.json", {onProgress: UnityProgress});
   </script>
 </head>
 
@@ -37,7 +37,10 @@
     <div class="footer">
       <div class="webgl-logo"></div>
       <div class="fullscreen" onclick="unityInstance.SetFullscreen(1)"></div>
-      <div class="title">Pong</div>
+      <h5>Controls</h5>
+      <p>WASD and Arrows</p>
+      <h5>Description</h5>
+      <p>Two player mode Pong.</p>
     </div>
   </div>
 </body>
