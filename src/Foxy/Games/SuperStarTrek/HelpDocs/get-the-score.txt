@@ -1,0 +1,7 @@
+Mnemonic:  SCORE
+Shortest abbreviation: SC
+
+Shows what the score would be if the game were to end naturally at
+this point. Since the game hasn't really ended and you lose points if
+you quit, this is perhaps a meaningless command, but it gives you a
+general idea of how well you are performing.

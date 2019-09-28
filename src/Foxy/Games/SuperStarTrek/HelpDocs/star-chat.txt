@@ -1,0 +1,20 @@
+Mnemonic:  CHART
+Shortest abbreviation:  C
+
+As you proceed in the game, you learn more and more about what things
+are where in the galaxy. When ever you first do a scan in a quadrant,
+telemetry sensors are ejected which will report any changes in the
+quadrant(s) back to your ship, providing the sub-space radio is
+working. Spock will enter this information in the chart. If the radio
+is not working, Spock can only enter new information discovered from
+scans, and information in other quadrants may be obsolete.
+
+The chart looks like an 8 by 8 array of numbers.  These numbers are
+interpreted exactly as they are on a long-range scan. A period (.) in
+place of a digit means you do not know that information yet.  For
+example, ... means you know nothing about the quadrant, while .1.
+means you know it contains a base, but an unknown number of Klingons
+and stars.
+
+Looking at the star chart is a free operation.  It costs neither time
+nor energy, and can be done safely whether in or out of battle.

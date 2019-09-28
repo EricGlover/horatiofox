@@ -1,0 +1,71 @@
+Mnemonic:  MOVE
+  Shortest abbreviation:  M
+  Full command:  MOVE MANUAL <displacement>
+                 MOVE AUTOMATIC <destination>
+
+This command is the usual way to move from one place to another
+within the galaxy.  You move under warp drive, according to the
+current warp factor (see "WARP FACTOR").
+
+There are two command modes for movement: MANUAL and AUTOMATIC.  The
+manual mode requires the following format:
+
+        MOVE MANUAL <deltax> <deltay>
+
+<deltax> and <deltay> are the horizontal and vertical displacements
+for your starship, in quadrants; a displacement of one sector is 0.1
+quadrants.  Specifying <deltax> and <deltay> causes your ship to move
+in a straight line to the specified destination. If <deltay> is
+omitted, it is assumed zero. For example, the shortest possible
+command to move one sector to the right would be
+
+        M M .1
+
+The following examples of manual movement refer to the short-range
+scan shown earlier.
+
+  Destination Sector    Manual Movement command
+        3 - 1                   M M -.3 -.1
+        2 - 1                   M M -.3
+        1 - 2                   M M -.2 .1
+        1 - 4                   M M 0 .1
+  (leaving quadrant)            M M 0 .2
+
+
+The automatic mode is as follows:
+
+        MOVE AUTOMATIC <qrow> <qcol> <srow> <scol>
+
+where <qrow> and <qcol> are the row and column numbers of the
+destination quadrant, and <srow> and <scol> are the row and column
+numbers of the destination sector in that quadrant.  This command also
+moves your ship in a straight line path to the destination.  For
+moving within a quadrant, <qrow> and <qcol> may be omitted. For
+example, to move to sector 2 - 9 in the current quadrant, the
+shortest command would be
+
+        M A 2 9
+
+To move to quadrant 3 - 7, sector 5 - 8, type
+
+        M A 3 7 5 8
+
+and it will be done.  In automatic mode, either two or four numbers
+must be supplied.
+                                                                       10
+Automatic mode utilizes the ship's "battle computer."  If the
+computer is damaged, manual movement must be used.
+
+If warp engines are damaged less than 10 stardates (undocked) you can
+still go warp 4.
+
+It uses time and energy to move.  How much time and how much energy
+depends on your current warp factor, the distance you move, and
+whether your shields are up.  The higher the warp factor, the faster
+you move, but higher warp factors require more energy.  You may move
+with your shields up, but this doubles the energy required.
+
+You can move within a quadrant without being attacked if you just
+entered the quadrant or have bee attacked since your last move
+command.  This enables you to move and hit them before they
+retaliate.

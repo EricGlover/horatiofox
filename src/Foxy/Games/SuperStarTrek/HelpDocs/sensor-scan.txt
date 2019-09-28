@@ -1,0 +1,8 @@
+Mnemonic:  SENSORS
+Shortest abbreviation:  SE
+
+Utilizing the short-range sensors, science officer Spock gives you a
+readout on any planet in your quadrant.  Planets come in three
+classes: M, N, and O.  Only class M planets have earth-like
+conditions.  Spock informs you if the planet has any dilithium
+crystals.  Sensor scans are free.

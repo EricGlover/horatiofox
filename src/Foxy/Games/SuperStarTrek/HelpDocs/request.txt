@@ -1,0 +1,19 @@
+Mnemonic:  REQUEST
+Shortest abbreviation:  REQ
+Full command:  REQUEST <ITEM>
+
+This command allows you to get any single piece of information from
+the <STATUS> command.  <ITEM> specifies which information as follows:
+
+INFORMATION       MNEMONIC FOR <ITEM>           SHORTEST ABBREVIATION
+
+STARDATE              DATE                                D
+CONDITION             CONDITION                           C
+POSITION              POSITION                            P
+LIFE SUPPORT          LSUPPORT                            L
+WARP FACTOR           WARPFACTOR                          W
+ENERGY                ENERGY                              E
+TORPEDOES             TORPEDOES                           T
+SHIELDS               SHIELDS                             S
+KLINGONS LEFT         KLINGONS                            K
+TIME LEFT             TIME                                TI

@@ -16,6 +16,8 @@
   use Foxy\Actions\EditProfile;
   use Foxy\Actions\WorkingTitle;
   use Foxy\Actions\Pong;
+  use Foxy\Actions\SuperStarTrek;
+  use Foxy\Actions\SuperStarTrek\GetHelp;
   use Symfony\Component\HttpFoundation\Request;
   use Symfony\Component\HttpFoundation\Response;
   use Symfony\Component\HttpFoundation\JsonResponse;
@@ -59,6 +61,9 @@
       $app->get("/games/workingTitle", new WorkingTitle());
       // pong
       $app->get("/games/pong", new Pong());
+      // star trek
+      $app->get("/games/superStarTrek", new SuperStarTrek());
+      $app->get('/games/superStarTrek/help', new GetHelp());
 
       $app->get("/profile", new GetProfilePage())->before(new LoggedInOnly());
 
@@ -71,6 +76,4 @@
       // edit user
       $app->put("/editProfile", new EditProfile())->before(new LoggedInOnly());
     }
-
-
   }

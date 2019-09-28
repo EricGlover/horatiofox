@@ -1,0 +1,22 @@
+Mnemonic:  DOCK
+Shortest abbreviation:  D
+
+You may dock your starship whenever you are in one of the eight
+sector positions immediately adjacent to a starbase.  When you dock,
+your starship is resupplied with energy, shield energy photon
+torpedoes, and life support reserves.  Repairs also proceed faster at
+starbase, so if some of your devices are damaged, you may wish to
+stay at base (by using the "REST" command) until they are fixed.  If
+your ship has more than its normal maximum energy (which can happen
+if you've loaded crystals) the ship's energy is not changed.
+
+You may not dock while in standard orbit around a planet.
+
+Starbases have their own deflector shields, so you are completely
+safe from phaser attack while docked.  You are also safe from
+long-range tractor beams.
+
+Starbases also have both short and long range sensors, which you can
+use if yours are broken. There's also a subspace radio to get
+information about happenings in the galaxy. Mr. Spock will update the
+star chart if your ask for it while docked and your own radio is dead.

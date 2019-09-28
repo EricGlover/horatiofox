@@ -1,0 +1,24 @@
+Mnemonic:  DEATHRAY
+(No abbreviation)
+
+This command should be used only in those desperate cases where you
+have absolutely no alternative.  The death ray uses energy to
+rearrange matter.  Unfortunately, its working principles are not yet
+thoroughly understood, and the results are highly unpredictable.
+
+The only good thing that can result is the destruction of all enemies
+in your current quadrant.  This will happen about 70% of the time.
+Only enemies are destroyed; starbases, stars, and planets are
+unaffected.
+
+Constituting the remaining 30% are results varying from bad to fatal.
+
+The death ray requires no energy or time, but if you survive, enemies
+will hit you.
+
+The Faerie Queene has no death ray.
+
+If the death ray is damaged in its use, it must be totally replaced.
+This can only be done at starbase.  Because it is a very complex
+device, it takes 9.99 stardates at base to replace the death ray.
+The death ray cannot be repaired in flight.

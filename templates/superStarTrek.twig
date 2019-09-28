@@ -1,0 +1,38 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <link rel="stylesheet" href="/lib/xterm/xterm.css" />
+  <!-- <script src="/lib/xterm/xterm.js"></script> -->
+
+  <meta charset="utf-8">
+  <title>HoratioFox</title>
+  <meta name="author" content="Eric Glover">
+  <meta name="description" content="Game site">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+
+  <!-- CSS -->
+  <!-- Semantic UI -->
+  <link rel="stylesheet" type="text/css" href="/lib/semantic/semantic.min.css">
+  <link rel="stylesheet" href="/css/index.css">
+  <link rel="stylesheet" href="/css/navbar.css">
+
+
+  <!-- JS -->
+  <script
+  src="https://code.jquery.com/jquery-3.1.1.min.js"
+  integrity="sha256-hVVnYaiADRTO2PzUGmuLJr8BLUSjGIZsDYGmIJLv2b8="
+  crossorigin="anonymous"></script>
+  <script type="text/javascript" src="/lib/semantic/semantic.min.js"></script>
+
+  <!-- <script type="module" src="/dist/superStarTrek.bundle.js"></script> -->
+  <script type="module" src="/js/games/superStarTrek/superStarTrek.js">
+
+  </script>
+
+  <body>
+    {{ include('/partials/navbar.twig') }}
+    <h1>Super Star Trek</h1>
+    <div id="terminal"></div>
+  </body>
+
+  </html>

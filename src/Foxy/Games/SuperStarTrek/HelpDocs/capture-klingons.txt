@@ -1,0 +1,14 @@
+Mnemonic:  CAPTURE
+Shortest abbreviation: CA
+
+The capture command provides a more humane way to end a battle than
+just destroying the Klingon battleship with the crew aboard. Assuming
+the subspace radio and transporter are working, and there is room in
+the brig, this command will ask the captain of the weakest Klingon
+ship in the quadrant to surrender.  If the captain agrees, some of the
+crew will transport to your ship and the Klingon ship will be
+destroyed. This command does take time and you will be attacked by any
+other enemy ships if the surrender occurs.
+
+When you dock, any captured Klingons will be transferred to the base
+and you will be credited with the lives you save.

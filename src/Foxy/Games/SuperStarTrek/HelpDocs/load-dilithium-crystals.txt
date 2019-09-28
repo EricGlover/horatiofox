@@ -1,0 +1,18 @@
+Mnemonic:  CRYSTALS
+Shortest abbreviation:  CR
+
+This is a very powerful command which should be used with caution.
+Once you have dilithium crystals aboard ship, this command will
+instruct engineering officer Scott and Mr. Spock to place a raw
+dilithium crystal into the power channel of the ship's
+matter-antimatter converter.  When it works, this command will
+greatly boost the ship's energy.
+                                                                       19
+Because the crystals are raw and impure, instabilities can occur in
+the power channel.  Usually Scotty can control these.  When he
+cannot, the results are disastrous. Scotty will use those crystals
+that appear to be most stable first.
+
+Since using raw dilithium crystals for this purpose entails
+considerable risk, Starfleet Regulations allow its use only during
+"condition yellow".  No time or energy is used.

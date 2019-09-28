@@ -1,0 +1,6 @@
+Mnemonic:  PLANETS
+Shortest abbreviation:  PL
+
+Mr. Spock presents you a list of the available information on planets
+in the galaxy.  Since planets do not show up on long-range scans, the
+only way to obtain this information is with the "SENSORS" command.

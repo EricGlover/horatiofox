@@ -1,0 +1,6 @@
+Mnemonic:  QUIT
+(no abbreviation)
+
+Immediately cancel the current game; no conclusion is reached.  You
+will be given an opportunity to start a new game or to leave the Star
+Trek program.

@@ -1,0 +1,16 @@
+Mnemonic:  MINE
+Shortest abbreviation:  MI
+
+Once you and your mining party are on the surface of a planet which
+has dilithium crystals, this command will dig them for you.
+
+Mining requires time and constitutes a "turn".  No energy is used.
+Class M planets require 0.1 to 0.3 stardates to mine.  Class N
+planets take twice as long, and class O planets take three times as
+long.
+
+Dilithium crystals contain enormous energy in a form that is readily
+released in the ship's power system.  It is an excellent idea to mine
+them whenever possible, for use in emergencies.  You keep the
+crystals until the game is over or you abandon ship when not at a
+starbase.

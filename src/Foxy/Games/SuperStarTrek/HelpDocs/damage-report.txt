@@ -1,0 +1,14 @@
+Mnemonic:  DAMAGES
+Shortest abbreviation:  DA
+
+At any time you may ask for a damage report to find out what devices
+are damaged and how long it will take to repair them.  Naturally,
+repairs proceed faster at a starbase.
+
+If you suffer damages while moving, it is possible that a subsequent
+damage report will not show any damage.  This happens if the time
+spent on the move exceeds the repair time, since in this case the
+damaged devices were fixed en route.
+
+Damage reports are free.  They use no energy or time, and can be done
+safely even in the midst of battle.

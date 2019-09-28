@@ -1,0 +1,17 @@
+Mnemonic:  SHUTTLE
+Shortest abbreviation:  SHU
+
+An alternate way to travel to and from planets.  Because of limited
+range, you must be in standard orbit to use the shuttle craft, named
+"Galileo".  Shields must be down.
+
+Unlike transporting, use of the shuttle craft does constitute a
+"turn" since time is consumed.  The time naturally depends on orbit
+altitude, and is equal to 3.0e-5 times altitude.  Shuttling uses no
+ship energy.
+
+You should use the same travel device going from the planet to the
+ship as you use to go from the ship to the planet. However it is
+possible to transport to the planet and have the Galileo crew come
+and pick your landing party up, or to take the Galileo to the planet
+and then transport back, leaving the shuttle craft on the planet.

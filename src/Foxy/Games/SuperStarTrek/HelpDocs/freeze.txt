@@ -1,0 +1,29 @@
+Mnemonic:  FREEZE
+(no abbreviation)
+Full command:  FREEZE <FILE NAME>
+
+The purpose of the FREEZE command is to allow a player to save the
+current state of the game, so that it can be finished later.  A
+plaque may not be generated from a frozen game. A file with the
+specified <file name> and type '.TRK' is created (if necessary) in
+the current directory, and all pertinent information about the game
+is written to that file. The game may be continued as usual or be
+terminated at the user's option.
+
+To restart a game created by the "FREEZE" command, the user need only
+type "FROZEN" in response to the initial question about the type of
+game desired, followed by the <file name>.
+
+NOTE: A "tournament" game is like a frozen game, with the following
+differences.  (1) Tournament games always start from the beginning,
+while a frozen game can start at any point.  (2) Tournament games
+require only that the player remember the name or number of the
+tournament, while the information about a frozen game must be kept on
+a file. Tournament games can be frozen, but then they behave like
+regular frozen games.
+
+A point worth noting is that 'FREEZE' does not save the seed for the
+random number generator, so that identical actions after restarting
+the same frozen game can lead to different results.  However,
+identical actions after starting a given tournament game always lead
+to the same results.

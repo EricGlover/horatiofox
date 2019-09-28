@@ -1,0 +1,43 @@
+Mnemonic:  SHIELDS
+Shortest abbreviation:  SH
+Full commands:  SHIELDS UP
+                SHIELDS DOWN
+                SHIELDS TRANSFER <amount of energy to transfer>
+
+Your deflector shields are a defensive device to protect you from
+Klingon attacks (and nearby novas).  As the shields protect you, they
+gradually weaken.  A shield strength of 75%, for example, means that
+the next time a Klingon hits you, your shields will deflect 75% of
+the hit, and let 25% get through to hurt you.
+
+It costs 50 units of energy to raise shields, nothing to lower them.
+You may move with your shields up; this costs nothing under impulse
+power, but doubles the energy required for warp drive.
+
+Each time you raise or lower your shields, the Klingons have another
+chance to attack.  Since shields do not raise and lower
+instantaneously, the hits you receive will be intermediate between
+what they would be if the shields were completely up or completely
+down.
+
+You may not fire phasers through your shields.  However you may use
+the "high-speed shield control" to lower shields, fire phasers, and
+raise the shields again before the Klingons can react.  Since rapid
+lowering and raising of the shields requires more energy than normal
+speed operation, it costs you 200 units of energy to activate this
+control.  It is automatically activated when you fire phasers while
+shields are up.  You may fire photon torpedoes, but they may be
+deflected considerably from their intended course as they pass
+through the shields (depending on shield strength).
+
+You may transfer energy between the ship's energy (given as "Energy"
+in the status) and the shields.  Thee word "TRANSFER" may be
+abbreviated "T".  The amount of energy to transfer is the number of
+units of energy you wish to take from the ship's energy and put into
+the shields.  If you specify an negative number, energy is drained
+from the shields to the ship.  Transferring energy constitutes a turn.
+If you transfer energy to the shields while you are under attack,
+they will be at the new energy level when you are next hit.
+
+Enemy torpedoes hitting your ship explode on your shields (if they
+are up) and have essentially the same effect as phaser hits.

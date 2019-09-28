@@ -1,0 +1,5 @@
+Mnemonic:  COMPUTER
+Shortest abbreviation: CO
+
+This command allows using the ship's computer (if functional) to
+calculate travel times and energy usage.

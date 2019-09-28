@@ -1,0 +1,20 @@
+Mnemonic:  TRANSPORT
+Shortest abbreviation:  T
+
+The transporter is a device which can convert any physical object
+into energy, beam the energy through space, and reconstruct the
+physical object at some destination.  Transporting is one way to land
+on a planet.  Since the transporter has a limited range, you must be
+in standard orbit to beam down to a planet.  Shields must be down
+while transporting.
+
+The transport command is used to beam a landing party onto a planet
+to mine "dilithium crystals".  Each time the command is given the
+landing party (which you lead) moves from the ship to the planet, or
+vice-versa.
+
+You are advised against needless transporting, since like all
+devices, the transporter will sometimes malfunction.
+
+The transporter consumes negligible time and energy.  Its use does
+not constitute a "turn".

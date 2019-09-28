@@ -1,0 +1,60 @@
+Mnemonic:  PHASERS
+Shortest abbreviation:  P
+Full commands:  PHASERS AUTOMATIC <AMOUNT TO FIRE> <NO>
+                PHASERS <AMOUNT TO FIRE> <NO>
+                PHASERS MANUAL <NO> <AMOUNT 1> <AMOUNT 2>...<AMOUNT N>
+
+Phasers are energy weapons. As you fire phasers at Klingons, you
+specify an "amount to fire" which is drawn from your energy reserves.
+The amount of total hit required to kill an enemy is partly random.
+but also depends on skill level.
+
+The average hit required to kill an ordinary Klingon varies from 200
+units in the Novice game to 250 units in the Emeritus game.
+Commanders normally require from 600 (Novice) to 700 (Emeritus).  The
+Super-commander requires from 875 (Good) to 1000 (Emeritus). Romulans
+require an average of 350 (Novice) to 450 (Emeritus).
+
+Hits on enemies are cumulative, as long as you don't leave the
+quadrant.
+
+In general, not all that you fire will reach the Klingons.  The
+farther away they are, the less phaser energy will reach them. If a
+Klingon is adjacent to you, he will receive about 90% of the phaser
+energy directed at him; a Klingon 5 sectors away will receive about
+60% and a Klingon 10 sectors away will receive about 35%. There is
+some randomness involved, so these figures are not exact. Phasers
+have no effect beyond the boundaries of the quadrant you are in.
+
+Phasers may overheat (and be damaged) if you fire too large a burst
+at once. Firing up to 1500 units is safe.  From 1500 on up the
+probability of overheat increases with the amount fired.
+
+If phaser firing is automatic, the computer decides how to divide up
+your <amount to fire> among the Klingons present.  If phaser firing
+is manual, you specify how much energy to fire at each Klingon
+present (nearest first), rather than just specifying a total amount.
+You can abbreviate "MANUAL" and "AUTOMATIC" to one or more letters; if
+you mention neither, automatic fire is usually assumed.
+
+Battle computer information is available by firing phasers manually,
+and allowing the computer to prompt you.  If you enter zero for the
+amount to fire at each enemy, you will get a complete report, without
+cost.  The battle computer will tell you how much phaser energy to
+fire at each enemy for a sure kill.  This information appears in
+parentheses prior to the prompt for each enemy.  SInce the amount is
+computed from sensor data, if either the computer or the S.R. sensors
+are damaged, this information will be unavailable, and phasers must
+be fired manually.
+                                                                       13
+A safety interlock prevents phasers from being fired through the
+shields.  If this were not so, the shields would contain your fire
+and you would fry yourself.  However, you may utilize the
+"high-speed shield control" to drop shields, fire phasers, and raise
+shields before the enemy can react.  Since it takes more energy to
+work the shields rapidly with a shot, it costs you 200 units of
+energy each time you activate this control.  It is automatically
+activated when you fire phasers while the shields are up. By
+specifying the <no> option, shields are not raised after firing.
+
+Phasers have no effect on starbases (which are shielded) or on stars.

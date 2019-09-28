@@ -1,0 +1,9 @@
+Mnemonic:  DESTRUCT
+(no abbreviation)
+
+You may self-destruct, thus killing yourself and ending the game.  If
+there are nearby Klingons, you may take a few of them with you (the
+more energy you have left, the bigger the bang).
+
+In order to self-destruct you must remember the password you typed in
+at the beginning of the game.

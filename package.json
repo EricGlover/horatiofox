@@ -2,14 +2,20 @@
   "name": "horatio",
   "version": "1.0.0",
   "description": "",
-  "main": "index.js",
+  "private": true,
   "dependencies": {
+    "jquery": "^3.4.1",
     "normalize.css": "^8.0.1",
     "semantic-ui": "^2.4.2",
-    "semantic-ui-icon": "^2.3.3"
+    "semantic-ui-icon": "^2.3.3",
+    "xterm": "^4.0.2"
   },
-  "devDependencies": {},
+  "devDependencies": {
+    "webpack": "^4.41.0",
+    "webpack-cli": "^3.3.9"
+  },
   "scripts": {
+    "build": "webpack",
     "test": "echo \"Error: no test specified\" && exit 1"
   },
   "repository": {

@@ -1,0 +1,10 @@
+Mnemonic:  ORBIT
+Shortest abbreviation:  O
+
+To land on a planet you must first be in standard orbit.  You achieve
+this in a manner similar to docking at starbase.  Moving to one of
+the eight sector positions immediately adjacent to the planet, you
+give the orbit command which puts your ship into standard orbit about
+the planet.  Since this is a maneuver, a small amount of time is
+used; negligible energy is required.  If enemies are present, they
+will attack.

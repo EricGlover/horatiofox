@@ -1,0 +1,5 @@
+Mnemonic:  HELP
+Full command:  HELP <command>
+
+This command reads the appropriate section from the SST.DOC file,
+providing the file is in the current directory.

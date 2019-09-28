@@ -1,0 +1,8 @@
+Mnemonic:  ABANDON
+(no abbreviation)
+
+You may abandon the Enterprise if necessary.  If there is still a
+starbase in the galaxy, you will be sent there and put in charge of a
+weaker ship, the Faerie Queene.
+
+The Faerie Queene cannot be abandoned.

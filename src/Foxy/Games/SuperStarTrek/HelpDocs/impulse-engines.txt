@@ -1,0 +1,15 @@
+Mnemonic:  IMPULSE
+Shortest abbreviation:  I
+Full command:  IMPULSE MANUAL <displacement>
+               IMPULSE AUTOMATIC <destination>
+
+The impulse engines give you a way to move when your warp engines are
+damaged.  They move you at a speed of 0.95 sectors per stardate,
+which is the equivalent of a warp factor of about 0.975, so they are
+much too slow to use except in emergencies.
+
+Movement commands are indicated just as in the "MOVE" command.
+
+The impulse engines require 20 units of energy to engage, plus 10
+units per sector (100 units per quadrant) traveled. It does not cost
+extra to move with the shields up.

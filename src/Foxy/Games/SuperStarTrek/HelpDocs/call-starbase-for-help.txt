@@ -1,0 +1,25 @@
+Mnemonic:  CALL
+(No abbreviation)
+
+[Originally, this command was called "HELP", but these days it might
+be misinterpreted as built-in documentation!]
+
+When you get into serious trouble, you may call starbase for help.
+Starbases have a device called a "long-range transporter beam" which
+they can use to teleport you to base.  This works by dematerializing
+your starship at its current position and re-materializing it
+adjacent to the nearest starbase.  Teleportation is instantaneous,
+and starbase supplies the required energy--all you have to do is let
+them know (via subspace radio) that you need to be rescued.
+                                                                       16
+This command should be employed only when absolutely necessary.  In
+the first place, calling for help is an admission on your part that
+you got yourself into something you cannot get yourself out of, and
+you are heavily penalized for this in the final scoring.  Secondly,
+the long-range transporter beam is not reliable--starbase can always
+manage to dematerialize your starship, but (depending on distance)
+may or may not be able to re-materialize you again.  The long-range
+transporter beam has no absolute maximum range; if you are in the
+same quadrant as a starbase, you have a good chance (about 90%) of
+re-materializing successfully.  Your chances drop to roughly 50-50 at
+just over 3 quadrants.

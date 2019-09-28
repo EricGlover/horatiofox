@@ -1,0 +1,10 @@
+Mnemonic:  EMEXIT
+Shortest abbreviation:  E
+
+This command provides a quick way to exit from the game when you
+observe a Klingon battle cruiser approaching your terminal.  Its
+effect is to freeze the game on the file 'EMSAVE.TRK' in your current
+directory, erase the screen, and exit.
+
+Of course, you do loose the chance to get a plaque when you use this
+maneuver.

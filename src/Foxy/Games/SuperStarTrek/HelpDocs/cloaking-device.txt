@@ -1,0 +1,17 @@
+Mnemonic:  CLOAK
+Shortest abbreviation:  CLOAK
+Full commands:  CLOAK ON
+                CLOAK OFF
+
+The cloaking device prevents your ship from being seen by any enemy
+vessels.  When the cloaking device is in use, your subspace radio will
+not receive transmissions, torpedoes will be less accurate, you cannot
+dock, and you cannot use your warp engines. Enemy ships will get a
+chance to attack you when you turn clocking on.
+
+The Treaty of Algeron with the Romulans in Stardate 2311 prohibits the
+use of cloaking devices. If a Romulan ship observes you cloaking or
+uncloaking after this point in time you will be in violation, which
+will hurt your final score.
+
+The Faerie Queene does not have a cloaking device.
