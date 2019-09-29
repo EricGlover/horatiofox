@@ -140,6 +140,12 @@
         data: null
       };
 
+      // extension for using regex to match what command should be
+      // run .
+      /**
+       * @string str (the input)
+       * returns a string command name or false
+       **/
       var get_command = function(str) {
         // use the commandNames to look for a regex match
         let commandNames = Object.getOwnPropertyNames(commandNameHash);
@@ -360,7 +366,7 @@
        * @method : run_command
        * @desc   : Takes a string and runs it as a command.
        **/
-      public_methods.run_command = function(command, mute) {
+      public_methods.run_command = function(command, mute = false) {
         quiet = mute;
         cmd_start(command);
       };
@@ -378,6 +384,25 @@
         if (!no_scroll) {
           scroll_to_bottom();
         }
+      };
+
+      public_methods.type = function(str, speed = 60) {
+        this.echo("\n");
+        var text_input = this.get_terminal(".prompt");
+        var typebox = $("<span></span>").appendTo(".content");
+
+        // Type string out
+        var self = this;
+        var i = 0,
+          text;
+        (function typewriter() {
+          text = str.slice(0, ++i);
+          typebox.html(text);
+          self.echo(); // force scroll to bottom
+
+          var char = text.slice(-1);
+          setTimeout(typewriter, speed);
+        })();
       };
 
       /**

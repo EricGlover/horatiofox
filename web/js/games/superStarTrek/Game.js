@@ -1,4 +1,5 @@
 import Service from "./utils/Service.js";
+import { commands } from "./commands.js";
 // help menu
 // read sst.txt for info
 
@@ -30,6 +31,8 @@ Good Luck!
   async runCommand(command) {
     switch (command) {
       case "help":
+        // get the command they're asking for help on
+        debugger;
         this.getHelp(command);
         break;
       default:
@@ -50,48 +53,7 @@ Good Luck!
 // setup command options
 // setup our terminal for the commands
 // tie in the getHelp info stuffz
-let commands = [
-  {
-    abbreviation: "ABANDON",
-    name: "ABANDON",
-    deviceUsed: "shuttle craft",
-    helpName: "abandon"
-  },
-  "srscan",
-  "lrscan",
-  "phasers",
-  "photons",
-  "move",
-  "shields",
-  "dock",
-  "damages",
-  "chart",
-  "impulse",
-  "rest",
-  "warp",
-  "status",
-  "sensors",
-  "orbit",
-  "transport",
-  "mine",
-  "crystals",
-  "shuttle",
-  "planets",
-  "request",
-  "report",
-  "computer",
-  "commands",
-  "emexit",
-  "probe",
-  "cloak",
-  "capture",
-  "score",
-  "abandon",
-  "destruct",
-  "freeze",
-  "deathray",
-  "debug",
-  "call",
-  "quit",
-  "help"
-];
+/**
+ * commands
+ *
+ **/
