@@ -92,6 +92,7 @@ Good Luck!
   // for the moment this prints out the actual info
   runChart() {
     this.terminal.echo("\nSTAR CHART FOR THE KNOWN GALAXY\n");
+
     // use galaxy to make a grid of text
     let grid = [];
     // convert each row to text
@@ -110,6 +111,34 @@ Good Luck!
       //add row to our print out
       grid.push(textRow);
     }
+
+    // add column before and after to indicate row #s
+    grid.forEach((row, i) => {
+      row.unshift(`${i + 1} -`);
+      row.push("-");
+    });
+    // for (let i = 0; i < grid.length; i++) {
+    //   grid[i].unshift(`${i + 1} -`);
+    //   grid[i].push("-");
+    // }
+
+    // add header rows to indicate column #s
+    // make sure to account for the extra column
+    let headerRow = ["    "];
+    let rowLength = grid[0].length;
+    // skip first and last columns
+    for (let i = 1; i < rowLength - 1; i++) {
+      headerRow.push(`  ${i} `);
+    }
+
+    let h2 = ["    "];
+    // skip first and last columns
+    for (let i = 1; i < rowLength - 1; i++) {
+      h2.push(`----`);
+    }
+    grid.unshift(h2);
+    grid.unshift(headerRow);
+
     this.terminal.print_grid(grid, "   ");
   }
 
