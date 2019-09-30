@@ -95,6 +95,7 @@
        * @desc     : Stores command name and action to be taken when user enters a command.
        **/
       var commands = {}; // {given_command_name: command}
+      window.commands = commands;
       var commandNameHash = {}; // name matcher {given_command_name : regex }
 
       /**
@@ -403,6 +404,22 @@
           var char = text.slice(-1);
           setTimeout(typewriter, speed);
         })();
+      };
+
+      public_methods.print_grid = function(
+        grid,
+        columnSeparator = " ",
+        rowSeparator = "\n"
+      ) {
+        var rows = [];
+        for (var i = 0; i < grid.length; i++) {
+          // make line of text for row
+          var row = grid[i];
+          var line = row.join(columnSeparator);
+          rows.push(line + "\n");
+        }
+        var text = rows.join(rowSeparator);
+        this.echo(text);
       };
 
       /**

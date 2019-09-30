@@ -16,16 +16,37 @@
   info: ``
 }
 **/
+// todo:: consider breaking these up into separate command classes
 export const commands = [
   {
-    abbreviation: "ABANDON",
-    name: "ABANDON",
-    deviceUsed: "shuttle craft",
-    fullName: "abandon"
+    abbreviation: "c",
+    name: "chart",
+    regex: /^\s*(c|chart|star chart)\s*$/i,
+    fullName: "star chart",
+    devicedUsed: "",
+    options: {},
+    info: `As you proceed in the game, you learn more and more about what things
+    are where in the galaxy. When ever you first do a scan in a quadrant,
+    telemetry sensors are ejected which will report any changes in the
+    quadrant(s) back to your ship, providing the sub-space radio is
+    working. Spock will enter this information in the chart. If the radio
+    is not working, Spock can only enter new information discovered from
+    scans, and information in other quadrants may be obsolete.
+
+    The chart looks like an 8 by 8 array of numbers.  These numbers are
+    interpreted exactly as they are on a long-range scan. A period (.) in
+    place of a digit means you do not know that information yet.  For
+    example, ... means you know nothing about the quadrant, while .1.
+    means you know it contains a base, but an unknown number of Klingons
+    and stars.
+
+    Looking at the star chart is a free operation.  It costs neither time
+    nor energy, and can be done safely whether in or out of battle.`
   },
   {
     abbreviation: "s",
     name: "srscan",
+    regex: /^\s*(s|srscan| short range scan)\s*$/i,
     fullName: "short range scan",
     deviceUsed: "",
     options: {
@@ -88,7 +109,7 @@ export const commands = [
   {
     abbreviation: "l",
     name: "lrscan",
-    regex: /^\s*(l|lrscan)\s*$/i,
+    regex: /^\s*(l|lrscan|long range scan)\s*$/i,
     fullName: "Long Range Scan",
     devicedUsed: "",
     options: {},
@@ -135,40 +156,44 @@ export const commands = [
 
     Long-range scans are free.  They use up no energy or time, and can be
     done safely regardless of battle conditions.`
-  },
-  "phasers",
-  "photons",
-  "move",
-  "shields",
-  "dock",
-  "damages",
-  "chart",
-  "impulse",
-  "rest",
-  "warp",
-  "status",
-  "sensors",
-  "orbit",
-  "transport",
-  "mine",
-  "crystals",
-  "shuttle",
-  "planets",
-  "request",
-  "report",
-  "computer",
-  "commands",
-  "emexit",
-  "probe",
-  "cloak",
-  "capture",
-  "score",
-  "abandon",
-  "destruct",
-  "freeze",
-  "deathray",
-  "debug",
-  "call",
-  "quit",
-  "help"
+  }
 ];
+
+/**
+Commands to make
+"phasers",
+"photons",
+"move",
+"shields",
+"dock",
+"damages",
+"chart",
+"impulse",
+"rest",
+"warp",
+"status",
+"sensors",
+"orbit",
+"transport",
+"mine",
+"crystals",
+"shuttle",
+"planets",
+"request",
+"report",
+"computer",
+"commands",
+"emexit",
+"probe",
+"cloak",
+"capture",
+"score",
+"abandon",
+"destruct",
+"freeze",
+"deathray",
+"debug",
+"call",
+"quit",
+"help"
+**/
