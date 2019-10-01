@@ -41,6 +41,7 @@ $(document).ready(function() {
   window.matrix = [[1, 2, 3], [2, 4, 5]];
 
   let game = new Game($ptty);
+  window.game = game;
   game.start();
   // let menu = new Menu($ptty, () => game.start());
   // menu.start();

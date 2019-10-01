@@ -1,6 +1,9 @@
 import Service from "./utils/Service.js";
 import { commands } from "./commands.js";
 import { Galaxy } from "./Galaxy.js";
+import { GameObject } from "./Components.js";
+import Star from "./Objects/Star.js";
+
 // help menu
 // read sst.txt for info
 
@@ -16,9 +19,50 @@ export default class Game {
     this.playerLocation = [3, 4];
   }
 
+  makeStars() {
+    let minNumberOfStars = 1;
+    let maxNumberOfStars = 9;
+
+    // place random stars in each quadrant
+    this.galaxy.quadrants.forEach((row, i) => {
+      row.forEach((quadrant, j) => {
+        // for this quandrant, randomly generate number of stars
+        let numStars = Math.round(
+          Math.random() * (maxNumberOfStars - minNumberOfStars) +
+            minNumberOfStars
+        );
+        for (let s = 0; s < numStars; s++) {
+          let star = new Star();
+
+          // randomly place a star
+          let sectorY = Math.round(Math.random() * (quadrant.length - 1));
+          let sectorX = Math.round(Math.random() * (quadrant.width - 1));
+          // get the sector
+          let sector = this.galaxy.getSector(j, i, sectorY, sectorX);
+          star.gameObject.placeIn(this.galaxy, sector.quadrant, sector);
+        }
+      });
+    });
+  }
+
+  makePlanets() {
+    // todo
+  }
+
+  makeBases() {
+    // todo
+  }
+
   start() {
     // register commands
     this.registerCommands();
+
+    // these methods should probably be on the game .... whatever
+    // do some setup for our galaxy, make the immovable objects
+    // stars, planets, bases
+    this.makeStars();
+    this.makePlanets();
+    this.makeBases();
     // change terminal settings
     let startText = `It is stardate 3100. The Federation is being attacked by
 a deadly Klingon invasion force. As captain of the United
@@ -101,10 +145,10 @@ Good Luck!
       let textRow = [];
       // convert each quadrant to text
       row.forEach(quadrant => {
-        let superNovaText = quadrant.hasSupernova ? "1" : ".";
-        let klingonText = quadrant.getNumberOfKlingons();
-        let starbaseText = quadrant.getNumberOfStarbases();
-        let starText = quadrant.getNumberOfStars();
+        let superNovaText = "."; //quadrant.hasSupernova ? "1" : ".";
+        let klingonText = 0; //quadrant.container.getGameObjectsOfType(Klingon);
+        let starbaseText = 0; //quadrant.getNumberOfStarbases();
+        let starText = quadrant.container.getGameObjectsOfType(Star);
         let text = `${superNovaText}${klingonText}${starbaseText}${starText}`;
         textRow.push(text);
       });

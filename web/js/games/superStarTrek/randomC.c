@@ -11,6 +11,8 @@ double Rand(void) {
 
 /**
 star placement code
+every quadrant gets a number of stars
+the number is between 1 and 10
 **/
 /**
 instar = 0;
