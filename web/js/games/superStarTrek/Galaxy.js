@@ -39,6 +39,12 @@ export class Quadrant {
     }
   }
 
+  getRandomSector() {
+    let x = Math.round(Math.random() * (this.width - 1));
+    let y = Math.round(Math.random() * (this.length - 1));
+    return this.sectors[y][x];
+  }
+
   getSector(x, y) {
     if (y < 0 || y > this.length - 1) {
       throw new Error(`There is no sector ${x} - ${y}.`);
@@ -85,6 +91,13 @@ export class Galaxy {
         }
       }
     }
+  }
+
+  getRandomQuadrant() {
+    let x = Math.round(Math.random() * (this.width - 1));
+    let y = Math.round(Math.random() * (this.length - 1));
+
+    return this.quadrants[y][x];
   }
 
   getRow(i) {

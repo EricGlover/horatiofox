@@ -6,11 +6,14 @@ export class GameObjectContainer {
     this.parent.container = this;
     this.gameObjects = [];
   }
-  getGameObjectsOfType(type) {
+  getCountOfGameObjects(type) {
     return this.gameObjects.reduce((count, object) => {
       if (object instanceof type) count++;
       return count;
     }, 0);
+  }
+  getGameObjectsOfType(type) {
+    return this.gameObjects.filter(object => object instanceof type);
   }
   addGameObject(obj) {
     this.gameObjects.push(obj);

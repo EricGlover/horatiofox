@@ -3,7 +3,4 @@ export default class Star {
   constructor() {
     this.gameObject = new GameObject(this);
   }
-  getGalaxy() {}
-  getQuadrant() {}
-  getSector() {}
 }

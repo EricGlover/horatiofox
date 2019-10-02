@@ -3,6 +3,7 @@ import { commands } from "./commands.js";
 import { Galaxy } from "./Galaxy.js";
 import { GameObject } from "./Components.js";
 import Star from "./Objects/Star.js";
+import StarBase from "./Objects/StarBase.js";
 
 // help menu
 // read sst.txt for info
@@ -47,11 +48,66 @@ export default class Game {
 
   makePlanets() {
     // todo
+    /*
+    // Locate planets in galaxy
+	for (i = 1; i <= inplan; i++) {
+		do iran8(&ix, &iy);
+		while (d.newstuf[ix][iy] > 0);
+		d.newstuf[ix][iy] = 1;
+		d.plnets[i].x = ix;
+		d.plnets[i].y = iy;
+		d.plnets[i].pclass = Rand()*3.0 + 1.0; // Planet class M N or O
+		d.plnets[i].crystals = 1.5*Rand();		// 1 in 3 chance of crystals
+		d.plnets[i].known = 0;
+	}
+  */
   }
 
   makeBases() {
-    // todo
+    let minNumberOfBases = 2;
+    let maxNumberOfBases = 5;
+    let numberOfBases = Math.round(
+      Math.random() * (maxNumberOfBases - minNumberOfBases) + minNumberOfBases
+    );
+    let bases = [];
+
+    while (bases.length < numberOfBases) {
+      // pick a quandrant
+      let quadrant = this.galaxy.getRandomQuadrant();
+      // if it doesn't already have a base
+      if (quadrant.container.getCountOfGameObjects(StarBase) === 0) {
+        // and if it's not too close to an existing base
+        let tooClose = false;
+        for (let i = 0; i < bases.length; i++) {
+          let previousBase = bases[i];
+          let previousQuadrant = previousBase.gameObject.quadrant;
+          let xDiff = quadrant.x - previousQuadrant.x;
+          let yDiff = quadrant.y - previousQuadrant.y;
+          let distanceSquared = xDiff * xDiff + yDiff * yDiff;
+          if (
+            distanceSquared < 6.0 * (6 - numberOfBases) &&
+            Math.random() < 0.75
+          ) {
+            tooClose = true;
+            break;
+          }
+        }
+        // then place a base in that quandrant
+        if (!tooClose) {
+          // what sector ????
+          // for the moment choose a random sector
+          let newBase = new StarBase();
+          let sector = quadrant.getRandomSector();
+          newBase.gameObject.placeIn(this.galaxy, quadrant, sector);
+          bases.push(newBase);
+        }
+      }
+    }
+
+    // todo:: update the star chart to show a base (we always know where bases are)
   }
+
+  makeKlingons() {}
 
   start() {
     // register commands
@@ -63,6 +119,16 @@ export default class Game {
     this.makeStars();
     this.makePlanets();
     this.makeBases();
+
+    /// make our moveable object (klingons, klingonCommanders, Romulans)
+    this.makeKlingons();
+
+    let starBases = this.galaxy.container.getGameObjectsOfType(StarBase);
+    // quadrants are listed y - x
+    let sbq = starBases.map(base =>
+      [base.gameObject.quadrant.y, base.gameObject.quadrant.x].join(" - ")
+    );
+    let baseStr = sbq.join("   ");
     // change terminal settings
     let startText = `It is stardate 3100. The Federation is being attacked by
 a deadly Klingon invasion force. As captain of the United
@@ -71,8 +137,8 @@ and destroy this invasion force of 2 battle cruisers.
 You have an initial allotment of 7 stardates to complete
 your mission.  As you proceed you may be given more time.
 
-You will have 4 supporting starbases.
-Starbase locations-   7 - 2   5 - 3   3 - 8   1 - 1
+You will have ${starBases.length} supporting starbases.
+Starbase locations-   ${baseStr}
 
 The Enterprise is currently in Quadrant 5 - 3  Sector 8 - 7
 
@@ -145,10 +211,11 @@ Good Luck!
       let textRow = [];
       // convert each quadrant to text
       row.forEach(quadrant => {
+        // todo
         let superNovaText = "."; //quadrant.hasSupernova ? "1" : ".";
         let klingonText = 0; //quadrant.container.getGameObjectsOfType(Klingon);
-        let starbaseText = 0; //quadrant.getNumberOfStarbases();
-        let starText = quadrant.container.getGameObjectsOfType(Star);
+        let starbaseText = quadrant.container.getCountOfGameObjects(StarBase);
+        let starText = quadrant.container.getCountOfGameObjects(Star);
         let text = `${superNovaText}${klingonText}${starbaseText}${starText}`;
         textRow.push(text);
       });
