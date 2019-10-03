@@ -2,6 +2,7 @@ import Service from "./utils/Service.js";
 import { commands } from "./commands.js";
 import { Galaxy } from "./Galaxy.js";
 import { GameObject } from "./Components.js";
+import { Enterprise } from "./PlayerShips/Entreprise.js";
 import Star from "./Objects/Star.js";
 import StarBase from "./Objects/StarBase.js";
 import Planet from "./Objects/Planet.js";
@@ -39,7 +40,11 @@ export default class Game {
     // todo:: switch this out when we have a player
     // player location stub
     // defaults for testing
-    this.playerLocation = [3, 4];
+    // place player in random quad and sector
+    this.player = new Enterprise();
+    let quad = this.galaxy.getRandomQuadrant();
+    let sector = quad.getRandomSector();
+    this.player.gameObject.placeIn(this.galaxy, quad, sector);
     this.length = GAME_LENGTH_SHORT;
     this.daysRemaining = this.length * 7;
     this.skill = SKILL_NOVICE;
@@ -193,6 +198,7 @@ export default class Game {
     // make klingons
     let numberOfKlingons =
       numberOfEnemies - numberOfCommanders - numberOfSuperCommanders;
+    this.numberOfKlingons = numberOfKlingons;
     let numberOfRomulans = Math.round(2.0 * Math.random() * this.skill);
     this.makeKlingons(numberOfKlingons);
     this.makeKlingonCommanders(numberOfCommanders);
@@ -301,14 +307,14 @@ export default class Game {
     let startText = `It is stardate 3100. The Federation is being attacked by
 a deadly Klingon invasion force. As captain of the United
 Starship U.S.S. Enterprise, it is your mission to seek out
-and destroy this invasion force of 2 battle cruisers.
-You have an initial allotment of 7 stardates to complete
+and destroy this invasion force of ${this.numberOfKlingons} battle cruisers.
+You have an initial allotment of ${this.daysRemaining} stardates to complete
 your mission.  As you proceed you may be given more time.
 
 You will have ${starBases.length} supporting starbases.
 Starbase locations-   ${baseStr}
 
-The Enterprise is currently in Quadrant 5 - 3  Sector 8 - 7
+The Enterprise is currently in ${this.player.gameObject.getLocation()}
 
 Good Luck!
 `;
@@ -398,10 +404,6 @@ Good Luck!
       row.unshift(`${i + 1} -`);
       row.push("-");
     });
-    // for (let i = 0; i < grid.length; i++) {
-    //   grid[i].unshift(`${i + 1} -`);
-    //   grid[i].push("-");
-    // }
 
     // add header rows to indicate column #s
     // make sure to account for the extra column

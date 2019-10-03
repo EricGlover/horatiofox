@@ -52,9 +52,9 @@ export class Quadrant {
 
   // is there something in every sector ?
   isFull() {
-    // if (this.hasSupernova) {
-    // return true;
-    // }
+    if (this.hasSupernova) {
+      return true;
+    }
     return this.sectors.every(row =>
       row.every(sector => !sector.container.isEmpty())
     );
