@@ -10,7 +10,8 @@ import {
   AbstractKlingon,
   Klingon,
   KlingonCommander,
-  KlingonSuperCommander
+  KlingonSuperCommander,
+  Romulan
 } from "./Enemies/Enemies.js";
 
 /** Game length options **/
@@ -192,10 +193,11 @@ export default class Game {
     // make klingons
     let numberOfKlingons =
       numberOfEnemies - numberOfCommanders - numberOfSuperCommanders;
-    console.log("klingons = ", numberOfKlingons);
+    let numberOfRomulans = Math.round(2.0 * Math.random() * this.skill);
     this.makeKlingons(numberOfKlingons);
     this.makeKlingonCommanders(numberOfCommanders);
     this.makeKlingonSuperCommanders(numberOfSuperCommanders);
+    this.makeRomulans(numberOfRomulans);
   }
   makeKlingonSuperCommanders(n) {
     // todo:::find a random quadrant with < 9 enemies in it
@@ -264,7 +266,15 @@ export default class Game {
     }
   }
 
-  makeRomulans() {}
+  makeRomulans(n) {
+    for (let i = 0; i < n; i++) {
+      let quadrant = this.galaxy.getRandomQuadrant();
+      let sector = quadrant.getRandomEmptySector();
+      let romulan = new Romulan();
+      console.log("placing romulan");
+      romulan.gameObject.placeIn(this.galaxy, quadrant, sector);
+    }
+  }
 
   start() {
     // register commands

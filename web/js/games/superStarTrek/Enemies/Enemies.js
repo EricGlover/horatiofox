@@ -20,3 +20,9 @@ export class KlingonSuperCommander extends AbstractKlingon {
     this.gameObject = new GameObject(this);
   }
 }
+export class Romulan extends AbstractEnemy {
+  constructor() {
+    super();
+    this.gameObject = new GameObject(this);
+  }
+}
