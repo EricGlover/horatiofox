@@ -6,7 +6,12 @@ import Star from "./Objects/Star.js";
 import StarBase from "./Objects/StarBase.js";
 import Planet from "./Objects/Planet.js";
 import BlackHole from "./Objects/BlackHole.js";
-import { Klingon } from "./Enemies/Enemies.js";
+import {
+  AbstractKlingon,
+  Klingon,
+  KlingonCommander,
+  KlingonSuperCommander
+} from "./Enemies/Enemies.js";
 
 /** Game length options **/
 const GAME_LENGTH_SHORT = 1;
@@ -39,6 +44,7 @@ export default class Game {
     this.skill = SKILL_NOVICE;
   }
   // generate number of stuff first ?
+  // todo::
   calculate() {
     //enemies
     let numberOfEnemies = Math.round(
@@ -188,6 +194,36 @@ export default class Game {
       numberOfEnemies - numberOfCommanders - numberOfSuperCommanders;
     console.log("klingons = ", numberOfKlingons);
     this.makeKlingons(numberOfKlingons);
+    this.makeKlingonCommanders(numberOfCommanders);
+    this.makeKlingonSuperCommanders(numberOfSuperCommanders);
+  }
+  makeKlingonSuperCommanders(n) {
+    // todo:::find a random quadrant with < 9 enemies in it
+    // place in random sector
+    // place in quadrant without enemies
+    for (let i = 0; i < n; i++) {
+      let quadrant;
+      do {
+        quadrant = this.galaxy.getRandomQuadrant();
+      } while (quadrant.container.getCountOfGameObjects(AbstractKlingon) > 0);
+      let commander = new KlingonSuperCommander();
+      let sector = quadrant.getRandomEmptySector();
+      commander.gameObject.placeIn(this.galaxy, quadrant, sector);
+      console.log("placing super commander");
+    }
+  }
+  makeKlingonCommanders(n) {
+    // place in quadrant without enemies
+    for (let i = 0; i < n; i++) {
+      let quadrant;
+      do {
+        quadrant = this.galaxy.getRandomQuadrant();
+      } while (quadrant.container.getCountOfGameObjects(AbstractKlingon) > 0);
+      let commander = new KlingonCommander();
+      let sector = quadrant.getRandomEmptySector();
+      commander.gameObject.placeIn(this.galaxy, quadrant, sector);
+      console.log("placing commander");
+    }
   }
 
   makeKlingons(n) {
@@ -199,6 +235,7 @@ export default class Game {
     );
     let usedQuadrants = [];
     while (n > 0) {
+      // debugger;
       // get a random quadrant without klingons
       // technically we could infinite loop here but whatever
       let quadrant;
@@ -226,7 +263,7 @@ export default class Game {
       }
     }
   }
-  makeKlingonCommanders() {}
+
   makeRomulans() {}
 
   start() {
@@ -334,7 +371,9 @@ Good Luck!
       row.forEach(quadrant => {
         // todo
         let superNovaText = "."; //quadrant.hasSupernova ? "1" : ".";
-        let klingonText = quadrant.container.getCountOfGameObjects(Klingon); // 0; //quadrant.container.getGameObjectsOfType(Klingon);
+        let klingonText = quadrant.container.getCountOfGameObjects(
+          AbstractKlingon
+        ); // 0; //quadrant.container.getGameObjectsOfType(Klingon);
         let starbaseText = quadrant.container.getCountOfGameObjects(StarBase);
         let starText = quadrant.container.getCountOfGameObjects(Star);
         let text = `${superNovaText}${klingonText}${starbaseText}${starText}`;

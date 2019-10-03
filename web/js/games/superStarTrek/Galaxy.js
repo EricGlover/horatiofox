@@ -23,6 +23,7 @@ export class Quadrant {
     this.width = width;
     this.length = length;
     this.sectors = [];
+    this.hasSuperNova = false;
     // make sectors
     for (let i = 0; i < this.length; i++) {
       let row = [];
@@ -51,6 +52,9 @@ export class Quadrant {
 
   // is there something in every sector ?
   isFull() {
+    // if (this.hasSupernova) {
+    // return true;
+    // }
     return this.sectors.every(row =>
       row.every(sector => !sector.container.isEmpty())
     );
