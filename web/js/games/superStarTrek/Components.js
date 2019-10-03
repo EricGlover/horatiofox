@@ -6,6 +6,9 @@ export class GameObjectContainer {
     this.parent.container = this;
     this.gameObjects = [];
   }
+  isEmpty() {
+    return this.gameObjects.length === 0;
+  }
   getCountOfGameObjects(type) {
     return this.gameObjects.reduce((count, object) => {
       if (object instanceof type) count++;
@@ -33,6 +36,10 @@ export class GameObject {
     this.sector = null;
   }
   placeIn(galaxy, quadrant, sector) {
+    // check that sector is empty
+    if (!sector.container.isEmpty()) {
+      throw new Error("Cant place object in non empty sector");
+    }
     this.galaxy = galaxy;
     this.quadrant = quadrant;
     this.sector = sector;

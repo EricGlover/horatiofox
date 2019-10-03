@@ -2,11 +2,197 @@
 #define RAND_MAX 32767
 #endif
 
+
+// find an empty spot in the sector and place something in it
+// iquad is one of the IH* values which signify some object in a game
+// modifies ix and iy to be the sector coordinates
+// where it was placed
+void dropin(int iquad, int *ix, int *iy) {
+	do iran10(ix, iy);
+	while (quad[*ix][*iy] != IHDOT);
+	quad[*ix][*iy] = iquad;
+}
+
+// only one quadrant is loaded at a time
+// the contents of the currently loaded quadrant
+// uses indexes starting with 1 (so length is 11);
+quad[11][11]
+/*
+newqad(int shutup) setup.c
+interesting.... seems to position enemies in the quadrant when you arrive ?
+
+*/
+// intime ..... 7 * (1, 2, 4)
+// skill .....
+//
+damfac = 0.5 * skill;
+d.rembase = 3.0*Rand()+2.0;
+inbase = d.rembase;
+inplan = (PLNETMAX/2) + (PLNETMAX/2+1)*Rand();
+d.nromrem = (2.0+Rand())*skill;
+d.nscrem = (skill > SFAIR? 1 : 0);
+d.remtime = 7.0 * length;
+intime = d.remtime;
+d.remkl = 2.0*intime*((skill+1 - 2*Rand())*skill*0.1+.15); // d.remkl and inkling includes commanders and SC
+inkling = d.remkl;
+incom = skill + 0.0625*inkling*Rand();
+d.remcom= min(10, incom);
+incom = d.remcom;
+d.remres = (inkling+4*incom)*intime;
+inresor = d.remres;
+
+
+// .5 * 1.5 = .75 , presumably > 1 = has crystals
+1.5*Rand();		// 1 in 3 chance of crystals
+
+
+//#define inkling a.inkling		// Initial number of klingons
+//#define incom a.incom			// Initian number of commanders
+//nscrem,			// remaining super commanders
+//nromkl,			// Romulans killed
+//nromrem,		// Romulans remaining
+// Position ordinary Klingon Battle Cruisers
+	krem = inkling - incom - d.nscrem;
+	klumper = 0.25*skill*(9.0-length)+1.0;
+	if (klumper > 9) klumper = 9; // Can't have more than 9 in quadrant
+	do {
+		double r = Rand();
+		int klump = (1.0 - r*r)*klumper;
+		if (klump > krem) klump = krem;
+		krem -= klump;
+		klump *= 100;
+		do iran8(&ix, &iy);
+		while (d.galaxy[ix][iy] + klump >= 1000);
+		d.galaxy[ix][iy] += klump;
+	} while (krem > 0);
+
 double Rand(void) {
   // 0 - 32767 / 32768
   // 0.0 - 0.99996948...
 	return rand()/(1.0 + (double)RAND_MAX);
 }
+
+// chart print out
+if (starch[i][j] < 0) // We know only about the bases
+				printf("  .1.");
+			else if (starch[i][j] == 0) // Unknown
+				printf("  ...");
+			else if (starch[i][j] > 999) // Memorized value
+				printf("%5d", starch[i][j]-1000);
+			else
+				printf("%5d", d.galaxy[i][j]); // What is actually there (happens when value is 1)
+// long range scan
+// star chart seems to contain info for which
+// quadrants you've scanned
+if (x == 0 || x > 8 || y == 0 || y > 8)
+				printf("   -1");
+			else {
+				printf("%5d", d.galaxy[x][y]);
+				// If radio works, mark star chart so
+				// it will show current information.
+				// Otherwise mark with current
+				// value which is fixed.
+				starch[x][y] = damage[DRADIO] > 0 ? d.galaxy[x][y]+1000 :1;
+
+// d.galaxy ???? contains the values for what is actually in the quadrant
+
+// starch maybe is the star chart 2d array
+// int boolean flags
+
+// seemingly the klingons are just 100s in the galaxy location
+// maybe that's the galaxy chart
+/* Some type of a Klingon */
+		d.galaxy[quadx][quady] -= 100;
+
+// clearing out the starchart ???
+		/* chart will no longer be updated because radio is dead */
+	stdamtim = d.date;
+	for (i=1; i <= 8 ; i++)
+		for (j=1; j <= 8; j++)
+			if (starch[i][j] == 1) starch[i][j] = d.galaxy[i][j]+1000;
+
+// d.galaxy[x][y] = 1000 means supernova ?
+if (d.galaxy[quadx][quady] == 1000 ||
+				alldone) return; /* Supernova or finished */
+
+// iran8 ....
+// set i and j to random int range 1 - 8
+void iran8(int *i, int *j) {
+	*i = Rand()*8.0 + 1.0;
+	*j = Rand()*8.0 + 1.0;
+}
+
+//
+do iran8(&ix, &iy);
+while (d.galaxy[ix][iy] >= 10);
+
+// where's inbase set ?
+damfac = 0.5 * skill;
+	d.rembase = 3.0*Rand()+2.0;	// 2 - 5 bases
+	inbase = d.rembase;
+	inplan = (PLNETMAX/2) + (PLNETMAX/2+1)*Rand();
+	d.nromrem = (2.0+Rand())*skill;
+	d.nscrem = (skill > SFAIR? 1 : 0);
+	d.remtime = 7.0 * length;
+	intime = d.remtime;
+	d.remkl = 2.0*intime*((skill+1 - 2*Rand())*skill*0.1+.15); // d.remkl and inkling includes commanders and SC
+	inkling = d.remkl;
+	incom = skill + 0.0625*inkling*Rand();
+	d.remcom= min(10, incom);
+	incom = d.remcom;
+	d.remres = (inkling+4*incom)*intime;
+	inresor = d.remres;
+	if (inkling > 50) {
+		inbase = (d.rembase += 1);
+    }
+#ifdef CAPTURE
+	brigcapacity = 400;
+    brigfree = brigcapacity;
+    kcaptured = 0; // TAA fix 6/2015
+#endif
+#ifdef CLOAKING
+    ncviol = 0; // TAA fix 6/2015
+    iscloaked = FALSE;
+    iscloaking = FALSE;
+#endif
+
+
+
+
+// setup.c line 262
+// inbase = number of bases ?
+// Locate star bases in galaxy
+	for (i = 1; i <= inbase; i++) {
+		int contflag;
+		do {
+			do iran8(&ix, &iy);
+			while (d.galaxy[ix][iy] >= 10);
+			contflag = FALSE;
+			// look through the other bases and if we're too close then find another quadrant
+			for (j = i-1; j > 0; j--) {
+				// so if the square of the distance is stuff (so it's some measure of closeness)
+				// then 75% of the time find another spot
+				/* Improved placement algorithm to spread out bases */
+				double distq = square(ix-d.baseqx[j]) + square(iy-d.baseqy[j]);	//pythag ?????!!!!!
+				if (distq < 6.0*(6-inbase) && Rand() < 0.75) {
+					contflag = TRUE;
+#ifdef DEBUG
+					printf("DEBUG: Abandoning base #%d at %d-%d\n", i, ix, iy);
+#endif
+					break;
+				}
+#ifdef DEBUG
+				else if (distq < 6.0 * (6-inbase)) {
+					printf("DEBUG: saving base #%d, close to #%d\n", i, j);
+				}
+#endif
+			}
+		} while (contflag);
+
+		d.baseqx[i] = ix;	// star base quadrant x array
+		d.baseqy[i] = iy; // star base quadrant y array
+		starch[ix][iy] = -1; // set star chart to -1 meaning we know there's a base there
+		d.galaxy[ix][iy] += 10;	// add the base to the galaxy chart thingy
 
 
 /**

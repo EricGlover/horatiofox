@@ -4,6 +4,20 @@ import { Galaxy } from "./Galaxy.js";
 import { GameObject } from "./Components.js";
 import Star from "./Objects/Star.js";
 import StarBase from "./Objects/StarBase.js";
+import Planet from "./Objects/Planet.js";
+import BlackHole from "./Objects/BlackHole.js";
+
+/** Game length options **/
+const GAME_LENGTH_SHORT = 1;
+const GAME_LENGTH_MEDIUM = 2;
+const GAME_LENGTH_LONG = 4;
+
+/** Difficulty options **/
+const SKILL_NOVICE = 1;
+const SKILL_FAIR = 2;
+const SKILL_GOOD = 3;
+const SKILL_EXPERT = 4;
+const SKILL_EMERITUS = 5;
 
 // help menu
 // read sst.txt for info
@@ -17,9 +31,23 @@ export default class Game {
     this.commands = commands;
     // todo:: switch this out when we have a player
     // player location stub
+    // defaults for testing
     this.playerLocation = [3, 4];
+    this.length = GAME_LENGTH_SHORT;
+    this.skill = SKILL_NOVICE;
   }
-
+  makeBlackHoles() {
+    let blackHolesPerQuadrant = 3;
+    this.galaxy.quadrants.forEach(row => {
+      row.forEach(quad => {
+        for (let i = 0; i < blackHolesPerQuadrant; i++) {
+          let sector = quad.getRandomEmptySector();
+          let b = new BlackHole();
+          b.gameObject.placeIn(this.galaxy, quad, sector);
+        }
+      });
+    });
+  }
   makeStars() {
     let minNumberOfStars = 1;
     let maxNumberOfStars = 9;
@@ -34,33 +62,46 @@ export default class Game {
         );
         for (let s = 0; s < numStars; s++) {
           let star = new Star();
-
-          // randomly place a star
-          let sectorY = Math.round(Math.random() * (quadrant.length - 1));
-          let sectorX = Math.round(Math.random() * (quadrant.width - 1));
-          // get the sector
-          let sector = this.galaxy.getSector(j, i, sectorY, sectorX);
+          let sector = quadrant.getRandomEmptySector();
+          if (!sector.container.isEmpty()) debugger;
           star.gameObject.placeIn(this.galaxy, sector.quadrant, sector);
         }
       });
     });
   }
 
+  // planets seem to be new ?
   makePlanets() {
-    // todo
-    /*
-    // Locate planets in galaxy
-	for (i = 1; i <= inplan; i++) {
-		do iran8(&ix, &iy);
-		while (d.newstuf[ix][iy] > 0);
-		d.newstuf[ix][iy] = 1;
-		d.plnets[i].x = ix;
-		d.plnets[i].y = iy;
-		d.plnets[i].pclass = Rand()*3.0 + 1.0; // Planet class M N or O
-		d.plnets[i].crystals = 1.5*Rand();		// 1 in 3 chance of crystals
-		d.plnets[i].known = 0;
-	}
-  */
+    let minNumberOfPlanets = 5;
+    let maxNumberOfPlanets = 10;
+    let numberOfPlanets = Math.round(
+      minNumberOfPlanets + (maxNumberOfPlanets / 3) * Math.random()
+    );
+    console.log(`number of planets = ${numberOfPlanets}`);
+
+    // place planets
+    for (
+      let planetsPlaced = 0;
+      planetsPlaced < numberOfPlanets;
+      planetsPlaced++
+    ) {
+      // find a random quadrant without a planet
+      let quadrant;
+      do {
+        quadrant = this.galaxy.getRandomQuadrant();
+      } while (quadrant.container.getCountOfGameObjects(Planet) > 0);
+      let sector = quadrant.getRandomEmptySector();
+      // set up planet
+      let planet = new Planet();
+      planet.randomlyGenerate();
+
+      // place in galaxy
+      planet.gameObject.placeIn(this.galaxy, quadrant, sector);
+
+      console.log(
+        `planet at quadrant: ${quadrant.y} - ${quadrant.x}  sector: ${sector.y} - ${sector.x}`
+      );
+    }
   }
 
   makeBases() {
@@ -97,17 +138,40 @@ export default class Game {
           // what sector ????
           // for the moment choose a random sector
           let newBase = new StarBase();
-          let sector = quadrant.getRandomSector();
+          let sector = quadrant.getRandomEmptySector(); // todo:: check that sector is empty
           newBase.gameObject.placeIn(this.galaxy, quadrant, sector);
           bases.push(newBase);
         }
       }
     }
-
     // todo:: update the star chart to show a base (we always know where bases are)
   }
 
-  makeKlingons() {}
+  makeEnemies() {
+    let numberOfEnemies = Math.round(
+      this.length *
+        14 *
+        ((this.skill + 1 - 2 * Math.random()) * this.skill * 0.1 + 0.15)
+    );
+    console.log(`number of enemies = ${numberOfEnemies}`);
+    // split out the enemies into klingons and such
+    let numberOfCommanders = Math.round(
+      this.skill + 0.0625 * numberOfEnemies * Math.random()
+    );
+    let minCommanders = 10;
+    numberOfCommanders =
+      numberOfCommanders < minCommanders ? minCommanders : numberOfCommanders;
+    // debugger;
+    // make klingons
+  }
+
+  makeKlingons() {
+    /**
+
+  **/
+  }
+  makeKlingonCommanders() {}
+  makeRomulans() {}
 
   start() {
     // register commands
@@ -119,9 +183,10 @@ export default class Game {
     this.makeStars();
     this.makePlanets();
     this.makeBases();
+    this.makeBlackHoles();
 
     /// make our moveable object (klingons, klingonCommanders, Romulans)
-    this.makeKlingons();
+    this.makeEnemies();
 
     let starBases = this.galaxy.container.getGameObjectsOfType(StarBase);
     // quadrants are listed y - x
@@ -213,7 +278,7 @@ Good Luck!
       row.forEach(quadrant => {
         // todo
         let superNovaText = "."; //quadrant.hasSupernova ? "1" : ".";
-        let klingonText = 0; //quadrant.container.getGameObjectsOfType(Klingon);
+        let klingonText = quadrant.container.getCountOfGameObjects(Planet); // 0; //quadrant.container.getGameObjectsOfType(Klingon);
         let starbaseText = quadrant.container.getCountOfGameObjects(StarBase);
         let starText = quadrant.container.getCountOfGameObjects(Star);
         let text = `${superNovaText}${klingonText}${starbaseText}${starText}`;

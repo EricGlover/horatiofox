@@ -55,16 +55,23 @@ export class Quadrant {
     return this.sectors[y][x];
   }
 
-  getNumberOfKlingons() {
-    return this.klingons.length;
+  // is there something in every sector ?
+  isFull() {
+    return this.sectors.every(sector => !sector.container.isEmpty());
   }
 
-  getNumberOfStarbases() {
-    return this.starbases.length;
-  }
-
-  getNumberOfStars() {
-    return this.stars.length;
+  getRandomEmptySector() {
+    // get all the empty sectors then randomly choose one
+    let emptySectors = this.sectors
+      .map(sectors => {
+        return sectors.filter(sector => sector.container.isEmpty());
+      })
+      .flat();
+    if (emptySectors.length === 0) return;
+    let idx = Math.round(Math.random() * (emptySectors.length - 1));
+    let sector = emptySectors[idx];
+    if (!sector.container.isEmpty()) debugger;
+    return sector;
   }
 
   hasSupernova() {
