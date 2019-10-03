@@ -1,10 +1,4 @@
 import { GameObjectContainer } from "./Components.js";
-//hhmmmmm..... inheritance or composition ?
-export class Ship {}
-
-export class Klingon {}
-
-export class Starbase {}
 
 export class Sector {
   constructor(x, y, quadrant) {
@@ -33,7 +27,7 @@ export class Quadrant {
     for (let i = 0; i < this.length; i++) {
       let row = [];
       for (let j = 0; j < this.width; j++) {
-        row.push(new Sector(j + 1, i + 1, this));
+        row.push(new Sector(j, i, this));
       }
       this.sectors.push(row);
     }
@@ -57,7 +51,9 @@ export class Quadrant {
 
   // is there something in every sector ?
   isFull() {
-    return this.sectors.every(sector => !sector.container.isEmpty());
+    return this.sectors.every(row =>
+      row.every(sector => !sector.container.isEmpty())
+    );
   }
 
   getRandomEmptySector() {
@@ -69,9 +65,7 @@ export class Quadrant {
       .flat();
     if (emptySectors.length === 0) return;
     let idx = Math.round(Math.random() * (emptySectors.length - 1));
-    let sector = emptySectors[idx];
-    if (!sector.container.isEmpty()) debugger;
-    return sector;
+    return emptySectors[idx];
   }
 
   hasSupernova() {
@@ -94,7 +88,7 @@ export class Galaxy {
       for (let i = 0; i < this.quadrants.length; i++) {
         let row = this.quadrants[i];
         for (let j = 0; j < row.length; j++) {
-          row[j] = new Quadrant(10, 10, j + 1, i + 1, this);
+          row[j] = new Quadrant(10, 10, j, i, this);
         }
       }
     }

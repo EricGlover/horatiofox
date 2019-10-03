@@ -6,6 +6,7 @@ import Star from "./Objects/Star.js";
 import StarBase from "./Objects/StarBase.js";
 import Planet from "./Objects/Planet.js";
 import BlackHole from "./Objects/BlackHole.js";
+import { Klingon } from "./Enemies/Enemies.js";
 
 /** Game length options **/
 const GAME_LENGTH_SHORT = 1;
@@ -34,7 +35,29 @@ export default class Game {
     // defaults for testing
     this.playerLocation = [3, 4];
     this.length = GAME_LENGTH_SHORT;
+    this.daysRemaining = this.length * 7;
     this.skill = SKILL_NOVICE;
+  }
+  // generate number of stuff first ?
+  calculate() {
+    //enemies
+    let numberOfEnemies = Math.round(
+      this.length *
+        14 *
+        ((this.skill + 1 - 2 * Math.random()) * this.skill * 0.1 + 0.15)
+    );
+    console.log(`number of enemies = ${numberOfEnemies}`);
+    // split out the enemies into klingons and such
+    let numberOfCommanders = Math.round(
+      this.skill + 0.0625 * numberOfEnemies * Math.random()
+    );
+    let maxNumberOfCommanders = 10;
+    numberOfCommanders = Math.min(maxNumberOfCommanders, numberOfCommanders);
+
+    let numberOfSuperCommanders = this.skill > SKILL_FAIR ? 1 : 0;
+    if (numberOfEnemies > 50) {
+      // add a base
+    }
   }
   makeBlackHoles() {
     let blackHolesPerQuadrant = 3;
@@ -98,9 +121,7 @@ export default class Game {
       // place in galaxy
       planet.gameObject.placeIn(this.galaxy, quadrant, sector);
 
-      console.log(
-        `planet at quadrant: ${quadrant.y} - ${quadrant.x}  sector: ${sector.y} - ${sector.x}`
-      );
+      console.log(`planet at ${planet.gameObject.getLocation()}`);
     }
   }
 
@@ -158,17 +179,52 @@ export default class Game {
     let numberOfCommanders = Math.round(
       this.skill + 0.0625 * numberOfEnemies * Math.random()
     );
-    let minCommanders = 10;
-    numberOfCommanders =
-      numberOfCommanders < minCommanders ? minCommanders : numberOfCommanders;
-    // debugger;
+    let maxNumberOfCommanders = 10;
+    numberOfCommanders = Math.min(maxNumberOfCommanders, numberOfCommanders);
+
+    let numberOfSuperCommanders = this.skill > SKILL_FAIR ? 1 : 0;
     // make klingons
+    let numberOfKlingons =
+      numberOfEnemies - numberOfCommanders - numberOfSuperCommanders;
+    console.log("klingons = ", numberOfKlingons);
+    this.makeKlingons(numberOfKlingons);
   }
 
-  makeKlingons() {
-    /**
+  makeKlingons(n) {
+    // place klingons into quadrants in clumps
+    let maxSize = 9;
+    let clumpSize = Math.min(
+      0.25 * this.skill * (9 - this.length) + 1,
+      maxSize
+    );
+    let usedQuadrants = [];
+    while (n > 0) {
+      // get a random quadrant without klingons
+      // technically we could infinite loop here but whatever
+      let quadrant;
+      let alreadyUsed;
+      do {
+        quadrant = this.galaxy.getRandomQuadrant();
+        alreadyUsed = usedQuadrants.some(q => q === quadrant);
+      } while (alreadyUsed);
 
-  **/
+      // randomize the amount of klingons to place a bit
+      let r = Math.random();
+      let toPlace = Math.round((1 - r * r) * clumpSize);
+      toPlace = Math.min(toPlace, n);
+      for (let i = 0; i < toPlace; i++) {
+        // check if quadrant is full
+        if (quadrant.isFull()) {
+          break;
+        }
+        // place klingons at random sectors (todo:: figure how they're actually dropped in)
+        let sector = quadrant.getRandomEmptySector();
+        console.log("placing klingon");
+        let klingon = new Klingon();
+        klingon.gameObject.placeIn(this.galaxy, quadrant, sector);
+        n--;
+      }
+    }
   }
   makeKlingonCommanders() {}
   makeRomulans() {}
@@ -278,7 +334,7 @@ Good Luck!
       row.forEach(quadrant => {
         // todo
         let superNovaText = "."; //quadrant.hasSupernova ? "1" : ".";
-        let klingonText = quadrant.container.getCountOfGameObjects(Planet); // 0; //quadrant.container.getGameObjectsOfType(Klingon);
+        let klingonText = quadrant.container.getCountOfGameObjects(Klingon); // 0; //quadrant.container.getGameObjectsOfType(Klingon);
         let starbaseText = quadrant.container.getCountOfGameObjects(StarBase);
         let starText = quadrant.container.getCountOfGameObjects(Star);
         let text = `${superNovaText}${klingonText}${starbaseText}${starText}`;
