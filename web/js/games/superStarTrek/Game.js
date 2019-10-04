@@ -1,8 +1,8 @@
 import Service from "./utils/Service.js";
 import { commands } from "./commands.js";
-import { Galaxy } from "./Galaxy.js";
+import { Galaxy, Quadrant } from "./Galaxy.js";
 import { GameObject } from "./Components.js";
-import { Enterprise } from "./PlayerShips/Entreprise.js";
+import Enterprise from "./PlayerShips/Enterprise.js";
 import Star from "./Objects/Star.js";
 import StarBase from "./Objects/StarBase.js";
 import Planet from "./Objects/Planet.js";
@@ -46,8 +46,10 @@ export default class Game {
     let sector = quad.getRandomSector();
     this.player.gameObject.placeIn(this.galaxy, quad, sector);
     this.length = GAME_LENGTH_SHORT;
+    this.starDate = 'todo';
     this.daysRemaining = this.length * 7;
     this.skill = SKILL_NOVICE;
+
   }
   // generate number of stuff first ?
   // todo::
@@ -71,6 +73,7 @@ export default class Game {
       // add a base
     }
   }
+
   makeBlackHoles() {
     let blackHolesPerQuadrant = 3;
     this.galaxy.quadrants.forEach(row => {
@@ -83,6 +86,7 @@ export default class Game {
       });
     });
   }
+
   makeStars() {
     let minNumberOfStars = 1;
     let maxNumberOfStars = 9;
@@ -205,6 +209,7 @@ export default class Game {
     this.makeKlingonSuperCommanders(numberOfSuperCommanders);
     this.makeRomulans(numberOfRomulans);
   }
+
   makeKlingonSuperCommanders(n) {
     // todo:::find a random quadrant with < 9 enemies in it
     // place in random sector
@@ -220,6 +225,7 @@ export default class Game {
       console.log("placing super commander");
     }
   }
+
   makeKlingonCommanders(n) {
     // place in quadrant without enemies
     for (let i = 0; i < n; i++) {
@@ -241,24 +247,20 @@ export default class Game {
       0.25 * this.skill * (9 - this.length) + 1,
       maxSize
     );
-    let usedQuadrants = [];
+    let quadrants = this.galaxy.quadrants.flat();
     while (n > 0) {
-      // debugger;
       // get a random quadrant without klingons
-      // technically we could infinite loop here but whatever
-      let quadrant;
-      let alreadyUsed;
-      do {
-        quadrant = this.galaxy.getRandomQuadrant();
-        alreadyUsed = usedQuadrants.some(q => q === quadrant);
-      } while (alreadyUsed);
-
+      let idx = Math.round(Math.random() * quadrants.length);
+      let quadrant = quadrants.splice(idx, 1)[0];
       // randomize the amount of klingons to place a bit
       let r = Math.random();
       let toPlace = Math.round((1 - r * r) * clumpSize);
       toPlace = Math.min(toPlace, n);
       for (let i = 0; i < toPlace; i++) {
         // check if quadrant is full
+        if(!quadrant) {
+          debugger;
+        }
         if (quadrant.isFull()) {
           break;
         }
@@ -283,7 +285,6 @@ export default class Game {
   }
 
   start() {
-    // register commands
     this.registerCommands();
 
     // these methods should probably be on the game .... whatever
@@ -352,6 +353,9 @@ Good Luck!
   runCommand(command, commandObj) {
     // debugger;
     switch (command) {
+      case "status":
+        this.getStatus(commandObj);
+        break;
       case "help":
         // get the command they're asking for help on
         debugger;
@@ -386,10 +390,10 @@ Good Luck!
       // convert each quadrant to text
       row.forEach(quadrant => {
         // todo
-        let superNovaText = "."; //quadrant.hasSupernova ? "1" : ".";
+        let superNovaText = quadrant.hasSupernova ? "1" : ".";
         let klingonText = quadrant.container.getCountOfGameObjects(
           AbstractKlingon
-        ); // 0; //quadrant.container.getGameObjectsOfType(Klingon);
+        );
         let starbaseText = quadrant.container.getCountOfGameObjects(StarBase);
         let starText = quadrant.container.getCountOfGameObjects(Star);
         let text = `${superNovaText}${klingonText}${starbaseText}${starText}`;
@@ -424,15 +428,83 @@ Good Luck!
 
     this.terminal.print_grid(grid, "   ");
   }
+  getStatus() {
+    this.terminal.echo("\n");
+    this.terminal.echo(this.getStatusText().join("\n"));
+  }
+  //
+  getStatusText() {
+    let date = `Stardate\t${this.starDate}`
+    let condition = `Condition\t${this.player.printCondition()}`;
 
-  // print the quandrant
+    let playerQuad = this.player.gameObject.quadrant;
+    let playerSector = this.player.gameObject.sector;
+    let position = `Position\t${playerQuad.y} - ${playerQuad.x}, ${playerSector.y} - ${playerSector.x}`;
+    let lifeSupport = `Life Support\t${this.player.hasLifeSupport() ? 'ACTIVE' : 'FAILED'}`;
+    let warpFactor = `Warp Factor\t${this.player.warpFactor}`;
+    let energy = `Energy\t\t${this.player.energy}`;
+    let torpedoes = `Torpedoes\t${this.player.torpedoes}`;
+    let shields = `Shields\t\t${this.player.shields.printInfo()}`;
+    let klingonsRemaining = `Klingons Left\t${this.galaxy.container.getCountOfGameObjects(AbstractKlingon)}`;
+    let timeLeft = `Time Left\t${this.daysRemaining}`;
+    return [
+        date,
+        condition,
+        position,
+        lifeSupport,
+        warpFactor,
+        energy,
+        torpedoes,
+        shields,
+        klingonsRemaining,
+        timeLeft
+    ];
+  }
+
+  // print the quadrant
   runShortRangeScan() {
     // use player location
   }
 
-  // print nearby quandrants
+  // print nearby quadrants
   runLongRangeScan() {
+    // todo:: save info
     // use player location
+    // let playerQuadrant = this.player.gameObject.quadrant;
+    let playerQuadrant = this.galaxy.getQuadrant(0,7);
+    // get a 3 x 3 quadrant matrix with the player at the center
+    let matrix = [];
+    for(let y = playerQuadrant.y - 1; y <= playerQuadrant.y + 1; y++) {
+      let textRow = [];
+
+      for(let x = playerQuadrant.x - 1; x <=playerQuadrant.x + 1; x++) {
+        let quadrant = null;
+        try {
+          quadrant = this.galaxy.getQuadrant(x, y)
+          if(!quadrant) {
+            textRow.push(`  -1`); //out of bounds
+          } else {
+            let superNovaText = quadrant.hasSupernova ? "1" : " ";
+            let klingonText = quadrant.container.getCountOfGameObjects(
+                AbstractKlingon
+            );
+            klingonText = klingonText === 0 ? ' ' : klingonText;
+            let starbaseText = quadrant.container.getCountOfGameObjects(StarBase);
+            starbaseText = starbaseText === 0 ? ' ' : starbaseText;
+            let starText = quadrant.container.getCountOfGameObjects(Star);
+            starText = starText === 0 ? ' ' : starText;
+            let text = `${superNovaText}${klingonText}${starbaseText}${starText}`;
+            textRow.push(text);
+          }
+        } catch(e) {
+          textRow.push(`  -1`); //out of bounds
+        }
+      }
+      matrix.push(textRow);
+    }
+    this.terminal.echo(`\nLong-range scan for Quadrant ${playerQuadrant.y} - ${playerQuadrant.x}\n\n`);
+    this.terminal.print_grid(matrix);
+    this.terminal.echo("\n");
   }
 
   async getHelp() {

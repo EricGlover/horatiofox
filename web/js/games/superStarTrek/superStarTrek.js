@@ -36,13 +36,11 @@ $(document).ready(function() {
       error_bad_methdo: "Command malformed. Try 'help'."
     }
   });
-  window.$ptty = $ptty;
-
-  window.matrix = [[1, 2, 3], [2, 4, 5]];
-
   let game = new Game($ptty);
-  window.game = game;
   game.start();
+  window.game = game;
+
+  // run menu
   // let menu = new Menu($ptty, () => game.start());
   // menu.start();
 });

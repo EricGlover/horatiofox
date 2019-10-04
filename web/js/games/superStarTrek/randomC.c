@@ -2,6 +2,25 @@
 #define RAND_MAX 32767
 #endif
 
+// Position ordinary Klingon Battle Cruisers
+	krem = inkling - incom - d.nscrem;
+	klumper = 0.25*skill*(9.0-length)+1.0;
+	if (klumper > 9) klumper = 9; // Can't have more than 9 in quadrant
+	do {
+		double r = Rand();
+		int klump = (1.0 - r*r)*klumper;
+		if (klump > krem) klump = krem;
+		krem -= klump;
+		klump *= 100;
+		do iran8(&ix, &iy);
+		while (d.galaxy[ix][iy] + klump >= 1000);
+		d.galaxy[ix][iy] += klump;
+	} while (krem > 0);
+
+
+// Put in a few black holes
+	for (i = 1; i <= 3; i++)
+		if (Rand() > 0.5) dropin(IHBLANK, &ix, &iy);
 
 // find an empty spot in the sector and place something in it
 // iquad is one of the IH* values which signify some object in a game

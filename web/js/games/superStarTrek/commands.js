@@ -19,6 +19,63 @@
 // todo:: consider breaking these up into separate command classes
 export const commands = [
   {
+    abbreviation: 'st',
+    name: 'status',
+    regex: /^\s*(st|status|status report)\s*$/i,
+    fullName: 'status report',
+    deviceUsed: '',
+    options: {},
+    info: `Mnemonic:  STATUS
+  Shortest abbreviation: ST
+
+This command gives you information about the current state of your
+starship as follows:
+
+  STARDATE - The current date. A stardate is the same as a day.
+
+  CONDITION - There are four possible conditions:
+        DOCKED - docked at starbase.
+        RED    - in battle.
+        YELLOW - low on energy (<1000 units)
+        GREEN  - none of the above
+
+  POSITION - Quadrant is given first, then sector
+
+  LIFE SUPPORT - If "ACTIVE" then life support systems are
+        functioning normally. If on "RESERVES" the number is how many
+        stardates your reserve food, air, etc. will last--you must
+        get repairs made or get to starbase before your reserves run
+        out.
+
+  WARP FACTOR - What your warp factor is currently set to.
+
+  ENERGY - The amount of energy you have left. If it drops to zero,
+        you die.
+
+  TORPEDOES - How many photon torpedoes you have left.
+
+  SHIELDS - Whether your shields are up or down, how strong they are
+       (what percentage of a hit they can deflect), and shield
+       energy.
+
+  KLINGONS LEFT - How many of the Klingons are still out there.
+
+  TIME LEFT - How long the Federation can hold out against the
+        present number of Klingons; that is, how long until the end
+        if you do nothing in the meantime.  If you kill Klingons
+        quickly, this number will go up--if not, it will go down.  If
+        it reaches zero, the federation is conquered and you lose.
+
+Status information is free--it uses no time or energy, and if you are
+in battle, the Klingons are not given another chance to hit you.
+
+Status information can also be obtained by doing a short-range scan.
+See the SRSCAN command for details.
+
+Each item of information can be obtained singly by requesting it.
+See REQUEST command for details.`
+  },
+  {
     abbreviation: "c",
     name: "chart",
     regex: /^\s*(c|chart|star chart)\s*$/i,

@@ -23,7 +23,7 @@ export class Quadrant {
     this.width = width;
     this.length = length;
     this.sectors = [];
-    this.hasSuperNova = false;
+    this.hasSupernova = false;
     // make sectors
     for (let i = 0; i < this.length; i++) {
       let row = [];
@@ -55,9 +55,9 @@ export class Quadrant {
     if (this.hasSupernova) {
       return true;
     }
-    return this.sectors.every(row =>
-      row.every(sector => !sector.container.isEmpty())
-    );
+    return this.sectors.every(row => {
+      return row.every(sector => !sector.container.isEmpty())
+    });
   }
 
   getRandomEmptySector() {
@@ -70,10 +70,6 @@ export class Quadrant {
     if (emptySectors.length === 0) return;
     let idx = Math.round(Math.random() * (emptySectors.length - 1));
     return emptySectors[idx];
-  }
-
-  hasSupernova() {
-    return this.hasSupernova;
   }
 }
 
@@ -122,10 +118,10 @@ export class Galaxy {
   getQuadrant(quadrantX, quadrantY) {
     // check bounds
     if (quadrantY < 0 || quadrantY > this.length - 1) {
-      throw new Error(`There is no quadrant ${x} - ${y}.`);
+      throw new Error(`There is no quadrant ${quadrantX} - ${quadrantY}.`);
     }
     if (quadrantX < 0 || quadrantX > this.width - 1) {
-      throw new Error(`There is no quadrant ${x} - ${y}.`);
+      throw new Error(`There is no quadrant ${quadrantX} - ${quadrantY}.`);
     }
     return this.quadrants[quadrantY][quadrantX];
   }
