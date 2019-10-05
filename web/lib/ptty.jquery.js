@@ -426,7 +426,7 @@
        * @param columnWidth int
        * @returns array<array<string>>
        */
-      public_methods.format_grid = function(grid, columnWidth = null) {
+      public_methods.format_grid = function(grid, padLeft = true, columnWidth = null) {
         // get longest string that we'll use for data
         var longest = grid.reduce((l, row) => {
           var l2 = row.reduce((carry, d) => {
@@ -438,7 +438,13 @@
           columnWidth = longest;
         }
         return grid.map(row => {
-          return row.map(str => str.padStart(columnWidth));
+          return row.map(str => {
+            if(padLeft) {
+              return str.padStart(columnWidth)
+            } else {
+              return str.padEnd(columnWidth);
+            }
+          });
         });
       }
 
@@ -450,7 +456,8 @@
       public_methods.print_grid = function(
         grid,
         columnSeparator = " ",
-        rowSeparator = "\n"
+        rowSeparator = "\n",
+        echo = false
       ) {
         var rows = [];
         for (var i = 0; i < grid.length; i++) {
@@ -460,7 +467,10 @@
           rows.push(line + "\n");
         }
         var text = rows.join(rowSeparator);
-        this.echo(text);
+        if(echo) {
+          this.echo(text);
+        }
+        return text;
       };
 
       /**

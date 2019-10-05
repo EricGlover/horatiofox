@@ -23,6 +23,8 @@ export function regexifier(...strings) {
   strings = strings.sort((a, b) => b.length - a.length);
   return new RegExp(`^\\s*(${strings.join("|")})\\s*`, 'i');
 }
+// what to do for options
+
 // todo:: make command classes
 class Command {
   constructor() {
@@ -43,9 +45,144 @@ class Command {
   }
 }
 export class GetHelpCommand extends Command {
-  constructor() {
+  constructor(game, terminal) {
     super();
+    this.game = game;
+    this.terminal = terminal;
+    this.abbreviation = "help";
+    this.name = "help";
+    this.regex = regexifier("help");
+    this.fullName = "ask for help";
+    this.info = `  Mnemonic:  HELP
+  Full command:  HELP <command>
+
+This command reads the appropriate section from the SST.DOC file,
+providing the file is in the current directory.`;
   }
+  run(commandObj) {
+    let out = "\n";
+    let arg = commandObj.arguments[0];
+    // prompt
+    if(!arg) {
+      commandObj.ps = "Help on what command?";
+      commandObj.next = this.name;
+      return commandObj;
+    }
+
+    // get the relevant command by name
+    let command = this.game.commands.find(c => c.name === arg);
+    if(command) {
+      out += `Spock- "Captain, I've found the following information:"\n\n`;
+      // todo:: implement the page scrolling stuff 
+      out += command.info;
+    } else {
+      out += "Valid Commands:\n";
+      // if invalid list the valid commands
+      let matrix = [];
+      let row = [];
+      let rowLength = 4;
+      this.game.commands.forEach(c => {
+        // make a new row
+        if(row.length === rowLength) {
+          matrix.push(row);
+          row = [];
+        }
+        row.push(`${c.name}`);
+      });
+      if(row.length > 0) {
+        matrix.push(row);
+      }
+      let formatted = this.terminal.format_grid(matrix, false);
+      out += this.terminal.print_grid(formatted);
+    }
+    out += "\n";
+    commandObj.out = out;
+    return commandObj;
+  }
+}
+
+export class MoveCommand extends Command {
+  constructor(game, terminal) {
+    super();
+    this.game = game;
+    this.terminal = terminal;
+    this.abbreviation = "";
+    this.name = "move";
+    this.regex = regexifier("m", "move");
+    this.fullName = "move under warp drive";
+    this.info = `  Mnemonic:  MOVE
+  Shortest abbreviation:  M
+  Full command:  MOVE MANUAL <displacement>
+                 MOVE AUTOMATIC <destination>
+
+This command is the usual way to move from one place to another
+within the galaxy.  You move under warp drive, according to the
+current warp factor (see "WARP FACTOR").
+
+There are two command modes for movement: MANUAL and AUTOMATIC.  The
+manual mode requires the following format:
+
+        MOVE MANUAL <deltax> <deltay>
+
+<deltax> and <deltay> are the horizontal and vertical displacements
+for your starship, in quadrants; a displacement of one sector is 0.1
+quadrants.  Specifying <deltax> and <deltay> causes your ship to move
+in a straight line to the specified destination. If <deltay> is
+omitted, it is assumed zero. For example, the shortest possible
+command to move one sector to the right would be
+
+        M M .1
+
+The following examples of manual movement refer to the short-range
+scan shown earlier.
+
+  Destination Sector    Manual Movement command
+        3 - 1                   M M -.3 -.1
+        2 - 1                   M M -.3
+        1 - 2                   M M -.2 .1
+        1 - 4                   M M 0 .1
+  (leaving quadrant)            M M 0 .2
+
+
+The automatic mode is as follows:
+
+        MOVE AUTOMATIC <qrow> <qcol> <srow> <scol>
+
+where <qrow> and <qcol> are the row and column numbers of the
+destination quadrant, and <srow> and <scol> are the row and column
+numbers of the destination sector in that quadrant.  This command also
+moves your ship in a straight line path to the destination.  For
+moving within a quadrant, <qrow> and <qcol> may be omitted. For
+example, to move to sector 2 - 9 in the current quadrant, the
+shortest command would be
+
+        M A 2 9
+
+To move to quadrant 3 - 7, sector 5 - 8, type
+
+        M A 3 7 5 8
+
+and it will be done.  In automatic mode, either two or four numbers
+must be supplied.
+\f                                                                       10
+Automatic mode utilizes the ship's "battle computer."  If the
+computer is damaged, manual movement must be used.
+
+If warp engines are damaged less than 10 stardates (undocked) you can
+still go warp 4.
+
+It uses time and energy to move.  How much time and how much energy
+depends on your current warp factor, the distance you move, and
+whether your shields are up.  The higher the warp factor, the faster
+you move, but higher warp factors require more energy.  You may move
+with your shields up, but this doubles the energy required.
+
+You can move within a quadrant without being attacked if you just
+entered the quadrant or have bee attacked since your last move
+command.  This enables you to move and hit them before they
+retaliate.`;
+  }
+
 }
 export class StatusCommand extends Command {
   constructor(game, terminal) {
@@ -162,7 +299,7 @@ the <STATUS> command.  <ITEM> specifies which information as follows:
     // ask
     if(!request) {
       commandObj.ps = "Information desired? ";
-      commandObj.next = "request %cmd%";
+      commandObj.next = this.name;
       return commandObj;
     }
 
@@ -235,10 +372,7 @@ export class ChartCommand extends Command {
     Looking at the star chart is a free operation.  It costs neither time
     nor energy, and can be done safely whether in or out of battle.`;
   }
-  run(commandObj) {
-    super.run(commandObj);
-    let output = "\nSTAR CHART FOR THE KNOWN GALAXY\n";
-
+  makeChartText() {
     // use galaxy to make a grid of text
     let grid = [];
     // convert each row to text
@@ -284,16 +418,23 @@ export class ChartCommand extends Command {
     grid.unshift(h2);
     grid.unshift(headerRow);
 
-    output += this.terminal.format_grid(grid).map(row => row.join("  ")).join("\n");
+    return this.terminal.format_grid(grid).map(row => row.join("  ")).join("\n");
+  }
+  run(commandObj) {
+    super.run(commandObj);
+    let output = "\nSTAR CHART FOR THE KNOWN GALAXY\n";
+    output += "\n";
+    output += this.makeChartText();
     commandObj.out = output;
     return commandObj;
   }
 }
 export class ShortRangeScanCommand extends Command {
-  constructor(game, terminal) {
+  constructor(game, terminal, chartCommand) {
     super();
     this.terminal = terminal;
     this.game = game;
+    this.chartCommand = chartCommand;
     this.abbreviation= "s";
     this.name= "srscan";
     this.regex =  regexifier("s", "srscan", "short range scan");
@@ -301,11 +442,13 @@ export class ShortRangeScanCommand extends Command {
     this.options =  {
       no: {
         abbreviation: "n",
-            description: "don't display status information"
+        name: "no",
+        description: "don't display status information"
       },
       chart: {
         abbreviation: "c",
-            description: "display star chart"
+        name: "no",
+        description: "display star chart"
       }
     };
     this.info =  `Mnemonic:  SRSCAN
@@ -357,8 +500,21 @@ export class ShortRangeScanCommand extends Command {
   }
   run(commandObj) {
     super.run(commandObj);
-    let output = "";
+    // get the options
+    let no = optionRegexifier("n", "no");
     let printStatus = true;
+    if(no.test(commandObj.argumentStr)) {
+      printStatus = false;
+    }
+    let chart = optionRegexifier("c", "chart");
+    let printChart = false;
+    if(chart.test(commandObj.argumentStr)) {
+      printChart = true;
+    }
+
+
+
+    let output = "";
     // use player location
     let quadrant = this.game.player.gameObject.quadrant;
     let matrix = [];
@@ -410,8 +566,9 @@ export class ShortRangeScanCommand extends Command {
     output += "\n";
     // format the grid so the spacing is correct
     matrix = this.terminal.format_grid(matrix);
+    // todo:: print chart
     // add status info
-    if(true || printStatus) {
+    if(printStatus) {
       // join the row together, add separators
       matrix = matrix.map(row => row.join(" "));
       // skip the header rows, then add the status text line by line
@@ -427,6 +584,12 @@ export class ShortRangeScanCommand extends Command {
     } else {
       output += this.terminal.format_grid(matrix);
     }
+    // print out the star chart if requested
+    if(printChart) {
+      output += "\n\n";
+      output += this.chartCommand.makeChartText();
+    }
+    output += "\n\n";
     commandObj.out = output;
     return commandObj;
   }
@@ -503,7 +666,6 @@ export class LongRangeScanCommand extends Command {
             textRow.push(`-1`); //out of bounds
           } else {
             let num = 0;
-            // debugger;
             let superNovaText = quadrant.hasSupernova ? "1" : " ";
             // let superNovaText = quadrant.hasSupernova ? 1 : 0;
             // num += superNovaText * 1000;
@@ -550,15 +712,6 @@ export class LongRangeScanCommand extends Command {
   info: ``
 }
 **/
-// todo:: consider breaking these up into separate command classes
-export const commands = [
-  {
-
-  },
-  {
-
-  }
-];
 
 /**
 Commands to make

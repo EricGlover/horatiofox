@@ -13,7 +13,7 @@ import {
   KlingonSuperCommander,
   Romulan
 } from "./Enemies/Enemies.js";
-import {ChartCommand, LongRangeScanCommand, RequestCommand, ShortRangeScanCommand, StatusCommand} from "./commands.js";
+import {GetHelpCommand, ChartCommand, LongRangeScanCommand, RequestCommand, ShortRangeScanCommand, StatusCommand} from "./commands.js";
 
 /** Game length options **/
 const GAME_LENGTH_SHORT = 1;
@@ -27,10 +27,9 @@ const SKILL_GOOD = 3;
 const SKILL_EXPERT = 4;
 const SKILL_EMERITUS = 5;
 
-// help menu
-// read sst.txt for info
-
-// todo:: add command prompt
+/**
+ *
+ */
 export default class Game {
   constructor(terminal, features) {
     this.terminal = terminal;
@@ -331,9 +330,11 @@ Good Luck!
     this.commands = [];
     this.commands.push(new StatusCommand(this, this.terminal));
     this.commands.push(new RequestCommand(this, this.terminal));
-    this.commands.push(new ChartCommand(this, this.terminal));
-    this.commands.push(new ShortRangeScanCommand(this, this.terminal));
+    let chartCommand = new ChartCommand(this, this.terminal);
+    this.commands.push(chartCommand);
+    this.commands.push(new ShortRangeScanCommand(this, this.terminal, chartCommand));
     this.commands.push(new LongRangeScanCommand(this, this.terminal));
+    this.commands.push(new GetHelpCommand(this, this.terminal));
   }
   // register all our commands with our terminal,
   // all commands get pass to runCommand with the command name
@@ -352,6 +353,7 @@ Good Luck!
           commandObj.input = input;
           commandObj.argumentStr = args;
           commandObj.arguments = args.split(/\s/).filter(str => str.length > 0);
+
           return this.runCommand(command.name, commandObj);
           // return commandObj;
         },
@@ -370,7 +372,7 @@ Good Luck!
     return match.run(commandObj);
   }
 
-  //
+  // todo:: move this to the status command
   getStatusText() {
     let date = `Stardate\t${this.starDate}`
     let condition = `Condition\t${this.player.printCondition()}`;
