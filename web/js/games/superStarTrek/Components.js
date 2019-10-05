@@ -51,7 +51,7 @@ export class GameObject {
     this.sector.container.addGameObject(this.parent);
   }
   getLocation() {
-    return `Quadrant: ${this.quadrant.y} - ${this.quadrant.x}; Sector: ${this.sector.y} - ${this.sector.y}`;
+    return `Quadrant: ${this.quadrant.y + 1} - ${this.quadrant.x + 1}; Sector: ${this.sector.y + 1} - ${this.sector.y + 1}`;
   }
 }
 

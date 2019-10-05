@@ -5,95 +5,14 @@
 // device used
 // full name (the full name of the command)
 // options ?
-
-class Command {
-  formatGrid() {}
-  concatGrid() {}
-  run(commandObj) {
-
-  }
-}
-
-class RequestCommand {
-  constructor(game, terminal) {
-    this.terminal = terminal;
-    this.game = game;
-    this.name = "request";
-    this.abbreviation = "req";
-    this.regex = regexifier("req", "request", "request information");
-    this.fullName = "request information";
-    this.deviceUsed = "";
-    this.options = {};
-    this.arguments = 1;
-    this.info = `Mnemonic:  REQUEST
-  Shortest abbreviation:  REQ
-  Full command:  REQUEST <ITEM>
-
-This command allows you to get any single piece of information from
-the <STATUS> command.  <ITEM> specifies which information as follows:
-
- INFORMATION       MNEMONIC FOR <ITEM>           SHORTEST ABBREVIATION
-
- STARDATE              DATE                                D
- CONDITION             CONDITION                           C
- POSITION              POSITION                            P
- LIFE SUPPORT          LSUPPORT                            L
- WARP FACTOR           WARPFACTOR                          W
- ENERGY                ENERGY                              E
- TORPEDOES             TORPEDOES                           T
- SHIELDS               SHIELDS                             S
- KLINGONS LEFT         KLINGONS                            K
- TIME LEFT             TIME                                TI`;
-  }
-  run(commandObj) {
-
-    debugger;
-    // ask
-    if(commandObj.arguments.length === 0) {
-      commandObj.ps = "Information desired? ";
-      commandObj.next = "Information desired? %cmd%";
-      return commandObj;
-      // this.game.terminal.change_settings({ps: ""});
-      // this.terminal.prompt("Information desired?", this.requestInfo.bind(this));
-      // return;
-    }
-
-    let status = this.getStatusText();
-    let date = regexifier('date', "d");
-    let condition = regexifier("condition", "c");
-    let position = regexifier("position", "p");
-    let lifeSupport = regexifier("lsupport", "l");
-    let warpFactor = regexifier("warpfactor", "w");
-    let energy = regexifier("energy", "e");
-    let torpedoes = regexifier("torpedoes", "t");
-    let shields = regexifier("shields", "s");
-    let klingonsRemaining = regexifier("klingons", "s");
-    let timeLeft = regexifier("time", "ti");
-    let request = "";
-    if(date.test(request)) {
-      return status[0];
-    } else if (condition.test(request)) {
-      return status[1];
-    } else if (position.test(request)) {
-      return status[2];
-    } else if (lifeSupport.test(request)) {
-      return status[3];
-    } else if (warpFactor.test(request)) {
-      return status[4];
-    } else if (energy.test(request)) {
-      return status[5];
-    } else if (torpedoes.test(request)) {
-      return status[6];
-    } else if (shields.test(request)) {
-      return status[7];
-    } else if (klingonsRemaining.test(request)) {
-      return status[8];
-    } else if (timeLeft.test(request)) {
-      return status[9];
-    }
-  }
-}
 // exact matcher
+import {AbstractKlingon, Klingon, KlingonCommander, KlingonSuperCommander, Romulan} from "./Enemies/Enemies.js";
+import StarBase from "./Objects/StarBase.js";
+import Star from "./Objects/Star.js";
+import Enterprise from "./PlayerShips/Enterprise.js";
+import Planet from "./Objects/Planet.js";
+import BlackHole from "./Objects/BlackHole.js";
+
 export function optionRegexifier(...strings) {
   strings = strings.sort((a, b) => b.length - a.length);
   return new RegExp(`^\\s*(${strings.join("|")})\\s*$`, 'i');
@@ -104,55 +23,40 @@ export function regexifier(...strings) {
   strings = strings.sort((a, b) => b.length - a.length);
   return new RegExp(`^\\s*(${strings.join("|")})\\s*`, 'i');
 }
-
-/**
-{
-  abbreviation: "",
-  name: "",
-  regex: null,
-  fullName: ,
-  devicedUsed: ,
-  options: {},
-  info: ``
+// todo:: make command classes
+class Command {
+  constructor() {
+    // defaults
+    this.abbreviation =  null;
+    this.name = null;
+    this.regex = null;
+    this.fullName = null;
+    this.deviceUsed = "";
+    this.options =  {};
+    this.info = "No info.";
+  }
+  formatGrid() {}
+  concatGrid() {}
+  run(commandObj) {
+    commandObj.out = "Not implemented.";
+    return commandObj;
+  }
 }
-**/
-// todo:: consider breaking these up into separate command classes
-export const commands = [
-  {
-    abbreviation: "req",
-    name: "request",
-    regex: regexifier("req", "request", "request information"),
-    fullName: "request information",
-    devicedUsed: "",
-    options: {},
-    info: `Mnemonic:  REQUEST
-  Shortest abbreviation:  REQ
-  Full command:  REQUEST <ITEM>
-
-This command allows you to get any single piece of information from
-the <STATUS> command.  <ITEM> specifies which information as follows:
-
- INFORMATION       MNEMONIC FOR <ITEM>           SHORTEST ABBREVIATION
-
- STARDATE              DATE                                D
- CONDITION             CONDITION                           C
- POSITION              POSITION                            P
- LIFE SUPPORT          LSUPPORT                            L
- WARP FACTOR           WARPFACTOR                          W
- ENERGY                ENERGY                              E
- TORPEDOES             TORPEDOES                           T
- SHIELDS               SHIELDS                             S
- KLINGONS LEFT         KLINGONS                            K
- TIME LEFT             TIME                                TI`
-  },
-  {
-    abbreviation: 'st',
-    name: 'status',
-    regex: regexifier("st", "status", "status report"),
-    fullName: 'status report',
-    deviceUsed: '',
-    options: {},
-    info: `Mnemonic:  STATUS
+export class GetHelpCommand extends Command {
+  constructor() {
+    super();
+  }
+}
+export class StatusCommand extends Command {
+  constructor(game, terminal) {
+    super();
+    this.game = game;
+    this.terminal = terminal;
+    this.abbreviation = 'st';
+    this.name =  'status';
+    this.regex =  regexifier("st", "status", "status report");
+    this.fullName =  'status report';
+    this.info =  `Mnemonic:  STATUS
   Shortest abbreviation: ST
 
 This command gives you information about the current state of your
@@ -200,16 +104,120 @@ Status information can also be obtained by doing a short-range scan.
 See the SRSCAN command for details.
 
 Each item of information can be obtained singly by requesting it.
-See REQUEST command for details.`
-  },
-  {
-    abbreviation: "c",
-    name: "chart",
-    regex: regexifier("c", "chart", "star chart"),
-    fullName: "star chart",
-    devicedUsed: "",
-    options: {},
-    info: `As you proceed in the game, you learn more and more about what things
+See REQUEST command for details.`;
+  }
+  /**
+   * If your short-range sensors are damaged, this command will only show
+   the contents of adjacent sectors.
+   #define IHQUEST '?'  // mystery quest
+   #define IHF 'F'  // ????
+   #define IHT 'T'  // ????
+   #define IHWEB '#'
+   #define IHGREEN 'G'
+   #define IHYELLOW 'Y'
+   #define IHRED 'R'
+   #define IHDOCKED 'D'
+   COMMAND> s
+   */
+  run(commandObj) {
+    let output = "\n";
+    output += this.game.getStatusText().join("\n");
+    commandObj.out = output;
+    return commandObj;
+  }
+}
+export class RequestCommand  extends Command {
+  constructor(game, terminal) {
+    super();
+    this.terminal = terminal;
+    this.game = game;
+    this.name = "request";
+    this.abbreviation = "req";
+    this.regex = regexifier("req", "request", "request information");
+    this.fullName = "request information";
+    this.arguments = 1;
+    this.info = `Mnemonic:  REQUEST
+  Shortest abbreviation:  REQ
+  Full command:  REQUEST <ITEM>
+
+This command allows you to get any single piece of information from
+the <STATUS> command.  <ITEM> specifies which information as follows:
+
+ INFORMATION       MNEMONIC FOR <ITEM>           SHORTEST ABBREVIATION
+
+ STARDATE              DATE                                D
+ CONDITION             CONDITION                           C
+ POSITION              POSITION                            P
+ LIFE SUPPORT          LSUPPORT                            L
+ WARP FACTOR           WARPFACTOR                          W
+ ENERGY                ENERGY                              E
+ TORPEDOES             TORPEDOES                           T
+ SHIELDS               SHIELDS                             S
+ KLINGONS LEFT         KLINGONS                            K
+ TIME LEFT             TIME                                TI`;
+  }
+  run(commandObj) {
+    let out = "";
+    let request = commandObj.arguments[0];
+    // ask
+    if(!request) {
+      commandObj.ps = "Information desired? ";
+      commandObj.next = "request %cmd%";
+      return commandObj;
+    }
+
+    // otherwise
+    let status = this.game.getStatusText();
+    let date = optionRegexifier('date', "d");
+    let condition = optionRegexifier("condition", "c");
+    let position = optionRegexifier("position", "p");
+    let lifeSupport = optionRegexifier("lsupport", "l");
+    let warpFactor = optionRegexifier("warpfactor", "w");
+    let energy = optionRegexifier("energy", "e");
+    let torpedoes = optionRegexifier("torpedoes", "t");
+    let shields = optionRegexifier("shields", "s");
+    let klingonsRemaining = optionRegexifier("klingons", "s");
+    let timeLeft = optionRegexifier("time", "ti");
+
+    if(date.test(request)) {
+      out = status[0];
+    } else if (condition.test(request)) {
+      out = status[1];
+    } else if (position.test(request)) {
+      out = status[2];
+    } else if (lifeSupport.test(request)) {
+      out = status[3];
+    } else if (warpFactor.test(request)) {
+      out = status[4];
+    } else if (energy.test(request)) {
+      out =  status[5];
+    } else if (torpedoes.test(request)) {
+      out =  status[6];
+    } else if (shields.test(request)) {
+      out =  status[7];
+    } else if (klingonsRemaining.test(request)) {
+      out =  status[8];
+    } else if (timeLeft.test(request)) {
+      out =  status[9];
+    } else {
+      out = "UNRECOGNIZED REQUEST. Legal requests are:\n" +
+          "  date, condition, position, lsupport, warpfactor,\n" +
+          "  energy, torpedoes, shields, klingons, time.\n"
+    }
+    commandObj.out = out;
+    return commandObj;
+  }
+}
+export class ChartCommand extends Command {
+  constructor(game, terminal) {
+    super();
+    this.terminal = terminal;
+    this.game = game;
+    this.abbreviation =  "c";
+    this.name =  "chart";
+    this.regex =  regexifier("c", "chart", "star chart");
+    this.fullName =  "star chart";
+    this.info =  `As you proceed in the game, you learn more and more about what things
     are where in the galaxy. When ever you first do a scan in a quadrant,
     telemetry sensors are ejected which will report any changes in the
     quadrant(s) back to your ship, providing the sub-space radio is
@@ -225,25 +233,82 @@ See REQUEST command for details.`
     and stars.
 
     Looking at the star chart is a free operation.  It costs neither time
-    nor energy, and can be done safely whether in or out of battle.`
-  },
-  {
-    abbreviation: "s",
-    name: "srscan",
-    regex: regexifier("s", "srscan", "short range scan"),
-    fullName: "short range scan",
-    deviceUsed: "",
-    options: {
+    nor energy, and can be done safely whether in or out of battle.`;
+  }
+  run(commandObj) {
+    super.run(commandObj);
+    let output = "\nSTAR CHART FOR THE KNOWN GALAXY\n";
+
+    // use galaxy to make a grid of text
+    let grid = [];
+    // convert each row to text
+    for (let i = 0; i < this.game.galaxy.length; i++) {
+      let row = this.game.galaxy.getRow(i);
+      let textRow = [];
+      // convert each quadrant to text
+      row.forEach(quadrant => {
+        // todo
+        let superNovaText = quadrant.hasSupernova ? "1" : ".";
+        let klingonText = quadrant.container.getCountOfGameObjects(
+            AbstractKlingon
+        );
+        let starbaseText = quadrant.container.getCountOfGameObjects(StarBase);
+        let starText = quadrant.container.getCountOfGameObjects(Star);
+        let text = `${superNovaText}${klingonText}${starbaseText}${starText}`;
+        textRow.push(text);
+      });
+      //add row to our print out
+      grid.push(textRow);
+    }
+
+    // add column before and after to indicate row #s
+    grid.forEach((row, i) => {
+      row.unshift(`${i + 1} -`);
+      row.push("-");
+    });
+
+    // add header rows to indicate column #s
+    // make sure to account for the extra column
+    let headerRow = [" "];
+    let rowLength = grid[0].length;
+    // skip first and last columns
+    for (let i = 1; i < rowLength - 1; i++) {
+      headerRow.push(`  ${i} `);
+    }
+
+    let h2 = [" "];
+    // skip first and last columns
+    for (let i = 1; i < rowLength - 1; i++) {
+      h2.push(`----`);
+    }
+    grid.unshift(h2);
+    grid.unshift(headerRow);
+
+    output += this.terminal.format_grid(grid).map(row => row.join("  ")).join("\n");
+    commandObj.out = output;
+    return commandObj;
+  }
+}
+export class ShortRangeScanCommand extends Command {
+  constructor(game, terminal) {
+    super();
+    this.terminal = terminal;
+    this.game = game;
+    this.abbreviation= "s";
+    this.name= "srscan";
+    this.regex =  regexifier("s", "srscan", "short range scan");
+    this.fullName = "short range scan";
+    this.options =  {
       no: {
         abbreviation: "n",
-        description: "don't display status information"
+            description: "don't display status information"
       },
       chart: {
         abbreviation: "c",
-        description: "display star chart"
+            description: "display star chart"
       }
-    },
-    info: `Mnemonic:  SRSCAN
+    };
+    this.info =  `Mnemonic:  SRSCAN
     Shortest abbreviation:  S
     Full commands:  SRSCAN
                     SRSCAN NO
@@ -288,16 +353,94 @@ See REQUEST command for details.`
     short-range scan anytime you like.
 
     If your short-range sensors are damaged, this command will only show
-    the contents of adjacent sectors.`
-  },
-  {
-    abbreviation: "l",
-    name: "lrscan",
-    regex: regexifier("l", "lrscan", "long range scan"),
-    fullName: "Long Range Scan",
-    devicedUsed: "",
-    options: {},
-    info: `  Mnemonic:  LRSCAN
+    the contents of adjacent sectors.`;
+  }
+  run(commandObj) {
+    super.run(commandObj);
+    let output = "";
+    let printStatus = true;
+    // use player location
+    let quadrant = this.game.player.gameObject.quadrant;
+    let matrix = [];
+    for(let i = 0; i < quadrant.sectors.length; i++) {
+      let textRow = [];
+      quadrant.sectors[i].forEach(sector => {
+        let obj = sector.container.getAllGameObjects()[0];
+        if(!obj) {
+          textRow.push('.');
+        } else if(obj instanceof Klingon) {
+          textRow.push('K');
+        }else if (obj instanceof KlingonCommander) {
+          textRow.push("C");
+        } else if (obj instanceof  KlingonSuperCommander) {
+          textRow.push("S");
+        } else if (obj instanceof Romulan) {
+          textRow.push("R");
+        } else if (obj instanceof Enterprise) {
+          textRow.push("E");
+        } else if (obj instanceof Star) {
+          textRow.push("*");
+        } else if (obj instanceof Planet) {
+          textRow.push("P");
+        } else if (obj instanceof StarBase) {
+          textRow.push("B");
+        } else if (obj instanceof BlackHole) {
+          textRow.push(" ");
+        }
+      });
+      matrix.push(textRow);
+    }
+    // add left number column for y coord
+    matrix.forEach((row, i) => {
+      row.unshift(`${i + 1}`);
+    });
+
+    // add top row for x coord
+    // make sure to account for the extra column
+    let headerRow = [" "];
+    let rowLength = matrix[0].length;
+    // skip first and last columns
+    for (let i = 1; i < rowLength; i++) {
+      headerRow.push(`${i}`);
+    }
+    matrix.unshift(headerRow);
+
+    // make the matrix from the sector
+    // this.terminal.echo("\n");
+    output += "\n";
+    // format the grid so the spacing is correct
+    matrix = this.terminal.format_grid(matrix);
+    // add status info
+    if(true || printStatus) {
+      // join the row together, add separators
+      matrix = matrix.map(row => row.join(" "));
+      // skip the header rows, then add the status text line by line
+      let statusLines = this.game.getStatusText();
+      statusLines.forEach((line, i) => {
+        matrix[i + 1] += "\t" + line;
+      })
+      // join the rows with \n
+      let text = matrix.join("\n");
+      // print
+      // this.terminal.echo(text);
+      output += text;
+    } else {
+      output += this.terminal.format_grid(matrix);
+    }
+    commandObj.out = output;
+    return commandObj;
+  }
+}
+export class LongRangeScanCommand extends Command {
+  constructor(game, terminal) {
+    super();
+    this.terminal = terminal;
+    this.game = game;
+    this.abbreviation =  "l";
+    this.name =  "lrscan";
+    this.regex =  regexifier("l", "lrscan", "long range scan");
+    this.fullName =  "Long Range Scan";
+    this.info = `  Mnemonic:  LRSCAN
       Shortest abbreviation:  L
 
     A long-range scan gives you general information about where you are
@@ -339,7 +482,81 @@ See REQUEST command for details.`
     galaxy, which you are not permitted to cross.
 
     Long-range scans are free.  They use up no energy or time, and can be
-    done safely regardless of battle conditions.`
+    done safely regardless of battle conditions.`;
+  }
+  run(commandObj) {
+    super.run(commandObj);
+    let output = "";
+    // todo:: save info
+    // use player location
+    let playerQuadrant = this.game.player.gameObject.quadrant;
+    // get a 3 x 3 quadrant matrix with the player at the center
+    let matrix = [];
+    for(let y = playerQuadrant.y - 1; y <= playerQuadrant.y + 1; y++) {
+      let textRow = [];
+
+      for(let x = playerQuadrant.x - 1; x <=playerQuadrant.x + 1; x++) {
+        let quadrant = null;
+        try {
+          quadrant = this.game.galaxy.getQuadrant(x, y)
+          if(!quadrant) {
+            textRow.push(`-1`); //out of bounds
+          } else {
+            let num = 0;
+            // debugger;
+            let superNovaText = quadrant.hasSupernova ? "1" : " ";
+            // let superNovaText = quadrant.hasSupernova ? 1 : 0;
+            // num += superNovaText * 1000;
+            let klingonText = quadrant.container.getCountOfGameObjects(
+                AbstractKlingon
+            );
+            num += klingonText *100;
+            klingonText = klingonText === 0 ? ' ' : klingonText;
+
+            let starbaseText = quadrant.container.getCountOfGameObjects(StarBase);
+            // num += starbaseText * 10;
+            starbaseText = starbaseText === 0 ? ' ' : starbaseText;
+
+            let starText = quadrant.container.getCountOfGameObjects(Star);
+            starText = starText === 0 ? ' ' : starText;
+            // num += starbaseText;
+
+            let text = `${superNovaText}${klingonText}${starbaseText}${starText}`;
+            textRow.push(text);
+            // textRow.push("" + num);
+          }
+        } catch(e) {
+          textRow.push(`-1`); //out of bounds
+        }
+      }
+      matrix.push(textRow);
+    }
+    output += `\nLong-range scan for Quadrant ${playerQuadrant.y} - ${playerQuadrant.x}\n\n`;
+    let txt = this.terminal.format_grid(matrix).map(row => row.join("\t")).join("\n");
+    output += txt;
+    output += "\n";
+    commandObj.out = output;
+    return commandObj;
+  }
+}
+/**
+{
+  abbreviation: "",
+  name: "",
+  regex: null,
+  fullName: ,
+  devicedUsed: ,
+  options: {},
+  info: ``
+}
+**/
+// todo:: consider breaking these up into separate command classes
+export const commands = [
+  {
+
+  },
+  {
+
   }
 ];
 
