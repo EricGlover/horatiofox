@@ -73,7 +73,7 @@ providing the file is in the current directory.`;
     let command = this.game.commands.find(c => c.name === arg);
     if(command) {
       out += `Spock- "Captain, I've found the following information:"\n\n`;
-      // todo:: implement the page scrolling stuff 
+      // todo:: implement the page scrolling stuff
       out += command.info;
     } else {
       out += "Valid Commands:\n";
@@ -93,7 +93,7 @@ providing the file is in the current directory.`;
         matrix.push(row);
       }
       let formatted = this.terminal.format_grid(matrix, false);
-      out += this.terminal.print_grid(formatted);
+      out += this.terminal.print_grid(formatted, "   ");
     }
     out += "\n";
     commandObj.out = out;
