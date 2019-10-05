@@ -139,10 +139,6 @@ export default class Menu {
   // call method , pass input
   **/
   ask(question, options, method) {
-    // register question
-    // intercept response
-    // unregister question
-    // call method , pass input
     this.$ptty.echo(question);
     this.$ptty.register("command", {
       name: "ask",
@@ -165,67 +161,3 @@ export default class Menu {
     // });
   }
 }
-
-// make a question tool
-// $ptty.register("callbefore", {
-//   name: "questionResponse",
-//   method: cmd => cmd
-// });
-// $ptty.register("command", {
-//   name: "questionResponse",
-//   method: function(cmd) {
-//     let input = $ptty.get_input();
-//     if (/regular/.test(input)) {
-//     } else if (/tournament/.test(input)) {
-//       $ptty.echo("Sorry that's not implemented.");
-//     } else if (/frozen/.test(input)) {
-//       $ptty.echo("Sorry that's not implemented.");
-//     }
-//     console.log("matched", $ptty.get_input());
-//   },
-//   regex: /(regular|tournament|frozen)/
-// });
-
-// function registerChoices(method, choices, optionsArg = {}) {
-//   choices.forEach(choice => {
-//     $ptty.register("command", {
-//       name: choice,
-//       method: () => method(choice),
-//       ...optionsArg
-//     });
-//   });
-// }
-// function unregisterChoices(choices) {
-//   choices.forEach(choice => $ptty.unregister(choice));
-// }
-// registerChoices((...args) => ChoseGameMode(...args), [
-//   "regular",
-//   "tournament",
-//   "frozen"
-// ]);
-
-// $ptty.register("command", {
-//   name: "regular",
-//   method: function() {
-//     debugger;
-//   }
-// });
-//
-// $ptty.register("command", {
-//   name: "tournament",
-//   method: function() {
-//     debugger;
-//   }
-// });
-//
-// $ptty.register("command", {
-//   name: "frozen",
-//   method: function() {
-//     debugger;
-//   }
-// });
-
-// todo:: setup commands
-
-// todo:: print welcome screen
-// $ptty.echo("Would you like a regular, tournament, or frozen game? ");

@@ -387,6 +387,20 @@
         }
       };
 
+      public_methods.prompt = function(question, method) {
+        this.register("command", {
+          name: "ask",
+          method: cmd => {
+            let input = this.get_input(); // save this
+            this.unregister("command", "ask");
+            // delay a bit so our terminal can finish processing
+            setTimeout(() => method(input), 10);
+          },
+          regex: new RegExp(`[\s\S]*`, "i")
+        });
+      };
+
+      // typewriter mode
       public_methods.type = function(str, speed = 60) {
         this.echo("\n");
         var text_input = this.get_terminal(".prompt");
@@ -405,7 +419,34 @@
           setTimeout(typewriter, speed);
         })();
       };
+      /**
+       *
+       * Specify a column width or defaults to the largest
+       * @param grid array<array<string>>
+       * @param columnWidth int
+       * @returns array<array<string>>
+       */
+      public_methods.format_grid = function(grid, columnWidth = null) {
+        // get longest string that we'll use for data
+        var longest = grid.reduce((l, row) => {
+          var l2 = row.reduce((carry, d) => {
+            return carry > d.length ? carry : d.length;
+          }, 0);
+          return l > l2 ? l : l2;
+        }, 0)
+        if(columnWidth === null) {
+          columnWidth = longest;
+        }
+        return grid.map(row => {
+          return row.map(str => str.padStart(columnWidth));
+        });
+      }
 
+      /**
+       * @param grid
+       * @param columnSeparator
+       * @param rowSeparator
+       */
       public_methods.print_grid = function(
         grid,
         columnSeparator = " ",

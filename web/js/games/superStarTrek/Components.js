@@ -18,6 +18,9 @@ export class GameObjectContainer {
   getGameObjectsOfType(type) {
     return this.gameObjects.filter(object => object instanceof type);
   }
+  getAllGameObjects() {
+    return this.gameObjects.slice();
+  }
   addGameObject(obj) {
     this.gameObjects.push(obj);
   }

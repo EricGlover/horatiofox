@@ -5,6 +5,106 @@
 // device used
 // full name (the full name of the command)
 // options ?
+
+class Command {
+  formatGrid() {}
+  concatGrid() {}
+  run(commandObj) {
+
+  }
+}
+
+class RequestCommand {
+  constructor(game, terminal) {
+    this.terminal = terminal;
+    this.game = game;
+    this.name = "request";
+    this.abbreviation = "req";
+    this.regex = regexifier("req", "request", "request information");
+    this.fullName = "request information";
+    this.deviceUsed = "";
+    this.options = {};
+    this.arguments = 1;
+    this.info = `Mnemonic:  REQUEST
+  Shortest abbreviation:  REQ
+  Full command:  REQUEST <ITEM>
+
+This command allows you to get any single piece of information from
+the <STATUS> command.  <ITEM> specifies which information as follows:
+
+ INFORMATION       MNEMONIC FOR <ITEM>           SHORTEST ABBREVIATION
+
+ STARDATE              DATE                                D
+ CONDITION             CONDITION                           C
+ POSITION              POSITION                            P
+ LIFE SUPPORT          LSUPPORT                            L
+ WARP FACTOR           WARPFACTOR                          W
+ ENERGY                ENERGY                              E
+ TORPEDOES             TORPEDOES                           T
+ SHIELDS               SHIELDS                             S
+ KLINGONS LEFT         KLINGONS                            K
+ TIME LEFT             TIME                                TI`;
+  }
+  run(commandObj) {
+
+    debugger;
+    // ask
+    if(commandObj.arguments.length === 0) {
+      commandObj.ps = "Information desired? ";
+      commandObj.next = "Information desired? %cmd%";
+      return commandObj;
+      // this.game.terminal.change_settings({ps: ""});
+      // this.terminal.prompt("Information desired?", this.requestInfo.bind(this));
+      // return;
+    }
+
+    let status = this.getStatusText();
+    let date = regexifier('date', "d");
+    let condition = regexifier("condition", "c");
+    let position = regexifier("position", "p");
+    let lifeSupport = regexifier("lsupport", "l");
+    let warpFactor = regexifier("warpfactor", "w");
+    let energy = regexifier("energy", "e");
+    let torpedoes = regexifier("torpedoes", "t");
+    let shields = regexifier("shields", "s");
+    let klingonsRemaining = regexifier("klingons", "s");
+    let timeLeft = regexifier("time", "ti");
+    let request = "";
+    if(date.test(request)) {
+      return status[0];
+    } else if (condition.test(request)) {
+      return status[1];
+    } else if (position.test(request)) {
+      return status[2];
+    } else if (lifeSupport.test(request)) {
+      return status[3];
+    } else if (warpFactor.test(request)) {
+      return status[4];
+    } else if (energy.test(request)) {
+      return status[5];
+    } else if (torpedoes.test(request)) {
+      return status[6];
+    } else if (shields.test(request)) {
+      return status[7];
+    } else if (klingonsRemaining.test(request)) {
+      return status[8];
+    } else if (timeLeft.test(request)) {
+      return status[9];
+    }
+  }
+}
+// exact matcher
+export function optionRegexifier(...strings) {
+  strings = strings.sort((a, b) => b.length - a.length);
+  return new RegExp(`^\\s*(${strings.join("|")})\\s*$`, 'i');
+}
+export function regexifier(...strings) {
+  // sort the possible command names by length that way
+  // it'll match the longest possible thing first
+  strings = strings.sort((a, b) => b.length - a.length);
+  return new RegExp(`^\\s*(${strings.join("|")})\\s*`, 'i');
+}
+
 /**
 {
   abbreviation: "",
@@ -19,9 +119,36 @@
 // todo:: consider breaking these up into separate command classes
 export const commands = [
   {
+    abbreviation: "req",
+    name: "request",
+    regex: regexifier("req", "request", "request information"),
+    fullName: "request information",
+    devicedUsed: "",
+    options: {},
+    info: `Mnemonic:  REQUEST
+  Shortest abbreviation:  REQ
+  Full command:  REQUEST <ITEM>
+
+This command allows you to get any single piece of information from
+the <STATUS> command.  <ITEM> specifies which information as follows:
+
+ INFORMATION       MNEMONIC FOR <ITEM>           SHORTEST ABBREVIATION
+
+ STARDATE              DATE                                D
+ CONDITION             CONDITION                           C
+ POSITION              POSITION                            P
+ LIFE SUPPORT          LSUPPORT                            L
+ WARP FACTOR           WARPFACTOR                          W
+ ENERGY                ENERGY                              E
+ TORPEDOES             TORPEDOES                           T
+ SHIELDS               SHIELDS                             S
+ KLINGONS LEFT         KLINGONS                            K
+ TIME LEFT             TIME                                TI`
+  },
+  {
     abbreviation: 'st',
     name: 'status',
-    regex: /^\s*(st|status|status report)\s*$/i,
+    regex: regexifier("st", "status", "status report"),
     fullName: 'status report',
     deviceUsed: '',
     options: {},
@@ -78,7 +205,7 @@ See REQUEST command for details.`
   {
     abbreviation: "c",
     name: "chart",
-    regex: /^\s*(c|chart|star chart)\s*$/i,
+    regex: regexifier("c", "chart", "star chart"),
     fullName: "star chart",
     devicedUsed: "",
     options: {},
@@ -103,7 +230,7 @@ See REQUEST command for details.`
   {
     abbreviation: "s",
     name: "srscan",
-    regex: /^\s*(s|srscan| short range scan)\s*$/i,
+    regex: regexifier("s", "srscan", "short range scan"),
     fullName: "short range scan",
     deviceUsed: "",
     options: {
@@ -166,7 +293,7 @@ See REQUEST command for details.`
   {
     abbreviation: "l",
     name: "lrscan",
-    regex: /^\s*(l|lrscan|long range scan)\s*$/i,
+    regex: regexifier("l", "lrscan", "long range scan"),
     fullName: "Long Range Scan",
     devicedUsed: "",
     options: {},

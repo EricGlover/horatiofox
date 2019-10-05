@@ -1,5 +1,5 @@
 import Service from "./utils/Service.js";
-import { commands } from "./commands.js";
+import { commands, regexifier, optionRegexifier } from "./commands.js";
 import { Galaxy, Quadrant } from "./Galaxy.js";
 import { GameObject } from "./Components.js";
 import Enterprise from "./PlayerShips/Enterprise.js";
@@ -324,62 +324,50 @@ Good Luck!
 
   registerCommands() {
     this.commands.forEach(command => {
-      // debugger;
       this.terminal.register("command", {
         name: command.name,
-        method: (...args) => {
-          console.log("running ", command.name);
-          // return {
-          //   ps: "whoa: ? : ",
-          //   in: "dank input",
-          //   out: "things happened"
-          // };
+        method: (commandObj) => {
+          // get arguments
+          let input = this.terminal.get_input();
+          let args = input.replace(command.regex, "");
+          commandObj.command = command;
+          commandObj.input = input;
+          commandObj.argumentStr = args;
+          commandObj.arguments = args.split(/\s/).filter(str => str.length > 0);
+          return this.runCommand(command.name, commandObj);
+          return commandObj;
         },
-        regex: command.regex
-      });
-      // todo:: options ???
-      // this is set as a callback so that the current command
-      // that they entered is printed before we
-      // start echoing out output
-      // we could've used the out in the command obj but whatever
-      this.terminal.register("callback", {
-        name: command.name,
-        method: (...args) => this.runCommand(command.name, ...args),
         regex: command.regex
       });
     });
   }
 
   runCommand(command, commandObj) {
-    // debugger;
     switch (command) {
+      case "request":
+        return this.requestInfo(commandObj);
       case "status":
-        this.getStatus(commandObj);
-        break;
+        return this.getStatus(commandObj);
       case "help":
         // get the command they're asking for help on
         debugger;
-        this.getHelp(commandObj);
-        break;
+        return this.getHelp(commandObj);
       case "chart":
-        this.runChart(commandObj);
-        break;
+        return this.runChart(commandObj);
       case "srscan":
-        this.runShortRangeScan(commandObj);
-        break;
+        return this.runShortRangeScan(commandObj);
       case "lrscan":
-        this.runLongRangeScan(commandObj);
-        break;
+        return this.runLongRangeScan(commandObj);
       default:
         alert("command not found");
     }
-    return { out: "dank" };
+    return commandObj;
   }
 
   // print the galaxy star chart
   // for the moment this prints out the actual info
-  runChart() {
-    this.terminal.echo("\nSTAR CHART FOR THE KNOWN GALAXY\n");
+  runChart(commandObj) {
+    let output = "\nSTAR CHART FOR THE KNOWN GALAXY\n";
 
     // use galaxy to make a grid of text
     let grid = [];
@@ -411,14 +399,14 @@ Good Luck!
 
     // add header rows to indicate column #s
     // make sure to account for the extra column
-    let headerRow = ["    "];
+    let headerRow = [" "];
     let rowLength = grid[0].length;
     // skip first and last columns
     for (let i = 1; i < rowLength - 1; i++) {
       headerRow.push(`  ${i} `);
     }
 
-    let h2 = ["    "];
+    let h2 = [" "];
     // skip first and last columns
     for (let i = 1; i < rowLength - 1; i++) {
       h2.push(`----`);
@@ -426,11 +414,69 @@ Good Luck!
     grid.unshift(h2);
     grid.unshift(headerRow);
 
+    output += this.terminal.format_grid(grid).map(row => row.join("  ")).join("\n");
+    commandObj.out = output;
+    return commandObj;
     this.terminal.print_grid(grid, "   ");
   }
-  getStatus() {
-    this.terminal.echo("\n");
-    this.terminal.echo(this.getStatusText().join("\n"));
+
+  getStatus(commandObj) {
+    let output = "\n";
+    output += this.getStatusText().join("\n");
+    commandObj.out = output;
+    return commandObj;
+  }
+
+  requestInfo(commandObj) {
+    let out = "";
+    let request = commandObj.arguments[0];
+    // ask
+    if(!request) {
+      commandObj.ps = "Information desired? ";
+      commandObj.next = "request %cmd%";
+      return commandObj;
+    }
+
+    // otherwise
+    let status = this.getStatusText();
+    let date = optionRegexifier('date', "d");
+    let condition = optionRegexifier("condition", "c");
+    let position = optionRegexifier("position", "p");
+    let lifeSupport = optionRegexifier("lsupport", "l");
+    let warpFactor = optionRegexifier("warpfactor", "w");
+    let energy = optionRegexifier("energy", "e");
+    let torpedoes = optionRegexifier("torpedoes", "t");
+    let shields = optionRegexifier("shields", "s");
+    let klingonsRemaining = optionRegexifier("klingons", "s");
+    let timeLeft = optionRegexifier("time", "ti");
+
+    if(date.test(request)) {
+      out = status[0];
+    } else if (condition.test(request)) {
+      out = status[1];
+    } else if (position.test(request)) {
+      out = status[2];
+    } else if (lifeSupport.test(request)) {
+      out = status[3];
+    } else if (warpFactor.test(request)) {
+      out = status[4];
+    } else if (energy.test(request)) {
+      out =  status[5];
+    } else if (torpedoes.test(request)) {
+      out =  status[6];
+    } else if (shields.test(request)) {
+      out =  status[7];
+    } else if (klingonsRemaining.test(request)) {
+      out =  status[8];
+    } else if (timeLeft.test(request)) {
+      out =  status[9];
+    } else {
+      out = "UNRECOGNIZED REQUEST. Legal requests are:\n" +
+          "  date, condition, position, lsupport, warpfactor,\n" +
+          "  energy, torpedoes, shields, klingons, time.\n"
+    }
+    commandObj.out = out;
+    return commandObj;
   }
   //
   getStatusText() {
@@ -461,17 +507,101 @@ Good Luck!
     ];
   }
 
+  /**
+   * If your short-range sensors are damaged, this command will only show
+   the contents of adjacent sectors.
+   #define IHQUEST '?'  // mystery quest
+   #define IHF 'F'  // ????
+   #define IHT 'T'  // ????
+   #define IHWEB '#'
+   #define IHGREEN 'G'
+   #define IHYELLOW 'Y'
+   #define IHRED 'R'
+   #define IHDOCKED 'D'
+   COMMAND> s
+   */
   // print the quadrant
-  runShortRangeScan() {
+  runShortRangeScan(commandObj) {
+    let output = "";
+    let printStatus = true;
     // use player location
+    let quadrant = this.player.gameObject.quadrant;
+    let matrix = [];
+    for(let i = 0; i < quadrant.sectors.length; i++) {
+      let textRow = [];
+      quadrant.sectors[i].forEach(sector => {
+        let obj = sector.container.getAllGameObjects()[0];
+        if(!obj) {
+          textRow.push('.');
+        } else if(obj instanceof Klingon) {
+          textRow.push('K');
+        }else if (obj instanceof KlingonCommander) {
+          textRow.push("C");
+        } else if (obj instanceof  KlingonSuperCommander) {
+          textRow.push("S");
+        } else if (obj instanceof Romulan) {
+          textRow.push("R");
+        } else if (obj instanceof Enterprise) {
+          textRow.push("E");
+        } else if (obj instanceof Star) {
+          textRow.push("*");
+        } else if (obj instanceof Planet) {
+          textRow.push("P");
+        } else if (obj instanceof StarBase) {
+          textRow.push("B");
+        } else if (obj instanceof BlackHole) {
+          textRow.push(" ");
+        }
+      });
+      matrix.push(textRow);
+    }
+    // add left number column for y coord
+    matrix.forEach((row, i) => {
+      row.unshift(`${i + 1}`);
+    });
+
+    // add top row for x coord
+    // make sure to account for the extra column
+    let headerRow = [" "];
+    let rowLength = matrix[0].length;
+    // skip first and last columns
+    for (let i = 1; i < rowLength; i++) {
+      headerRow.push(`${i}`);
+    }
+    matrix.unshift(headerRow);
+
+    // make the matrix from the sector
+    // this.terminal.echo("\n");
+    output += "\n";
+    // format the grid so the spacing is correct
+    matrix = this.terminal.format_grid(matrix);
+    // add status info
+    if(true || printStatus) {
+      // join the row together, add separators
+      matrix = matrix.map(row => row.join(" "));
+      // skip the header rows, then add the status text line by line
+      let statusLines = this.getStatusText();
+      statusLines.forEach((line, i) => {
+        matrix[i + 1] += "\t" + line;
+      })
+      // join the rows with \n
+      let text = matrix.join("\n");
+      // print
+      // this.terminal.echo(text);
+      output += text;
+    } else {
+      output += this.terminal.format_grid(matrix);
+    }
+    commandObj.out = output;
+    return commandObj;
   }
 
   // print nearby quadrants
-  runLongRangeScan() {
+  runLongRangeScan(commandObj) {
+    let output = "";
     // todo:: save info
     // use player location
-    // let playerQuadrant = this.player.gameObject.quadrant;
-    let playerQuadrant = this.galaxy.getQuadrant(0,7);
+    let playerQuadrant = this.player.gameObject.quadrant;
     // get a 3 x 3 quadrant matrix with the player at the center
     let matrix = [];
     for(let y = playerQuadrant.y - 1; y <= playerQuadrant.y + 1; y++) {
@@ -482,46 +612,52 @@ Good Luck!
         try {
           quadrant = this.galaxy.getQuadrant(x, y)
           if(!quadrant) {
-            textRow.push(`  -1`); //out of bounds
+            textRow.push(`-1`); //out of bounds
           } else {
+            let num = 0;
+            // debugger;
             let superNovaText = quadrant.hasSupernova ? "1" : " ";
+            // let superNovaText = quadrant.hasSupernova ? 1 : 0;
+            // num += superNovaText * 1000;
             let klingonText = quadrant.container.getCountOfGameObjects(
                 AbstractKlingon
             );
+            num += klingonText *100;
             klingonText = klingonText === 0 ? ' ' : klingonText;
+
             let starbaseText = quadrant.container.getCountOfGameObjects(StarBase);
+            // num += starbaseText * 10;
             starbaseText = starbaseText === 0 ? ' ' : starbaseText;
+
             let starText = quadrant.container.getCountOfGameObjects(Star);
             starText = starText === 0 ? ' ' : starText;
+            // num += starbaseText;
+
             let text = `${superNovaText}${klingonText}${starbaseText}${starText}`;
             textRow.push(text);
+            // textRow.push("" + num);
           }
         } catch(e) {
-          textRow.push(`  -1`); //out of bounds
+          textRow.push(`-1`); //out of bounds
         }
       }
       matrix.push(textRow);
     }
-    this.terminal.echo(`\nLong-range scan for Quadrant ${playerQuadrant.y} - ${playerQuadrant.x}\n\n`);
-    this.terminal.print_grid(matrix);
-    this.terminal.echo("\n");
+    output += `\nLong-range scan for Quadrant ${playerQuadrant.y} - ${playerQuadrant.x}\n\n`;
+    let txt = this.terminal.format_grid(matrix).map(row => row.join("\t")).join("\n");
+    output += txt;
+    output += "\n";
+    commandObj.out = output;
+    return commandObj;
   }
 
-  async getHelp() {
+  async getHelp(commandObj) {
     try {
       let helpText = this.service.getHelp();
       this.terminal.echo(helpText);
     } catch (e) {
       //defaultErrorHandler(e);
     }
+    return commandObj;
   }
 }
-
-// todo:: fill out info for commands
-// setup command options
-// setup our terminal for the commands
-// tie in the getHelp info stuffz
-/**
- * commands
- *
- **/
