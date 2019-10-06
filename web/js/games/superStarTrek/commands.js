@@ -44,17 +44,223 @@ class Command {
     return commandObj;
   }
 }
-export class GetHelpCommand extends Command {
+
+export class ShieldsCommand extends Command {
+  constructor(game, terminal, player) {
+    super();
+    this.game = game;
+    this.terminal = terminal;
+    this.player = player;
+    this.name = "shields";
+    this.abbreviation = "sh";
+    this.fullName = "deflector shields";
+    this.regex = regexifier(this.abbreviation, this.name, this.fullName);
+    this.info = `  Mnemonic:  SHIELDS
+  Shortest abbreviation:  SH
+  Full commands:  SHIELDS UP
+                  SHIELDS DOWN
+                  SHIELDS TRANSFER <amount of energy to transfer>
+
+Your deflector shields are a defensive device to protect you from
+Klingon attacks (and nearby novas).  As the shields protect you, they
+gradually weaken.  A shield strength of 75%, for example, means that
+the next time a Klingon hits you, your shields will deflect 75% of
+the hit, and let 25% get through to hurt you.
+
+It costs 50 units of energy to raise shields, nothing to lower them.
+You may move with your shields up; this costs nothing under impulse
+power, but doubles the energy required for warp drive.
+
+Each time you raise or lower your shields, the Klingons have another
+chance to attack.  Since shields do not raise and lower
+instantaneously, the hits you receive will be intermediate between
+what they would be if the shields were completely up or completely
+down.
+
+You may not fire phasers through your shields.  However you may use
+the "high-speed shield control" to lower shields, fire phasers, and
+raise the shields again before the Klingons can react.  Since rapid
+lowering and raising of the shields requires more energy than normal
+speed operation, it costs you 200 units of energy to activate this
+control.  It is automatically activated when you fire phasers while
+shields are up.  You may fire photon torpedoes, but they may be
+deflected considerably from their intended course as they pass
+through the shields (depending on shield strength).
+
+You may transfer energy between the ship's energy (given as "Energy"
+in the status) and the shields.  Thee word "TRANSFER" may be
+abbreviated "T".  The amount of energy to transfer is the number of
+units of energy you wish to take from the ship's energy and put into
+the shields.  If you specify an negative number, energy is drained
+from the shields to the ship.  Transferring energy constitutes a turn.
+If you transfer energy to the shields while you are under attack,
+they will be at the new energy level when you are next hit.
+
+Enemy torpedoes hitting your ship explode on your shields (if they
+are up) and have essentially the same effect as phaser hits.`;
+  }
+  run(commandObj) {
+    let out = "\n";
+
+    // get mode : up/down or transfer
+    let arg = commandObj.arguments[0];
+    let upOption = optionRegexifier("up", "u");
+    let downOption = optionRegexifier("down", "d");
+    let transferOption = optionRegexifier("transfer", "t");
+
+    if(upOption.test(arg)) {
+      try {
+        this.player.shieldsUp();
+        out += "Shields raised.\n\n";
+      } catch(e) {
+        out += `${e.message}\n\n`;
+      }
+    } else if (downOption.test(arg)) {
+      try {
+        this.player.shieldsDown();
+        out += "Shields lowered.\n\n";
+      } catch(e) {
+        out += `${e.message}\n\n`;
+      }
+    } else if (transferOption.test(arg)) {
+      // get the amount to transfer
+      let amount = commandObj.arguments[1];
+      amount = Number.parseInt(amount);
+      if(Number.isNaN(amount)) {
+        // parse error
+        debugger;
+      }
+      // transfer energy from ship to shields, or vice versa
+      debugger;
+      let exchanged = this.player.transferEnergyToShields(amount);
+
+      // todo:: add the responses from Scotty
+    } else if(!arg) {
+      debugger;
+      // arg not provided, ask them questions
+      // ask Do you wish to change shield energy?
+      // if no , ask
+      if(false) {
+        let t = this.player.shields.up ? "up" : "down";
+        let t2 = this.player.shields.up ? "down" : "up";
+        let q2 = `Shields are ${t}. Do you want them ${t2}?`;
+      }
+    } else {
+      // arg is provided but not recognized
+    }
+    commandObj.out = out;
+    return commandObj;
+  }
+}
+export class CommandsCommand extends Command {
   constructor(game, terminal) {
     super();
     this.game = game;
     this.terminal = terminal;
+    this.name = "commands";
+    this.regex = regexifier("commands");
+    this.info = `
+ ABBREV    FULL COMMAND                             DEVICE USED
+ ------    ------------                             -----------
+ ABANDON   ABANDON                                  shuttle craft
+ C         CHART                                    (none)
+ CA        CAPTURE                                  subspace radio, transporter
+ CALL      CALL (for help)                          subspace radio
+ CL        CLOAK                                    cloaking
+ CO        COMPUTER                                 computer
+ CR        CRYSTALS                                 (none)
+ DA        DAMAGES                                  (none)
+ DEATHRAY  DEATHRAY                                 (none)  
+ DESTRUCT  DESTRUCT                                 computer
+ D         DOCK                                     (none)
+ E         EMEXIT                                   (none)
+ FREEZE    FREEZE [FILE NAME]                       (none)
+ I         IMPULSE [MANUAL] [DISPLACEMENT]          impulse engines
+           IMPULSE AUTOMATIC [DESTINATION]          impulse engines and computer
+ L         LRSCAN                                   long-range sensors
+ MI        MINE                                     (none)
+ M         MOVE [MANUAL] [DISPLACEMENT]             warp engines
+           MOVE AUTOMATIC [DESTINATION]             warp engines and computer
+ O         ORBIT                                    warp or impulse engines
+ P         PHASERS [TOTAL AMOUNT]                   phasers and computer
+           PHASERS AUTOMATIC [TOTAL AMOUNT]         phasers, computer, sr sensors
+           PHASERS MANUAL [AMT1] [AMT2] ...         phasers
+ PHO       PHOTONS [NUMBER] [TARGETS]               torpedo tubes 
+ PL        PLANETS                                  (none)
+ PR        PROBE [ARMED] [MANUAL] [DISPLACEMENT]    probe launcher, radio 
+           PROBE [ARMED] AUTOMATIC [DESTINATION]    launcher, radio, computer
+ REP       REPORT                                   (none)
+ REQ       REQUEST                                  (none)
+ R         REST [NUMBER OF STARDATES]               (none)
+ QUIT      QUIT                                     (none)
+ S         SRSCAN [NO or CHART]                     short-range sensors
+ SC        SCORE                                    (none)
+ SE        SENSORS                                  short-range sensors
+ SH        SHIELDS [UP, DOWN, or TRANSFER]          deflector shields
+ SHU       SHUTTLE                                  shuttle craft
+ ST        STATUS                                   (none)
+ T         TRANSPORT                                transporter
+ W         WARP [FACTOR]                            (none)
+
+ L. R. Scan:   thousands digit:   supernova
+               hundreds digit:    Klingons
+               tens digit:        starbases
+               ones digit:        stars
+               period (.):        digit not known (star chart only)
+
+Courses are given in manual mode in X - Y displacements; in automatic
+    mode as destination quadrant and/or sector.  Manual mode is default.
+Distances are given in quadrants.  A distance of one sector is 0.1 quadrant.
+Ordinary Klingons have about 400 units of energy, Commanders about
+    1200.  Romulans normally have about 800 units of energy, and the
+    (GULP) "Super-Commander" has about 1800.
+Phaser fire diminishes to about 60 percent at 5 sectors.  Up to 1500
+    units may be fired in a single burst without danger of overheat.
+Warp 6 is the fastest safe speed.  At higher speeds, engine damage
+    may occur.  At warp 10 you may enter a time warp.
+Shields cost 50 units of energy to raise, and double the power
+    requirements of moving under warp drive.  Engaging the high-speed
+    shield control requires 200 units of energy.
+Warp drive requires (distance)*(warp factor cubed) units of energy
+    to travel at a speed of (warp factor squared)/10 quadrants per stardate.
+Impulse engines require 20 units to warm up, plus 100 units per
+     quadrant.  Speed is just under one sector per stardate.`
+  }
+  printCommands() {
+    let matrix = [];
+    let row = [];
+    let rowLength = 4;
+    this.game.commands.map(c => c.name).sort().forEach(name => {
+      // make a new row
+      if(row.length === rowLength) {
+        matrix.push(row);
+        row = [];
+      }
+      row.push(`${name}`);
+    });
+    if(row.length > 0) {
+      matrix.push(row);
+    }
+    let formatted = this.terminal.format_grid(matrix, false);
+    return this.terminal.print_grid(formatted, "   ");
+  }
+  run(commandObj) {
+    commandObj.out = "\n" + this.printCommands() + "\n";
+    return commandObj;
+  }
+}
+export class GetHelpCommand extends Command {
+  constructor(game, terminal, commandsCommand) {
+    super();
+    this.game = game;
+    this.terminal = terminal;
+    this.commandsCommand = commandsCommand;
     this.abbreviation = "help";
     this.name = "help";
     this.regex = regexifier("help");
     this.fullName = "ask for help";
     this.info = `  Mnemonic:  HELP
-  Full command:  HELP <command>
+  Full command:  HELP [command]
 
 This command reads the appropriate section from the SST.DOC file,
 providing the file is in the current directory.`;
@@ -77,23 +283,9 @@ providing the file is in the current directory.`;
       out += command.info;
     } else {
       out += "Valid Commands:\n";
+      out += this.commandsCommand.printCommands();
       // if invalid list the valid commands
-      let matrix = [];
-      let row = [];
-      let rowLength = 4;
-      this.game.commands.forEach(c => {
-        // make a new row
-        if(row.length === rowLength) {
-          matrix.push(row);
-          row = [];
-        }
-        row.push(`${c.name}`);
-      });
-      if(row.length > 0) {
-        matrix.push(row);
-      }
-      let formatted = this.terminal.format_grid(matrix, false);
-      out += this.terminal.print_grid(formatted, "   ");
+
     }
     out += "\n";
     commandObj.out = out;
@@ -114,8 +306,8 @@ export class MoveCommand extends Command {
     this.fullName = "move under warp drive";
     this.info = `  Mnemonic:  MOVE
   Shortest abbreviation:  M
-  Full command:  MOVE MANUAL <displacement>
-                 MOVE AUTOMATIC <destination>
+  Full command:  MOVE MANUAL [displacement]
+                 MOVE AUTOMATIC [destination]
 
 This command is the usual way to move from one place to another
 within the galaxy.  You move under warp drive, according to the
@@ -124,12 +316,12 @@ current warp factor (see "WARP FACTOR").
 There are two command modes for movement: MANUAL and AUTOMATIC.  The
 manual mode requires the following format:
 
-        MOVE MANUAL <deltax> <deltay>
+        MOVE MANUAL [deltax] [deltay]
 
-<deltax> and <deltay> are the horizontal and vertical displacements
+[deltax] and [deltay] are the horizontal and vertical displacements
 for your starship, in quadrants; a displacement of one sector is 0.1
-quadrants.  Specifying <deltax> and <deltay> causes your ship to move
-in a straight line to the specified destination. If <deltay> is
+quadrants.  Specifying [deltax] and [deltay] causes your ship to move
+in a straight line to the specified destination. If [deltay] is
 omitted, it is assumed zero. For example, the shortest possible
 command to move one sector to the right would be
 
@@ -148,13 +340,13 @@ scan shown earlier.
 
 The automatic mode is as follows:
 
-        MOVE AUTOMATIC <qrow> <qcol> <srow> <scol>
+        MOVE AUTOMATIC [qrow] [qcol] [srow] [scol]
 
-where <qrow> and <qcol> are the row and column numbers of the
-destination quadrant, and <srow> and <scol> are the row and column
+where [qrow] and [qcol] are the row and column numbers of the
+destination quadrant, and [srow] and [scol] are the row and column
 numbers of the destination sector in that quadrant.  This command also
 moves your ship in a straight line path to the destination.  For
-moving within a quadrant, <qrow> and <qcol> may be omitted. For
+moving within a quadrant, [qrow] and [qcol] may be omitted. For
 example, to move to sector 2 - 9 in the current quadrant, the
 shortest command would be
 
@@ -188,7 +380,6 @@ retaliate.`;
     // how do they do collisions ?
     // check path for objects
     this.player.warpTo(sector);
-    debugger;
     // check bounds
     // compute deltaX and deltaY
     // if both === 0 do nothing
@@ -202,7 +393,6 @@ retaliate.`;
   }
   // manual mode
   manual(deltaQy, deltaQx, deltaSy, deltaSx) {
-    debugger;
     // calculate the destination
     let destination = this.player.mover.calculateDestination(deltaQy, deltaQx, deltaSy, deltaSx);
     this.moveTo(destination);
@@ -242,7 +432,6 @@ retaliate.`;
         throw new Error("need y and x");
       }
       let [argY, argX] = args;
-      debugger;
       // quadrant based args <deltaX> <deltaY>
       // fuck that I'm making them <deltaY> <deltaX> so that they're consistent
       let deltaQx = Math.trunc(argX);
@@ -267,7 +456,6 @@ retaliate.`;
       }
 
     }
-    // debugger;
     return commandObj;
   }
 }
@@ -362,12 +550,12 @@ export class RequestCommand  extends Command {
     this.arguments = 1;
     this.info = `Mnemonic:  REQUEST
   Shortest abbreviation:  REQ
-  Full command:  REQUEST <ITEM>
+  Full command:  REQUEST [ITEM]
 
 This command allows you to get any single piece of information from
-the <STATUS> command.  <ITEM> specifies which information as follows:
+the [STATUS] command.  [ITEM] specifies which information as follows:
 
- INFORMATION       MNEMONIC FOR <ITEM>           SHORTEST ABBREVIATION
+ INFORMATION       MNEMONIC FOR [ITEM]           SHORTEST ABBREVIATION
 
  STARDATE              DATE                                D
  CONDITION             CONDITION                           C

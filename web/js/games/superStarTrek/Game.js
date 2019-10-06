@@ -13,7 +13,7 @@ import {
   KlingonSuperCommander,
   Romulan
 } from "./Enemies/Enemies.js";
-import {MoveCommand, GetHelpCommand, ChartCommand, LongRangeScanCommand, RequestCommand, ShortRangeScanCommand, StatusCommand} from "./commands.js";
+import {ShieldsCommand, CommandsCommand, MoveCommand, GetHelpCommand, ChartCommand, LongRangeScanCommand, RequestCommand, ShortRangeScanCommand, StatusCommand} from "./commands.js";
 
 /** Game length options **/
 const GAME_LENGTH_SHORT = 1;
@@ -48,7 +48,6 @@ export default class Game {
     this.starDate = 'todo';
     this.daysRemaining = this.length * 7;
     this.skill = SKILL_NOVICE;
-
   }
   // generate number of stuff first ?
   // todo::
@@ -329,13 +328,16 @@ Good Luck!
 
   makeCommands() {
     this.commands = [];
+    let chartCommand = new ChartCommand(this, this.terminal, this.player);
+    let commandsCommand = new CommandsCommand(this, this.terminal);
+    this.commands.push(new ShieldsCommand(this, this.terminal, this.player));
+    this.commands.push(commandsCommand);
     this.commands.push(new StatusCommand(this, this.terminal));
     this.commands.push(new RequestCommand(this, this.terminal));
-    let chartCommand = new ChartCommand(this, this.terminal, this.player);
     this.commands.push(chartCommand);
     this.commands.push(new ShortRangeScanCommand(this, this.terminal, chartCommand));
     this.commands.push(new LongRangeScanCommand(this, this.terminal));
-    this.commands.push(new GetHelpCommand(this, this.terminal));
+    this.commands.push(new GetHelpCommand(this, this.terminal, commandsCommand));
     this.commands.push(new MoveCommand(this, this.terminal, this.player, this.galaxy));
   }
   // register all our commands with our terminal,
