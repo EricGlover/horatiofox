@@ -1,5 +1,6 @@
-import { GameObject } from "../Components.js";
+import { GameObject, Mover } from "../Components.js";
 import {AbstractEnemy} from "../Enemies/Enemies.js";
+import {Sector} from '../Galaxy.js';
 
 const CONDITION_GREEN = 1;
 const CONDITION_YELLOW = 2;
@@ -19,11 +20,26 @@ class Shields {
 export default class Enterprise {
   constructor() {
     this.gameObject = new GameObject(this);
+    this.mover = new Mover(this);
     this.energy = 5000.00; //todo::
     this.warpFactor = 5.0; // todo:::
     this.torpedoes = 10;
     this.shields = new Shields();
     this.docked = false;  // todo::
+  }
+  impulseTo(sector) {
+    // calculate resources needed
+    this.mover.moveTo(sector);
+  }
+  warpTo(sector) {
+    if(!sector instanceof Sector) {
+      throw new Error("Can't move there");
+    }
+    // calculate resources needed
+    this.mover.moveTo(sector);
+  }
+  moveTo(sector) {
+
   }
   hasLifeSupport() {
     // TODO::

@@ -2,6 +2,58 @@
 #define RAND_MAX 32767
 #endif
 
+// convert angle ??
+angle = ((15.0 - direc) * 0.5235988);
+    // distance to travel x and y over (hyp = 1)
+    // distance per unit of travel
+    //
+	deltax = -sin(angle);
+	deltay = cos(angle);
+	if (fabs(deltax) > fabs(deltay))
+		bigger = fabs(deltax);
+	else
+		bigger = fabs(deltay);
+	// find the bigger distance and then set the other in terms of it
+	// why I don't know
+	deltay /= bigger;
+	deltax /= bigger;
+
+	/* Move within the quadrant */
+	quad[sectx][secty] = IHDOT; // set our spot to empty
+	x = sectx;
+	y = secty;
+	n = 10.0*dist*bigger+0.5;
+	// n seems to be the number of steps to take
+	// this is insane
+
+/* lines
+
+static char line[128], *linep = line;
+static int linecount;
+*/
+// fabs is floating point absolute values
+
+// move command calls warp(1)
+// make warpx entry then
+/* Activate Warp Engines and pay the cost */
+	lmove();
+	if (alldone) return;
+	energy -= dist*warpfac*warpfac*warpfac*(shldup+1);
+	if (energy <= 0) finish(FNRG);
+	Time = 10.0*dist/wfacsq;
+	if (twarp) timwrp();
+	if (blooey) {
+		damage[DWARPEN] = damfac*(3.0*Rand()+1.0);
+		skip(1);
+		prout("Engineering to bridge--");
+		prout("  Scott here.  The warp engines are damaged.");
+		prout("  We'll have to reduce speed to warp 4.");
+	}
+
+// movement ???
+direc = atan2(deltax, deltay)*1.90985932;
+	if (direc < 0.0) direc += 12.0;
+
 // Position ordinary Klingon Battle Cruisers
 	krem = inkling - incom - d.nscrem;
 	klumper = 0.25*skill*(9.0-length)+1.0;

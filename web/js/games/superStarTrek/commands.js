@@ -102,10 +102,12 @@ providing the file is in the current directory.`;
 }
 
 export class MoveCommand extends Command {
-  constructor(game, terminal) {
+  constructor(game, terminal, player, galaxy) {
     super();
     this.game = game;
     this.terminal = terminal;
+    this.player = player;
+    this.galaxy = galaxy;
     this.abbreviation = "";
     this.name = "move";
     this.regex = regexifier("m", "move");
@@ -182,7 +184,92 @@ entered the quadrant or have bee attacked since your last move
 command.  This enables you to move and hit them before they
 retaliate.`;
   }
+  moveTo(sector) {
+    // how do they do collisions ?
+    // check path for objects
+    this.player.warpTo(sector);
+    debugger;
+    // check bounds
+    // compute deltaX and deltaY
+    // if both === 0 do nothing
+    // compute distance to travel
+    // check resources (power & time)
+    // if warp factor > 6
+    // then calculate engine damage
+    // calculate time warp if any
+    // if time warps or engines take damage then check the travel path
+    // for collisions
+  }
+  // manual mode
+  manual(deltaQy, deltaQx, deltaSy, deltaSx) {
+    debugger;
+    // calculate the destination
+    let destination = this.player.mover.calculateDestination(deltaQy, deltaQx, deltaSy, deltaSx);
+    this.moveTo(destination);
+  }
+  // automatic mode
+  automatic(quadY, quadX, sectorY, sectorX) {
+    // get sector
+    let sector = this.galaxy.getSector(quadX, quadY, sectorX, sectorY);
+    this.moveTo(sector);
+  }
+  run(commandObj) {
+    // modes : manual and automatic
+    let manual = true;
+    let automatic = false;
+    let manualOption = optionRegexifier("m", "manual");
+    let automaticOption = optionRegexifier("a", "automatic");
 
+    // remove mode option from arguments, if provided
+    let args = commandObj.arguments;
+    if(args.some(arg => manualOption.test(arg))) {
+      manual = true;
+      automatic = false;
+      // remove matching arg
+      args = args.filter(arg => !manualOption.test(arg))
+    }
+    if(args.some(arg => automaticOption.test(arg))) {
+      manual = false;
+      automatic = true;
+      // remove matching arg
+      args = args.filter(arg => !automaticOption.test(arg))
+    }
+
+    if(manual) {
+      console.log("manual mode");
+      // parse args, only two arguments
+      if(args.length !== 2) {
+        throw new Error("need y and x");
+      }
+      let [argY, argX] = args;
+      debugger;
+      // quadrant based args <deltaX> <deltaY>
+      // fuck that I'm making them <deltaY> <deltaX> so that they're consistent
+      let deltaQx = Math.trunc(argX);
+      let deltaQy = Math.trunc(argY);
+      let deltaSx = Math.trunc((argX * 10) % 10);
+      let deltaSy = Math.trunc((argY * 10) % 10);
+      // todo:: check bounds
+      this.manual(deltaQy, deltaQx, deltaSy, deltaSx);
+    } else if(automatic) {
+      console.log("automatic mode");
+      // parse args <quadY> <quadX> <sectorY> <sectorX>
+      // or just <sectorY> <sectorX>
+      // todo:: check bounds
+      args = args.map(str => Number.parseInt(str));
+      // make sure to convert from the 1 based commands
+      // to the 0 based coordinates
+      if(args.length === 4) {
+        this.automatic(args[0] - 1, args[1] - 1, args[2] - 1, args[3] - 1);
+      } else if (args.length === 2) {
+        let quadrant = this.player.gameObject.quadrant;
+        this.automatic(quadrant.y, quadrant.x, args[0] - 1, args[1] - 1);
+      }
+
+    }
+    // debugger;
+    return commandObj;
+  }
 }
 export class StatusCommand extends Command {
   constructor(game, terminal) {
@@ -346,10 +433,11 @@ the <STATUS> command.  <ITEM> specifies which information as follows:
   }
 }
 export class ChartCommand extends Command {
-  constructor(game, terminal) {
+  constructor(game, terminal, player) {
     super();
     this.terminal = terminal;
     this.game = game;
+    this.player = player;
     this.abbreviation =  "c";
     this.name =  "chart";
     this.regex =  regexifier("c", "chart", "star chart");
@@ -425,6 +513,8 @@ export class ChartCommand extends Command {
     let output = "\nSTAR CHART FOR THE KNOWN GALAXY\n";
     output += "\n";
     output += this.makeChartText();
+    let q = this.player.gameObject.quadrant;
+    output += `\n\nEnterprise is currently in Quadrant ${q.y + 1} - ${q.x + 1}\n\n`;
     commandObj.out = output;
     return commandObj;
   }

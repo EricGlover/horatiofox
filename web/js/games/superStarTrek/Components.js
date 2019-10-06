@@ -25,7 +25,38 @@ export class GameObjectContainer {
     this.gameObjects.push(obj);
   }
   removeGameObject(obj) {
-    // todo::;
+    this.gameObjects = this.gameObjects.filter(o => o !== obj);
+  }
+}
+export class Mover {
+  constructor(parent) {
+    this.parent = parent;
+    this.gameObject = this.parent.gameObject;
+    // speed ?
+  }
+  calculateDistance(sector) {
+    // find delta x, delta y in global coordinates
+    let deltaX = sector.globalX - this.gameObject.sector.globalX;
+    let deltaY = sector.globalY - this.gameObject.sector.globalY;
+    return {x: deltaX, y: deltaY};
+  }
+  calculateDestination(deltaQy = 0, deltaQx = 0, deltaSy = 0, deltaSx = 0) {
+    let sector = this.gameObject.sector;
+    let x = sector.globalX + (deltaQx * 10) + deltaSx;
+    let y = sector.globalY + (deltaQy * 10) + deltaSy;
+    return this.gameObject.galaxy.getSectorGlobal(x, y);
+  }
+  calculateTime() {
+
+  }
+  moveTo(sector) {
+    // collision detection
+    if(sector.isFull()) {
+      debugger;
+    }
+    this.gameObject.sector.container.removeGameObject(this.parent);
+    this.gameObject.quadrant.container.removeGameObject(this.parent);
+    this.gameObject.placeIn(this.gameObject.galaxy, sector.quadrant, sector);
   }
 }
 // a game object is simply a thing with a position in
@@ -37,6 +68,8 @@ export class GameObject {
     this.galaxy = null;
     this.quadrant = null;
     this.sector = null;
+    this.globalX = null;
+    this.globalY = null;
   }
   placeIn(galaxy, quadrant, sector) {
     // check that sector is empty
@@ -51,7 +84,10 @@ export class GameObject {
     this.sector.container.addGameObject(this.parent);
   }
   getLocation() {
-    return `Quadrant: ${this.quadrant.y + 1} - ${this.quadrant.x + 1}; Sector: ${this.sector.y + 1} - ${this.sector.y + 1}`;
+    return `Quadrant: ${this.quadrant.y + 1} - ${this.quadrant.x + 1}; Sector: ${this.sector.y + 1} - ${this.sector.x + 1}`;
+  }
+  getQuadrantLocation() {
+    return `Quadrant ${this.quadrant.y + 1} - ${this.quadrant.x + 1}`;
   }
 }
 

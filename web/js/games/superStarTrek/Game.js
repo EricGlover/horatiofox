@@ -13,7 +13,7 @@ import {
   KlingonSuperCommander,
   Romulan
 } from "./Enemies/Enemies.js";
-import {GetHelpCommand, ChartCommand, LongRangeScanCommand, RequestCommand, ShortRangeScanCommand, StatusCommand} from "./commands.js";
+import {MoveCommand, GetHelpCommand, ChartCommand, LongRangeScanCommand, RequestCommand, ShortRangeScanCommand, StatusCommand} from "./commands.js";
 
 /** Game length options **/
 const GAME_LENGTH_SHORT = 1;
@@ -34,7 +34,7 @@ export default class Game {
   constructor(terminal, features) {
     this.terminal = terminal;
     this.service = new Service();
-    this.galaxy = new Galaxy(8, 8, true);
+    this.galaxy = new Galaxy(8, 8, 10, 10, true);
     this.commands = [];
 
     // place player in random quad and sector
@@ -307,6 +307,7 @@ export default class Game {
     let sbq = starBases.map(base =>
       [base.gameObject.quadrant.y, base.gameObject.quadrant.x].join(" - ")
     );
+
     let baseStr = sbq.join("   ");
     // change terminal settings
     let startText = `It is stardate 3100. The Federation is being attacked by
@@ -330,11 +331,12 @@ Good Luck!
     this.commands = [];
     this.commands.push(new StatusCommand(this, this.terminal));
     this.commands.push(new RequestCommand(this, this.terminal));
-    let chartCommand = new ChartCommand(this, this.terminal);
+    let chartCommand = new ChartCommand(this, this.terminal, this.player);
     this.commands.push(chartCommand);
     this.commands.push(new ShortRangeScanCommand(this, this.terminal, chartCommand));
     this.commands.push(new LongRangeScanCommand(this, this.terminal));
     this.commands.push(new GetHelpCommand(this, this.terminal));
+    this.commands.push(new MoveCommand(this, this.terminal, this.player, this.galaxy));
   }
   // register all our commands with our terminal,
   // all commands get pass to runCommand with the command name
@@ -379,7 +381,7 @@ Good Luck!
 
     let playerQuad = this.player.gameObject.quadrant;
     let playerSector = this.player.gameObject.sector;
-    let position = `Position\t${playerQuad.y} - ${playerQuad.x}, ${playerSector.y} - ${playerSector.x}`;
+    let position = `Position\t${playerQuad.y + 1} - ${playerQuad.x + 1}, ${playerSector.y + 1} - ${playerSector.x + 1}`;
     let lifeSupport = `Life Support\t${this.player.hasLifeSupport() ? 'ACTIVE' : 'FAILED'}`;
     let warpFactor = `Warp Factor\t${this.player.warpFactor}`;
     let energy = `Energy\t\t${this.player.energy}`;

@@ -1,12 +1,25 @@
 import { GameObjectContainer } from "./Components.js";
 
+export class OutsideOfGalaxyError extends Error {
+  constructor(message) {
+    super();
+  }
+}
+
 export class Sector {
   constructor(x, y, quadrant) {
     this.container = new GameObjectContainer(this);
     this.quadrant = quadrant;
-    // both x and y are 1 based
+    this.galaxy = quadrant.galaxy;
+    // both x and y are 0 based
     this.x = x; // my column # in the galaxy
     this.y = y; // my row # in the galaxy
+    let coordinates = this.galaxy.getGlobalCoordinates(this);
+    this.globalX = coordinates.x;
+    this.globalY = coordinates.y;
+  }
+  isFull() {
+    return this.container.getCountOfGameObjects(Object) > 0;
   }
 }
 
@@ -74,10 +87,12 @@ export class Quadrant {
 }
 
 export class Galaxy {
-  constructor(width, length, initEmptyQuadrants = false) {
+  constructor(width, length, quadrantWidth = 10, quadrantLength = 10, initEmptyQuadrants = true) {
     this.container = new GameObjectContainer(this);
     this.width = width;
     this.length = length;
+    this.quadrantWidth = quadrantWidth;
+    this.quadrantLength = quadrantLength;
     // setup our grid
     this.quadrants = [];
     for (let i = 0; i < length; i++) {
@@ -88,7 +103,7 @@ export class Galaxy {
       for (let i = 0; i < this.quadrants.length; i++) {
         let row = this.quadrants[i];
         for (let j = 0; j < row.length; j++) {
-          row[j] = new Quadrant(10, 10, j, i, this);
+          row[j] = new Quadrant(this.quadrantWidth, this.quadrantLength, j, i, this);
         }
       }
     }
@@ -105,8 +120,20 @@ export class Galaxy {
     return this.quadrants[i];
   }
 
-  getColumn(i) {
-    // todo::
+  // calculate globalX and globalY
+  getGlobalCoordinates(sector) {
+    let x = sector.quadrant.x * this.quadrantWidth + sector.x;
+    let y = sector.quadrant.y * this.quadrantLength + sector.y;
+    return {x,y};
+  }
+
+  // using global coordinates
+  getSectorGlobal(x, y) {
+    let quadrantX = Math.floor(x / this.quadrantWidth);
+    let quadrantY = Math.floor(y / this.quadrantLength);
+    let sectorX = x % this.quadrantWidth;
+    let sectorY = y % this.quadrantLength;
+    return this.getSector(quadrantX, quadrantY, sectorX, sectorY);
   }
 
   // coordinates are 0 based
