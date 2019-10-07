@@ -44,7 +44,107 @@ class Command {
     return commandObj;
   }
 }
+// how do the commands and the player communicate ?
+// how much logic should be in the command as opposed to the player ?
 
+
+export class PhasersCommand extends Command {
+  constructor(game, terminal, player) {
+    super();
+    this.game = game;
+    this.terminal = terminal;
+    this.player = player;
+    this.name = "phasers";
+    this.abbreviation = "p";
+    this.fullName = "phasers";
+    this.regex = regexifier(this.name, this.abbreviation, this.fullName);
+    this.info = `
+  Mnemonic:  PHASERS
+  Shortest abbreviation:  P
+  Full commands:  PHASERS AUTOMATIC <AMOUNT TO FIRE> <NO>
+                  PHASERS <AMOUNT TO FIRE> <NO>
+                  PHASERS MANUAL <NO> <AMOUNT 1> <AMOUNT 2>...<AMOUNT N>
+
+Phasers are energy weapons. As you fire phasers at Klingons, you
+specify an "amount to fire" which is drawn from your energy reserves.
+The amount of total hit required to kill an enemy is partly random.
+but also depends on skill level.
+
+The average hit required to kill an ordinary Klingon varies from 200
+units in the Novice game to 250 units in the Emeritus game.
+Commanders normally require from 600 (Novice) to 700 (Emeritus).  The
+Super-commander requires from 875 (Good) to 1000 (Emeritus). Romulans
+require an average of 350 (Novice) to 450 (Emeritus).
+
+Hits on enemies are cumulative, as long as you don't leave the
+quadrant.
+
+In general, not all that you fire will reach the Klingons.  The
+farther away they are, the less phaser energy will reach them. If a
+Klingon is adjacent to you, he will receive about 90% of the phaser
+energy directed at him; a Klingon 5 sectors away will receive about
+60% and a Klingon 10 sectors away will receive about 35%. There is
+some randomness involved, so these figures are not exact. Phasers
+have no effect beyond the boundaries of the quadrant you are in.
+
+Phasers may overheat (and be damaged) if you fire too large a burst
+at once. Firing up to 1500 units is safe.  From 1500 on up the
+probability of overheat increases with the amount fired.
+
+If phaser firing is automatic, the computer decides how to divide up
+your <amount to fire> among the Klingons present.  If phaser firing
+is manual, you specify how much energy to fire at each Klingon
+present (nearest first), rather than just specifying a total amount.
+You can abbreviate "MANUAL" and "AUTOMATIC" to one or more letters; if
+you mention neither, automatic fire is usually assumed.
+
+Battle computer information is available by firing phasers manually,
+and allowing the computer to prompt you.  If you enter zero for the
+amount to fire at each enemy, you will get a complete report, without
+cost.  The battle computer will tell you how much phaser energy to
+fire at each enemy for a sure kill.  This information appears in
+parentheses prior to the prompt for each enemy.  SInce the amount is
+computed from sensor data, if either the computer or the S.R. sensors
+are damaged, this information will be unavailable, and phasers must
+be fired manually.
+\f                                                                       13
+A safety interlock prevents phasers from being fired through the
+shields.  If this were not so, the shields would contain your fire
+and you would fry yourself.  However, you may utilize the
+"high-speed shield control" to drop shields, fire phasers, and raise
+shields before the enemy can react.  Since it takes more energy to
+work the shields rapidly with a shot, it costs you 200 units of
+energy each time you activate this control.  It is automatically
+activated when you fire phasers while the shields are up. By
+specifying the <no> option, shields are not raised after firing.
+
+Phasers have no effect on starbases (which are shielded) or on stars.`;
+  }
+  getMode(arg) {
+    //todo::
+    return {
+      auto: true,
+      manual: false
+    }
+  }
+  run(commandObj) {
+    let out = "";
+
+    // figure out the mode
+    let {auto, manual} = this.getMode(commandObj.arguments[0]);
+    if(auto) {
+
+    } else if (manual) {
+
+    } else {
+      // shouldn't happen
+      debugger;
+    }
+    commandObj.out = out;
+    return commandObj;
+  }
+}
+// todo::: shields transfer command mode
 export class ShieldsCommand extends Command {
   constructor(game, terminal, player) {
     super();
@@ -99,30 +199,38 @@ they will be at the new energy level when you are next hit.
 Enemy torpedoes hitting your ship explode on your shields (if they
 are up) and have essentially the same effect as phaser hits.`;
   }
-  run(commandObj) {
-    let out = "\n";
-
-    // get mode : up/down or transfer
-    let arg = commandObj.arguments[0];
+  getMode(arg) {
     let upOption = optionRegexifier("up", "u");
     let downOption = optionRegexifier("down", "d");
     let transferOption = optionRegexifier("transfer", "t");
 
-    if(upOption.test(arg)) {
+    return {
+      up: upOption.test(arg),
+      down: downOption.test(arg),
+      transfer: transferOption.test(arg)
+    };
+  }
+  run(commandObj) {
+    let out = "\n";
+
+    // get mode : up/down or transfer
+    let {up, down, transfer} = this.getMode(commandObj.arguments[0]);
+
+    if(up) {
       try {
         this.player.shieldsUp();
         out += "Shields raised.\n\n";
       } catch(e) {
         out += `${e.message}\n\n`;
       }
-    } else if (downOption.test(arg)) {
+    } else if (down) {
       try {
         this.player.shieldsDown();
         out += "Shields lowered.\n\n";
       } catch(e) {
         out += `${e.message}\n\n`;
       }
-    } else if (transferOption.test(arg)) {
+    } else if (transfer) {
       // get the amount to transfer
       let amount = commandObj.arguments[1];
       amount = Number.parseInt(amount);
@@ -131,11 +239,14 @@ are up) and have essentially the same effect as phaser hits.`;
         debugger;
       }
       // transfer energy from ship to shields, or vice versa
-      debugger;
-      let exchanged = this.player.transferEnergyToShields(amount);
-
+      // debugger;
+      //
+      let response = this.player.transferEnergyToShields(amount);
+      if(response.message) {
+        out += response.message;
+      }
       // todo:: add the responses from Scotty
-    } else if(!arg) {
+    } else if(!up && !down && !transfer) {
       debugger;
       // arg not provided, ask them questions
       // ask Do you wish to change shield energy?
@@ -292,7 +403,6 @@ providing the file is in the current directory.`;
     return commandObj;
   }
 }
-
 export class MoveCommand extends Command {
   constructor(game, terminal, player, galaxy) {
     super();

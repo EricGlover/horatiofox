@@ -7,8 +7,20 @@ const CONDITION_YELLOW = 2;
 const CONDITION_RED = 3;
 const CONDITION_DOCKED = 4;
 
-class Shields {
+class DeviceDamagedError extends Error{}
+
+class Device {
   constructor() {
+    this.damaged = false;
+  }
+  isDamaged() {
+    return this.damaged;
+  }
+}
+
+class Shields extends Device {
+  constructor() {
+    super();
     this.capacity = 2500;
     this.up = false;
     this.units = 2500;
@@ -18,6 +30,20 @@ class Shields {
   }
   recharge() {
     this.units = this.capacity;
+  }
+
+  // returns amount exchanged
+  // throws error when not enough energy, or damaged
+  // transfer energy to the shields
+  transferEnergy(e) {
+    if(this.damaged) {
+      throw new DeviceDamagedError(`Can't transfer energy because shields are damaged.`);
+    }
+    if(e > 0) {
+      return this.charge(e);
+    } else if (e < 0 ) {
+      return this.drain(e);
+    }
   }
 
   // returns amount drained
@@ -46,7 +72,6 @@ class Phasers {
   constructor() {
 
   }
-
 }
 export default class Enterprise {
   constructor() {
@@ -55,6 +80,7 @@ export default class Enterprise {
     this.gameObject = new GameObject(this);
     this.mover = new Mover(this);
     this.energy = this.energyCapacity; //todo::
+    this.phasers = new Phasers();
     this.warpFactor = 5.0; // todo:::
     this.torpedoes = this.torpedoCapacity;
     this.shields = new Shields();
@@ -93,27 +119,75 @@ export default class Enterprise {
   }
 
   // transfer energy from ship to shields, or vice versa if negative
+  // returns {transferred: int, message: string, error: bool}
   transferEnergyToShields(e) {
-    let exchanged = 0;
-    // transfer e to shields
-    if(e > 0) {
-      let charged = this.shields.charge(e);
-      this.useEnergy(charged);
-      exchanged = charged;
-    } else if (e < 0) { // transfer e from shields
-      let drained = 0;
-      try {
-        this.shields.drain(e);
-        drained = e;
-      } catch(e) {
-        drained = this.shields.units;
-        this.shields.drain(this.shields.units);
-      }
-      console.log("drained = ", drained);
-      this.addEnergy(drained);
-      exchanged = drained;
+    let response = {transferred: 0, message: "", error: false};
+    // check that you can do the transfer
+    if(this.shields.isDamaged()) {
+      response.error = true;
+      response.message = "Shields damaged";
+      return response;
     }
-    return exchanged;
+
+    // I'm a nasty man....
+
+    let shipEnergy = this.energy - e;
+    let shieldEnergy = this.shields.units + e;
+
+    if(e > 0) {
+      response.message += "Transferring energy to shields.\n";
+    } else if (e < 0) {
+      response.message += "Draining shields.\n";
+    }
+
+    // check the ship side of the transfer
+    if(shipEnergy > this.energyCapacity) {
+      // only draw what we can hold
+      e = this.energyCapacity - this.energy;
+      shipEnergy = this.energy - e;
+      shieldEnergy = this.shields.units + e;
+      response.message += "Ship energy maximized.\nExcess energy return to the shields.\n";
+    } else if (shipEnergy < 0) {
+      // we don't have that amount, transfer all that we have
+      e = this.energy;
+      shipEnergy = this.energy - e;
+      shieldEnergy = this.shields.units + e;
+      response.error = true;
+      response.message = `Engineering to bridge--\nScott here. Power circuit problem, Captain.\nI can't drain the shields.`;
+    } else if (shipEnergy === 0) {
+      // is this a problem ?
+      response.message = "Ship energy down to 0!\n";
+    }
+
+    // check the shields side of the transfer
+    if(shieldEnergy > this.shields.capacity) {
+      // only transfer what we can hold
+      e = this.shields.capacity - this.shields.units;
+      shipEnergy = this.energy - e;
+      shieldEnergy = this.shields.units + e;
+      response.message += "Excess energy returned to ship energy.\n";
+    } else if (shieldEnergy < 0) {
+      // we can't drain that much, drain only what we have
+      e = this.shields.units;
+      shipEnergy = this.energy - e;
+      shieldEnergy = this.shields.units + e;
+      response.error = true;
+      response.message += `Engineering to bridge--\nScott here. Power circuit problem, Captain.\nI can't drain the shields.\n`;
+    } else if (shieldEnergy === 0) {
+      // this works
+      response.message += "Shields drained to 0, shields down.\n";
+    }
+
+    // do transfer
+    this.shields.transferEnergy(e);
+    this.energy -= e;
+    response.transferred = e;
+
+    if(this.shields.units === this.shields.capacity) {
+      response.message += "Shields maximized.\n"
+    }
+
+    return response;
   }
   useEnergy(e) {
     if(this.energy - e <= 0) {
@@ -123,10 +197,10 @@ export default class Enterprise {
   }
 
   addEnergy(e) {
-    this.energy += e;
-    if(this.energy > this.energyCapacity) {
-      this.energy = this.energyCapacity;
+    if(this.energy + e > this.energyCapacity) {
+      throw new Error("Too much energy.");
     }
+    this.energy += e;
   }
 
   shieldsUp() {
