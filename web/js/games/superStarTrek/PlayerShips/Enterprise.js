@@ -1,78 +1,13 @@
 import { GameObject, Mover } from "../Components.js";
 import {AbstractEnemy} from "../Enemies/Enemies.js";
 import {Sector} from '../Galaxy.js';
+import {Phasers, Shields} from "../Devices.js";
 
 const CONDITION_GREEN = 1;
 const CONDITION_YELLOW = 2;
 const CONDITION_RED = 3;
 const CONDITION_DOCKED = 4;
 
-class DeviceDamagedError extends Error{}
-
-class Device {
-  constructor() {
-    this.damaged = false;
-  }
-  isDamaged() {
-    return this.damaged;
-  }
-}
-
-class Shields extends Device {
-  constructor() {
-    super();
-    this.capacity = 2500;
-    this.up = false;
-    this.units = 2500;
-  }
-  printInfo() {
-    return `${this.up ? "UP" : "DOWN"}, 100% ${this.units} units`;
-  }
-  recharge() {
-    this.units = this.capacity;
-  }
-
-  // returns amount exchanged
-  // throws error when not enough energy, or damaged
-  // transfer energy to the shields
-  transferEnergy(e) {
-    if(this.damaged) {
-      throw new DeviceDamagedError(`Can't transfer energy because shields are damaged.`);
-    }
-    if(e > 0) {
-      return this.charge(e);
-    } else if (e < 0 ) {
-      return this.drain(e);
-    }
-  }
-
-  // returns amount drained
-  drain(e) {
-    if(this.units - e < 0) {
-      throw new Error("Not enough energy");
-    }
-    this.units -= e;
-
-    if(this.units === 0) {
-      this.up = false;
-    }
-    return this.units;
-  }
-  // returns amount charged
-  charge(e) {
-    // don't exceed capacity
-    if(this.units + e > this.capacity) {
-      e = this.capacity - this.units;
-    }
-    this.units += e;
-    return e;
-  }
-}
-class Phasers {
-  constructor() {
-
-  }
-}
 export default class Enterprise {
   constructor() {
     this.energyCapacity = 5000.0;
@@ -80,10 +15,10 @@ export default class Enterprise {
     this.gameObject = new GameObject(this);
     this.mover = new Mover(this);
     this.energy = this.energyCapacity; //todo::
-    this.phasers = new Phasers();
+    this.phasers = new Phasers(this);
     this.warpFactor = 5.0; // todo:::
     this.torpedoes = this.torpedoCapacity;
-    this.shields = new Shields();
+    this.shields = new Shields(this);
     this.docked = false;  // todo::
   }
   dock() {

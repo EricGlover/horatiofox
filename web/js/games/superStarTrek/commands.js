@@ -178,7 +178,8 @@ Phasers have no effect on starbases (which are shielded) or on stars.`;
       });
       enemyArr.sort((a, b) => a.distance - b.distance);
 
-
+      // fire upon the enemies
+      toFire.forEach((amount, i) => this.player.phasers.fire(amount, enemyArr[i].enemy));
       debugger;
     } else {
       // shouldn't happen
