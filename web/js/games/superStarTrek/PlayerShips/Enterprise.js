@@ -21,6 +21,27 @@ export default class Enterprise {
     this.shields = new Shields(this);
     this.docked = false;  // todo::
   }
+  firePhasersMultiTarget(targets, leaveShieldsDown = false) {
+    // fast shield control ?
+    if(this.shields.up) {
+      // do fast shield control
+      // lower shields
+      if(!leaveShieldsDown) {
+        // raise shields
+      }
+    }
+    let totalToFire = targets.reduce((carry, entry) => carry + entry.amount, 0 );
+    if(totalToFire > this.energy ) {
+      // no
+      debugger;
+    }
+
+    // determine distances ????
+    // expend energy
+    //
+    /////////////////////////////////
+    this.phasers.fire(amount, target);
+  }
   dock() {
     this.energy = this.energyCapacity;
     this.torpedoes = this.torpedoCapacity;
