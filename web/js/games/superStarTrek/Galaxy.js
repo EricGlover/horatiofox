@@ -109,6 +109,22 @@ export class Galaxy {
     }
   }
 
+  // returns B's displacement from A, given in X, Y
+  static calculateDisplacement(sectorA, sectorB) {
+    debugger;
+    return {
+      x: 0,
+      y: 0
+    }
+  }
+
+  // return positive int value
+  static calculateDistance(sectorA, sectorB) {
+    let deltaX = Math.abs(sectorA.globalX - sectorB.globalX);
+    let deltaY = Math.abs(sectorA.globalY - sectorB.globalY);
+    return Math.hypot(deltaX, deltaY);
+  }
+
   getRandomQuadrant() {
     let x = Math.round(Math.random() * (this.width - 1));
     let y = Math.round(Math.random() * (this.length - 1));
@@ -153,3 +169,4 @@ export class Galaxy {
     return this.quadrants[quadrantY][quadrantX];
   }
 }
+window.Galaxy = Galaxy;

@@ -68,8 +68,8 @@ export class GameObject {
     this.galaxy = null;
     this.quadrant = null;
     this.sector = null;
-    this.globalX = null;
-    this.globalY = null;
+    // this.globalX = null;
+    // this.globalY = null;
   }
   placeIn(galaxy, quadrant, sector) {
     // check that sector is empty

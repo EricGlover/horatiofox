@@ -6,21 +6,28 @@
 // full name (the full name of the command)
 // options ?
 // exact matcher
-import {AbstractKlingon, Klingon, KlingonCommander, KlingonSuperCommander, Romulan} from "./Enemies/Enemies.js";
+import {AbstractEnemy, AbstractKlingon, Klingon, KlingonCommander, KlingonSuperCommander, Romulan} from "./Enemies/Enemies.js";
 import StarBase from "./Objects/StarBase.js";
 import Star from "./Objects/Star.js";
 import Enterprise from "./PlayerShips/Enterprise.js";
 import Planet from "./Objects/Planet.js";
 import BlackHole from "./Objects/BlackHole.js";
 
+// same thing as the regexifier but with the end of line character added
+// so that you when we break apart the command by \s it identifies it correctly
 export function optionRegexifier(...strings) {
   strings = strings.sort((a, b) => b.length - a.length);
+  strings = strings.map(str => str + "\\s*");
   return new RegExp(`^\\s*(${strings.join("|")})\\s*$`, 'i');
 }
+
+// handy function for taking a bunch of strings that work as aliases and
+// making a regex to match any of them that begin a string
 export function regexifier(...strings) {
   // sort the possible command names by length that way
   // it'll match the longest possible thing first
   strings = strings.sort((a, b) => b.length - a.length);
+  strings = strings.map(str => str + "\\s*");
   return new RegExp(`^\\s*(${strings.join("|")})\\s*`, 'i');
 }
 // what to do for options
@@ -47,7 +54,12 @@ class Command {
 // how do the commands and the player communicate ?
 // how much logic should be in the command as opposed to the player ?
 
-
+// do manual first
+// then add high speed control
+// then add the no option (if no appears anywhere then don't raise shields using high speed control)
+// then add automatic
+// automatic just breaks up the amount to fire for you
+//
 export class PhasersCommand extends Command {
   constructor(game, terminal, player) {
     super();
@@ -121,10 +133,11 @@ specifying the <no> option, shields are not raised after firing.
 Phasers have no effect on starbases (which are shielded) or on stars.`;
   }
   getMode(arg) {
+
     //todo::
     return {
-      auto: true,
-      manual: false
+      auto: false,
+      manual: true
     }
   }
   run(commandObj) {
@@ -132,10 +145,41 @@ Phasers have no effect on starbases (which are shielded) or on stars.`;
 
     // figure out the mode
     let {auto, manual} = this.getMode(commandObj.arguments[0]);
+    // strip out the options
     if(auto) {
-
+      //
     } else if (manual) {
+      // get amounts (phasers manual ...n
+      let toFire = commandObj.arguments.slice(1).map(str => Number.parseInt(str));
 
+      // parse, and check for errors
+      let hasParseErrors = toFire.some(n => Number.isNaN(n));
+      if(hasParseErrors) {
+        debugger;
+      }
+
+      // check that we have that much energy to fire
+      let total = toFire.reduce((carry, n) => carry + n, 0);
+      if(total > this.player.energy) {
+        debugger;
+      }
+
+      // find enemies to fire upon
+      let quadrant = this.player.gameObject.quadrant;
+      let playerSector = this.player.gameObject.sector;
+      let enemies = quadrant.container.getGameObjectsOfType(AbstractEnemy);
+      // sort by distance
+      let enemyArr = [];
+      enemies.forEach(e => {
+        enemyArr.push({
+          enemy: e,
+          distance: Galaxy.calculateDistance(e.gameObject.sector, playerSector)
+        });
+      });
+      enemyArr.sort((a, b) => a.distance - b.distance);
+
+
+      debugger;
     } else {
       // shouldn't happen
       debugger;

@@ -13,7 +13,16 @@ import {
   KlingonSuperCommander,
   Romulan
 } from "./Enemies/Enemies.js";
-import {ShieldsCommand, CommandsCommand, MoveCommand, GetHelpCommand, ChartCommand, LongRangeScanCommand, RequestCommand, ShortRangeScanCommand, StatusCommand} from "./commands.js";
+
+import {
+  PhasersCommand,
+  ShieldsCommand,
+  CommandsCommand,
+  MoveCommand,
+  GetHelpCommand,
+  ChartCommand,
+  LongRangeScanCommand,
+  RequestCommand, ShortRangeScanCommand, StatusCommand} from "./commands.js";
 
 /** Game length options **/
 const GAME_LENGTH_SHORT = 1;
@@ -48,6 +57,18 @@ export default class Game {
     this.starDate = 'todo';
     this.daysRemaining = this.length * 7;
     this.skill = SKILL_NOVICE;
+  }
+
+  testingPhasers() {
+    // place klingons near player
+    for(let i = 0; i < 3; i++) {
+      let quadrant = this.player.gameObject.quadrant;
+      let sector = quadrant.getRandomEmptySector();
+      console.log("placing hostile klingon");
+      let klingon = new Klingon();
+      klingon.gameObject.placeIn(this.galaxy, quadrant, sector);
+    }
+
   }
   // generate number of stuff first ?
   // todo::
@@ -296,6 +317,7 @@ export default class Game {
 
     /// make our moveable object (klingons, klingonCommanders, Romulans)
     this.makeEnemies();
+    this.testingPhasers();
   }
 
   start() {
@@ -339,6 +361,7 @@ Good Luck!
     this.commands.push(new LongRangeScanCommand(this, this.terminal));
     this.commands.push(new GetHelpCommand(this, this.terminal, commandsCommand));
     this.commands.push(new MoveCommand(this, this.terminal, this.player, this.galaxy));
+    this.commands.push(new PhasersCommand(this, this.terminal, this.player));
   }
   // register all our commands with our terminal,
   // all commands get pass to runCommand with the command name
