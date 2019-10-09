@@ -70,8 +70,9 @@ export class Target {
     takeHit(amount) {
         this.health -= amount;
         if(this.health < 0) {
-            // this.parent.die();
-            console.log("ughhh i'm dead");
+            if(this.parent.die) {
+                this.parent.die();
+            }
         }
     }
 }
@@ -93,6 +94,6 @@ export class Phasers extends Device {
             // do something here ?
            return;
         }
-        target.takeHit(amount);
+        target.target.takeHit(amount);
     }
 }
