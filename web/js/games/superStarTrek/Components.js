@@ -90,10 +90,13 @@ export class GameObject {
     this.sector.container.addGameObject(this.parent);
   }
   getLocation() {
-    return `Quadrant: ${this.quadrant.y + 1} - ${this.quadrant.x + 1}; Sector: ${this.sector.y + 1} - ${this.sector.x + 1}`;
+    return `Quadrant: ${this.quadrant.x + 1} - ${this.quadrant.y + 1}; Sector: ${this.sector.x + 1} - ${this.sector.y + 1}`;
   }
   getQuadrantLocation() {
-    return `Quadrant ${this.quadrant.y + 1} - ${this.quadrant.x + 1}`;
+    return `Quadrant ${this.quadrant.x + 1} - ${this.quadrant.y + 1}`;
+  }
+  getSectorLocation() {
+    return `Sector ${this.sector.x + 1} - ${this.sector.y + 1}`;
   }
 }
 

@@ -35,12 +35,11 @@ export default class Enterprise {
       // no
       debugger;
     }
-
-    // determine distances ????
     // expend energy
-    //
-    /////////////////////////////////
-    this.phasers.fire(amount, target);
+    this.useEnergy(totalToFire);
+    targets.forEach(entry => {
+      this.phasers.fire(entry.amount, entry.enemy)
+    });
   }
   dock() {
     this.energy = this.energyCapacity;
@@ -160,19 +159,12 @@ export default class Enterprise {
   }
 
   shieldsUp() {
-    if(this.shields.up) {
-      throw new Error("Shields already up.");
-    }
-    // raising the shields cost energy
     this.useEnergy(50);
-    this.shields.up = true;
+    this.shields.raise();
   }
 
   shieldsDown() {
-    if(!this.shields.up) {
-      throw new Error("Shields already down.");
-    }
-    this.shields.up = false;
+    this.shields.lower();
   }
 
   printCondition() {

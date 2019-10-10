@@ -1,3 +1,6 @@
+import {terminal} from './Terminal.js';
+
+
 class Device {
     constructor(damaged) {
         this._damaged = damaged;
@@ -6,7 +9,9 @@ class Device {
         return this._damaged;
     }
 }
+
 export class DeviceDamagedError extends Error{}
+
 export class Shields extends Device {
     constructor(parent) {
         super();
@@ -15,6 +20,7 @@ export class Shields extends Device {
         this.capacity = 2500;
         this.up = false;
         this.units = 2500;
+        this.terminal = terminal;
     }
     printInfo() {
         return `${this.up ? "UP" : "DOWN"}, 100% ${this.units} units`;
@@ -23,6 +29,23 @@ export class Shields extends Device {
         this.units = this.capacity;
     }
 
+    lower() {
+        if(!this.up) {
+            this.terminal.printLine("Shields already down.");
+            return;
+        }
+        this.up = false;
+        this.terminal.printLine("Shields lowered.");
+    }
+
+    raise() {
+        if(this.up) {
+            this.terminal.printLine("Shields already up.");
+            return;
+        }
+        this.up = true;
+        this.terminal.printLine("Shields raised.");
+    }
     // returns amount exchanged
     // throws error when not enough energy, or damaged
     // transfer energy to the shields
@@ -36,7 +59,6 @@ export class Shields extends Device {
             return this.drain(e);
         }
     }
-
     // returns amount drained
     drain(e) {
         if(this.units - e < 0) {
@@ -66,12 +88,17 @@ export class Target {
         this.parent = parent;
         this.parent.target = this;
         this.health = health;
+        this.terminal = terminal;
     }
-    takeHit(amount) {
-        this.health -= amount;
+    takeHit(damage) {
+        this.health -= damage;
+        this.terminal.printLine(`${damage.toFixed(2)} unit hit on ${this.parent.name} at ${this.parent.gameObject.getSectorLocation()}`)
         if(this.health < 0) {
             if(this.parent.die) {
                 this.parent.die();
+            } else {
+                let name = this.parent.name ? this.parent.name : 'something';
+                this.terminal.echo(`${name} destroyed.`);
             }
         }
     }
@@ -85,6 +112,12 @@ export class Phasers extends Device {
         this.phaseFactor = 2.0;
     }
     fire(amount, target) {
+        if(amount <= 0) {
+            return;
+        }
+        if(!target) {
+            return;
+        }
         // target needs to be targetable
         if( !(target.target instanceof Target) ) {
             console.error("You can't hit that", target);
@@ -95,10 +128,13 @@ export class Phasers extends Device {
             // do something here ?
            return;
         }
+        if(!this.parent.gameObject) {
+            debugger;
+        }
         // get distance
-        let distance = 1;
-        //
-        let a = amount * .9 ** distance;
-        target.target.takeHit(amount);
+        let distance = Galaxy.calculateDistance(this.parent.gameObject.sector, target.gameObject.sector);
+        // distance scaling
+        let damage = amount * .9 ** distance;
+        target.target.takeHit(damage);
     }
 }

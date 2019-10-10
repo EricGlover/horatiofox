@@ -155,6 +155,8 @@ Phasers have no effect on starbases (which are shielded) or on stars.`;
       if(hasParseErrors) {
         debugger;
       }
+      // filter out 0 values and negatives because they're pointless
+      toFire = toFire.filter(n => n > 0);
 
       // check that we have that much energy to fire
       let total = toFire.reduce((carry, n) => carry + n, 0);
@@ -166,7 +168,14 @@ Phasers have no effect on starbases (which are shielded) or on stars.`;
       let quadrant = this.player.gameObject.quadrant;
       let playerSector = this.player.gameObject.sector;
       let enemies = quadrant.container.getGameObjectsOfType(AbstractEnemy);
-      // sort by distance
+
+      // if they specified more targets than
+      if(enemies.length < toFire.length) {
+        debugger;
+        return;
+      }
+
+      // sort entries by distance
       let enemyArr = [];
       enemies.forEach(e => {
         enemyArr.push({
@@ -176,9 +185,17 @@ Phasers have no effect on starbases (which are shielded) or on stars.`;
         });
       });
       enemyArr.sort((a, b) => a.distance - b.distance);
-      toFire.forEach((amount, i) => enemyArr[i].amount = amount);
-      this.player.firePhasersMultiTarget(enemyArr, false);
-      debugger;
+
+      // now grab the entries that we're going to fire at
+      let targetArray = [];
+      for(let i = 0; i < toFire.length; i++ ) {
+        let enemyEntry = enemyArr[i];
+        enemyEntry.amount = toFire[i];
+        targetArray.push(enemyEntry);
+      }
+
+      // have our player fire away
+      this.player.firePhasersMultiTarget(targetArray, false);
     } else {
       // shouldn't happen
       debugger;
@@ -253,25 +270,13 @@ are up) and have essentially the same effect as phaser hits.`;
     };
   }
   run(commandObj) {
-    this.terminal.newLine();
-
     // get mode : up/down or transfer
     let {up, down, transfer} = this.getMode(commandObj.arguments[0]);
 
     if(up) {
-      try {
-        this.player.shieldsUp();
-        this.terminal.echo("Shields raised.\n\n");
-      } catch(e) {
-        this.terminal.echo(`${e.message}\n\n`);
-      }
+      this.player.shieldsUp();
     } else if (down) {
-      try {
-        this.player.shieldsDown();
-        this.terminal.echo("Shields lowered.\n\n");
-      } catch(e) {
-        this.terminal.echo(`${e.message}\n\n`);
-      }
+      this.player.shieldsDown();
     } else if (transfer) {
       // get the amount to transfer
       let amount = commandObj.arguments[1];

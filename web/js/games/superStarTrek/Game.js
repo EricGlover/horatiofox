@@ -380,7 +380,6 @@ Good Luck!
           commandObj.input = input;
           commandObj.argumentStr = args;
           commandObj.arguments = args.split(/\s/).filter(str => str.length > 0);
-
           commandObj = this.runCommand(command.name, commandObj);
           commandObj.out = this.terminal.getOutput();
           this.terminal.clear();
