@@ -3,7 +3,7 @@ import {terminal} from './Terminal.js';
 
 class Device {
     constructor(damaged) {
-        this._damaged = damaged;
+        this._damaged = damaged;    // apparently this is should be an int not a bool so you can do repairs
     }
     isDamaged() {
         return this._damaged;
@@ -110,7 +110,33 @@ export class Phasers extends Device {
         this.parent = parent;
         this.phasers = this.parent;
         this.phaseFactor = 2.0;
+        this.overheated = false;
+        this.amountRecentlyFired = 0;
+        this.overheatThreshold = 1500;
+        this.terminal = terminal;
     }
+
+    coolDown() {
+        this.amountRecentlyFired = 0;
+    }
+
+    // check to see if the phasers overheated
+    checkOverHeat() {
+        if(this.amountRecentlyFired > this.overheatThreshold) {
+            /**
+            double chekbrn = (rpow-1500.)*0.00038;
+            if (Rand() <= chekbrn) {
+                prout("Weapons officer Sulu-  \"Phasers overheated, sir.\"");
+                damage[DPHASER] = damfac*(1.0 + Rand()) * (1.0+chekbrn);
+            }**/
+            let diff = this.amountRecentlyFired - this.overheatThreshold;
+            if(Math.random() <= diff * .00038) {
+                this.terminal.printLine(`Phasers overheated!`);
+                this._damaged = true;
+            }
+        }
+    }
+
     fire(amount, target) {
         if(amount <= 0) {
             return;
@@ -125,16 +151,21 @@ export class Phasers extends Device {
         }
         // device can't be damaged
         if(this.isDamaged()) {
-            // do something here ?
-           return;
+            this.terminal.printLine('Phaser control damaged.');
+            return;
         }
         if(!this.parent.gameObject) {
+            console.error('derp a lerp.');
             debugger;
+            return;
         }
         // get distance
         let distance = Galaxy.calculateDistance(this.parent.gameObject.sector, target.gameObject.sector);
         // distance scaling
-        let damage = amount * .9 ** distance;
+        let scalingBase = .9 * (.01 * Math.random());
+        let damage = amount * (scalingBase ** distance);
         target.target.takeHit(damage);
+        this.amountRecentlyFired += amount;
+        this.checkOverHeat();
     }
 }

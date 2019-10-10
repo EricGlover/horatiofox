@@ -40,6 +40,8 @@ export default class Enterprise {
     targets.forEach(entry => {
       this.phasers.fire(entry.amount, entry.enemy)
     });
+    // consider putting this somewhere else
+    this.phasers.coolDown();
   }
   dock() {
     this.energy = this.energyCapacity;
@@ -148,7 +150,7 @@ export default class Enterprise {
     if(this.energy - e <= 0) {
       throw new Error("Not enough energy!");
     }
-    this.energy -= 0;
+    this.energy -= e;
   }
 
   addEnergy(e) {

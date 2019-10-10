@@ -141,10 +141,45 @@ Phasers have no effect on starbases (which are shielded) or on stars.`;
     }
   }
   run(commandObj) {
+    // find enemies to fire upon, check that we can fire on something
+    let quadrant = this.player.gameObject.quadrant;
+    let playerSector = this.player.gameObject.sector;
+    let enemies = quadrant.container.getGameObjectsOfType(AbstractEnemy);
+    if(enemies.length === 0) {
+      this.terminal.printLine("No enemies to fire upon.");
+      return;
+    }
+
     // figure out the mode
     let {auto, manual} = this.getMode(commandObj.arguments[0]);
     // strip out the options
     if(auto) {
+      // in automatic mode the ship automatically fires kill shots
+      // at each target, closest first, until the energy amount
+      // specified is expended
+      let amount = Number.parseInt(commandObj.arguments[1]);
+      if(Number.isNaN(amount)) {
+        this.terminal.printLine(`Try again.`);
+        return;
+      } else if (amount <= 0) {
+        this.terminal.printLine(`Can't fire ${amount}, specify an amount greater than 0.`);
+        return;
+      } else if (amount > this.player.energy) {
+        this.terminal.printLine(`Units available = ${this.player.energy}.`);
+        return;
+      }
+      // sort entries by distance
+      let enemyArr = [];
+      enemies.forEach(e => {
+        //calculate kill shot
+        enemyArr.push({
+          enemy: e,
+          distance: Galaxy.calculateDistance(e.gameObject.sector, playerSector),
+          amount: null
+        });
+      });
+      enemyArr.sort((a, b) => a.distance - b.distance);
+
       //
     } else if (manual) {
       // get amounts (phasers manual ...n
@@ -153,7 +188,8 @@ Phasers have no effect on starbases (which are shielded) or on stars.`;
       // parse, and check for errors
       let hasParseErrors = toFire.some(n => Number.isNaN(n));
       if(hasParseErrors) {
-        debugger;
+        this.terminal.printLine(`Try again.`);
+        return;
       }
       // filter out 0 values and negatives because they're pointless
       toFire = toFire.filter(n => n > 0);
@@ -161,17 +197,13 @@ Phasers have no effect on starbases (which are shielded) or on stars.`;
       // check that we have that much energy to fire
       let total = toFire.reduce((carry, n) => carry + n, 0);
       if(total > this.player.energy) {
-        debugger;
+        this.terminal.printLine(`Units available = ${this.player.energy}.`);
+        return;
       }
-
-      // find enemies to fire upon
-      let quadrant = this.player.gameObject.quadrant;
-      let playerSector = this.player.gameObject.sector;
-      let enemies = quadrant.container.getGameObjectsOfType(AbstractEnemy);
 
       // if they specified more targets than
       if(enemies.length < toFire.length) {
-        debugger;
+        this.terminal.printLine(`There are only ${enemies.length} enemies here.`);
         return;
       }
 
