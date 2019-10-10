@@ -141,8 +141,6 @@ Phasers have no effect on starbases (which are shielded) or on stars.`;
     }
   }
   run(commandObj) {
-    let out = "";
-
     // figure out the mode
     let {auto, manual} = this.getMode(commandObj.arguments[0]);
     // strip out the options
@@ -185,7 +183,6 @@ Phasers have no effect on starbases (which are shielded) or on stars.`;
       // shouldn't happen
       debugger;
     }
-    commandObj.out = out;
     return commandObj;
   }
 }
@@ -256,7 +253,7 @@ are up) and have essentially the same effect as phaser hits.`;
     };
   }
   run(commandObj) {
-    let out = "\n";
+    this.terminal.newLine();
 
     // get mode : up/down or transfer
     let {up, down, transfer} = this.getMode(commandObj.arguments[0]);
@@ -264,16 +261,16 @@ are up) and have essentially the same effect as phaser hits.`;
     if(up) {
       try {
         this.player.shieldsUp();
-        out += "Shields raised.\n\n";
+        this.terminal.echo("Shields raised.\n\n");
       } catch(e) {
-        out += `${e.message}\n\n`;
+        this.terminal.echo(`${e.message}\n\n`);
       }
     } else if (down) {
       try {
         this.player.shieldsDown();
-        out += "Shields lowered.\n\n";
+        this.terminal.echo("Shields lowered.\n\n");
       } catch(e) {
-        out += `${e.message}\n\n`;
+        this.terminal.echo(`${e.message}\n\n`);
       }
     } else if (transfer) {
       // get the amount to transfer
@@ -304,7 +301,6 @@ are up) and have essentially the same effect as phaser hits.`;
     } else {
       // arg is provided but not recognized
     }
-    commandObj.out = out;
     return commandObj;
   }
 }
@@ -397,11 +393,12 @@ Impulse engines require 20 units to warm up, plus 100 units per
     if(row.length > 0) {
       matrix.push(row);
     }
-    let formatted = this.terminal.format_grid(matrix, false);
-    return this.terminal.print_grid(formatted, "   ");
+    let formatted = this.terminal.formatGrid(matrix, false);
+    return this.terminal.printGrid(formatted, "   ");
   }
   run(commandObj) {
-    commandObj.out = "\n" + this.printCommands() + "\n";
+    this.terminal.newLine();
+    this.terminal.echo(this.printCommands());
     return commandObj;
   }
 }
@@ -422,7 +419,7 @@ This command reads the appropriate section from the SST.DOC file,
 providing the file is in the current directory.`;
   }
   run(commandObj) {
-    let out = "\n";
+    this.terminal.newLine();
     let arg = commandObj.arguments[0];
     // prompt
     if(!arg) {
@@ -434,17 +431,16 @@ providing the file is in the current directory.`;
     // get the relevant command by name
     let command = this.game.commands.find(c => c.name === arg);
     if(command) {
-      out += `Spock- "Captain, I've found the following information:"\n\n`;
+      this.terminal.echo(`Spock- "Captain, I've found the following information:"\n\n`);
       // todo:: implement the page scrolling stuff
-      out += command.info;
+      this.terminal.echo(command.info);
     } else {
-      out += "Valid Commands:\n";
-      out += this.commandsCommand.printCommands();
+      this.terminal.echo("Valid Commands:\n");
+      this.terminal.echo(this.commandsCommand.printCommands());
       // if invalid list the valid commands
 
     }
-    out += "\n";
-    commandObj.out = out;
+    this.terminal.newLine();
     return commandObj;
   }
 }
@@ -687,9 +683,8 @@ See REQUEST command for details.`;
    COMMAND> s
    */
   run(commandObj) {
-    let output = "\n";
-    output += this.game.getStatusText().join("\n");
-    commandObj.out = output;
+    this.terminal.newLine();
+    this.terminal.echo(this.game.getStatusText().join("\n"));
     return commandObj;
   }
 }
@@ -724,7 +719,6 @@ the [STATUS] command.  [ITEM] specifies which information as follows:
  TIME LEFT             TIME                                TI`;
   }
   run(commandObj) {
-    let out = "";
     let request = commandObj.arguments[0];
     // ask
     if(!request) {
@@ -746,32 +740,33 @@ the [STATUS] command.  [ITEM] specifies which information as follows:
     let klingonsRemaining = optionRegexifier("klingons", "s");
     let timeLeft = optionRegexifier("time", "ti");
 
+    let output;
     if(date.test(request)) {
-      out = status[0];
+      output =  status[0];
     } else if (condition.test(request)) {
-      out = status[1];
+      output =  status[1];
     } else if (position.test(request)) {
-      out = status[2];
+      output =  status[2];
     } else if (lifeSupport.test(request)) {
-      out = status[3];
+      output =  status[3];
     } else if (warpFactor.test(request)) {
-      out = status[4];
+      output =  status[4];
     } else if (energy.test(request)) {
-      out =  status[5];
+      output =   status[5];
     } else if (torpedoes.test(request)) {
-      out =  status[6];
+      output =   status[6];
     } else if (shields.test(request)) {
-      out =  status[7];
+      output =   status[7];
     } else if (klingonsRemaining.test(request)) {
-      out =  status[8];
+      output =   status[8];
     } else if (timeLeft.test(request)) {
-      out =  status[9];
+      output =   status[9];
     } else {
-      out = "UNRECOGNIZED REQUEST. Legal requests are:\n" +
+      output =  "UNRECOGNIZED REQUEST. Legal requests are:\n" +
           "  date, condition, position, lsupport, warpfactor,\n" +
           "  energy, torpedoes, shields, klingons, time.\n"
     }
-    commandObj.out = out;
+    this.terminal.echo(output);
     return commandObj;
   }
 }
@@ -849,16 +844,15 @@ export class ChartCommand extends Command {
     grid.unshift(h2);
     grid.unshift(headerRow);
 
-    return this.terminal.format_grid(grid).map(row => row.join("  ")).join("\n");
+    return this.terminal.formatGrid(grid).map(row => row.join("  ")).join("\n");
   }
   run(commandObj) {
     super.run(commandObj);
-    let output = "\nSTAR CHART FOR THE KNOWN GALAXY\n";
-    output += "\n";
-    output += this.makeChartText();
+    this.terminal.echo("\nSTAR CHART FOR THE KNOWN GALAXY\n");
+    this.terminal.newLine();
+    this.terminal.echo( this.makeChartText());
     let q = this.player.gameObject.quadrant;
-    output += `\n\nEnterprise is currently in Quadrant ${q.y + 1} - ${q.x + 1}\n\n`;
-    commandObj.out = output;
+    this.terminal.echo(`\n\nEnterprise is currently in Quadrant ${q.y + 1} - ${q.x + 1}\n\n`);
     return commandObj;
   }
 }
@@ -995,10 +989,9 @@ export class ShortRangeScanCommand extends Command {
     matrix.unshift(headerRow);
 
     // make the matrix from the sector
-    // this.terminal.echo("\n");
-    output += "\n";
+    this.terminal.newLine();
     // format the grid so the spacing is correct
-    matrix = this.terminal.format_grid(matrix);
+    matrix = this.terminal.formatGrid(matrix);
     // todo:: print chart
     // add status info
     if(printStatus) {
@@ -1013,16 +1006,17 @@ export class ShortRangeScanCommand extends Command {
       let text = matrix.join("\n");
       // print
       // this.terminal.echo(text);
-      output += text;
+      this.terminal.echo(text);
     } else {
-      output += this.terminal.format_grid(matrix);
+      this.terminal.echo(this.terminal.formatGrid(matrix));
     }
     // print out the star chart if requested
     if(printChart) {
-      output += "\n\n";
-      output += this.chartCommand.makeChartText();
+      this.terminal.echo("\n\n");
+      this.terminal.echo(this.chartCommand.makeChartText());
     }
-    output += "\n\n";
+    this.terminal.newLine();
+    this.terminal.newLine();
     commandObj.out = output;
     return commandObj;
   }
@@ -1082,7 +1076,6 @@ export class LongRangeScanCommand extends Command {
   }
   run(commandObj) {
     super.run(commandObj);
-    let output = "";
     // todo:: save info
     // use player location
     let playerQuadrant = this.game.player.gameObject.quadrant;
@@ -1126,11 +1119,11 @@ export class LongRangeScanCommand extends Command {
       }
       matrix.push(textRow);
     }
-    output += `\nLong-range scan for Quadrant ${playerQuadrant.y} - ${playerQuadrant.x}\n\n`;
-    let txt = this.terminal.format_grid(matrix).map(row => row.join("\t")).join("\n");
-    output += txt;
-    output += "\n";
-    commandObj.out = output;
+    this.terminal.echo(`\nLong-range scan for Quadrant ${playerQuadrant.y} - ${playerQuadrant.x}\n\n`);
+    let txt = this.terminal.formatGrid(matrix).map(row => row.join("\t")).join("\n");
+    this.terminal.echo(txt);
+    this.terminal.newLine();
+
     return commandObj;
   }
 }

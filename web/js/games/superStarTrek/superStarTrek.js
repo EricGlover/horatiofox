@@ -1,6 +1,7 @@
 import "../../../lib/ptty.jquery.js";
 import Game from "./Game.js";
 import Menu from "./Menu.js";
+import {terminal} from './Terminal.js';
 
 $(document).ready(function() {
   const versions = {
@@ -26,8 +27,7 @@ $(document).ready(function() {
     }
   };
 
-  // todo:: setup
-  let $ptty = $("#terminal").Ptty({
+  terminal.$terminal = $("#terminal").Ptty({
     ps: "COMMAND>",
     autocomplete: true,
     i18n: {
@@ -36,7 +36,8 @@ $(document).ready(function() {
       error_bad_methdo: "Command malformed. Try 'help'."
     }
   });
-  let game = new Game($ptty);
+
+  let game = new Game(terminal);
   game.start();
   window.game = game;
 

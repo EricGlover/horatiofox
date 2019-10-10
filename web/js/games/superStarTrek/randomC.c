@@ -2,6 +2,76 @@
 #define RAND_MAX 32767
 #endif
 
+
+for (; k <= nenhr2; k++, kk++) {
+		// wham is amount of energy to expend
+		if ((wham = hits[k])==0) continue;
+		dustfac = 0.9 + 0.01*Rand();
+		// dustfac = .9 ish
+		hit = wham*pow(dustfac,kdist[kk]);
+		// .9 ish ** distance in sectors ) * amount
+		kpini = kpower[kk];
+		kp = fabs(kpini);
+		if (phasefac*hit < kp) kp = phasefac*hit;
+		kpower[kk] -= (kpower[kk] < 0 ? -kp: kp);
+		kpow = kpower[kk];
+		ii = kx[kk];
+		jj = ky[kk];
+		if (hit > 0.005) {
+			cramf(hit, 0, 2);
+			proutn(" unit hit on ");
+		}
+		else
+			proutn("Very small hit on ");
+		ienm = quad[ii][jj];
+		crmena(0,ienm,2,ii,jj);
+		skip(1);
+		if (kpow == 0) {
+			deadkl(ii, jj, ienm, ii, jj);
+			if (d.remkl==0) finish(FWON);
+			if (alldone) return;
+			kk--; /* don't do the increment */
+		}
+		else /* decide whether or not to emasculate klingon */
+			if (kpow > 0 && Rand() >= 0.9 &&
+				kpow <= ((0.4 + 0.4*Rand())*kpini)) {
+				proutn("***Mr. Spock-  \"Captain, the vessel at");
+				cramlc(2,ii,jj);
+				skip(1);
+				prout("   has just lost its firepower.\"");
+				kpower[kk] = -kpow;
+			}
+	}
+
+// the phaser code
+// energy = ship energy
+// rpow is total fired amount
+// ifast is high speed shields
+//
+hits[k] = aaitem; // amounts to fire ?
+....
+energy -= rpow;
+chew();
+if (ifast) {
+energy -= 200.0;
+if (checkshctrl(rpow)) return;
+}
+hittem(hits);
+
+cramf
+crami
+
+//  prout(char pointer) print to stdout some string
+//  proutn(char pointer) print to stdout some string and then a \n
+
+
+int irec=(fabs(kpower[k])/(phasefac*pow(0.9,kdist[k])))*
+								 (1.01+0.05*Rand()) + 1.0;
+						kz = k;
+						proutn("(");
+						crami(irec, 1);
+						proutn(")  ");
+
 // convert angle ??
 angle = ((15.0 - direc) * 0.5235988);
     // distance to travel x and y over (hyp = 1)

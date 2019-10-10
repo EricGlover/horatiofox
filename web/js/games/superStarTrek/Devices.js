@@ -82,6 +82,7 @@ export class Phasers extends Device {
         super();
         this.parent = parent;
         this.phasers = this.parent;
+        this.phaseFactor = 2.0;
     }
     fire(amount, target) {
         // target needs to be targetable
@@ -94,6 +95,10 @@ export class Phasers extends Device {
             // do something here ?
            return;
         }
+        // get distance
+        let distance = 1;
+        //
+        let a = amount * .9 ** distance;
         target.target.takeHit(amount);
     }
 }

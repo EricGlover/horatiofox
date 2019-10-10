@@ -345,7 +345,7 @@ The Enterprise is currently in ${this.player.gameObject.getLocation()}
 
 Good Luck!
 `;
-    this.terminal.echo(startText);
+    this.terminal.$terminal.echo(startText);
   }
 
   makeCommands() {
@@ -370,19 +370,21 @@ Good Luck!
   // modify the output
   registerCommands() {
     this.commands.forEach(command => {
-      this.terminal.register("command", {
+      this.terminal.$terminal.register("command", {
         name: command.name,
         method: (commandObj) => {
           // get arguments
-          let input = this.terminal.get_input();
+          let input = this.terminal.$terminal.get_input();
           let args = input.replace(command.regex, "");
           commandObj.command = command;
           commandObj.input = input;
           commandObj.argumentStr = args;
           commandObj.arguments = args.split(/\s/).filter(str => str.length > 0);
 
-          return this.runCommand(command.name, commandObj);
-          // return commandObj;
+          commandObj = this.runCommand(command.name, commandObj);
+          commandObj.out = this.terminal.getOutput();
+          this.terminal.clear();
+          return commandObj;
         },
         regex: command.regex
       });
