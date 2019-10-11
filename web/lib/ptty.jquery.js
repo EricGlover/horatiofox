@@ -482,6 +482,14 @@
       };
 
       /**
+       *
+       * @returns {jQuery|void}
+       */
+      public_methods.get_settings = function() {
+        return settings;
+      }
+
+      /**
        * @method : unregister
        * @desc   : Removes a property from the method stack.
        **/

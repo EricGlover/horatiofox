@@ -20,6 +20,8 @@ export default class Enterprise {
     this.torpedoes = this.torpedoCapacity;
     this.shields = new Shields(this);
     this.docked = false;  // todo::
+    this.dockedAt = null;
+    this.name = "Enterprise";
   }
   firePhasersMultiTarget(targets, leaveShieldsDown = false) {
     // fast shield control ?
@@ -43,9 +45,18 @@ export default class Enterprise {
     // consider putting this somewhere else
     this.phasers.coolDown();
   }
-  dock() {
+  dock(starbase) {
+    if(this.docked) {
+      return;
+    }
     this.energy = this.energyCapacity;
     this.torpedoes = this.torpedoCapacity;
+    this.docked = true;
+    this.dockedAt = starbase;
+  }
+  undock() {
+    this.docked = false;
+    this.dockedAt = null;
   }
   impulseTo(sector) {
     // calculate resources needed

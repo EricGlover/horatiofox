@@ -114,6 +114,21 @@ export class Phasers extends Device {
         this.amountRecentlyFired = 0;
         this.overheatThreshold = 1500;
         this.terminal = terminal;
+        // this is used to calculate the energy that dissipates over distance
+        this.scalingFactor = .9;
+        this.maxScalingFactor = this.scalingFactor + .01;
+        this.minScalingFactor = this.scalingFactor;
+    }
+
+    // energy * (scaling ** distance) = damage
+    // so energy = damage / (scaling ** distance)
+    calculateSureKill(distance, damage) {
+        return damage / (this.minScalingFactor ** distance);
+    }
+
+    calculateDamage(distance, energy) {
+        let scalingBase = this.scalingFactor + (.01 * Math.random());
+        return energy * (scalingBase ** distance);
     }
 
     coolDown() {
@@ -162,8 +177,7 @@ export class Phasers extends Device {
         // get distance
         let distance = Galaxy.calculateDistance(this.parent.gameObject.sector, target.gameObject.sector);
         // distance scaling
-        let scalingBase = .9 * (.01 * Math.random());
-        let damage = amount * (scalingBase ** distance);
+        let damage = this.calculateDamage(distance, amount);
         target.target.takeHit(damage);
         this.amountRecentlyFired += amount;
         this.checkOverHeat();

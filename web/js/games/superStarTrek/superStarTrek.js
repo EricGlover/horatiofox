@@ -2,7 +2,7 @@ import "../../../lib/ptty.jquery.js";
 import Game from "./Game.js";
 import Menu from "./Menu.js";
 import {terminal} from './Terminal.js';
-
+const DEBUG = true;
 $(document).ready(function() {
   const versions = {
     1: {
@@ -28,7 +28,7 @@ $(document).ready(function() {
   };
 
   terminal.$terminal = $("#terminal").Ptty({
-    ps: "COMMAND>",
+    ps: DEBUG ? "COMMAND>" : "",
     autocomplete: true,
     i18n: {
       welcome: "-SUPER- STAR TREK\n\n",
@@ -37,11 +37,18 @@ $(document).ready(function() {
     }
   });
 
+  // make our game and menu
   let game = new Game(terminal);
-  game.start();
+  let menu = new Menu(terminal, () => game.start());
   window.game = game;
+  window.terminal = terminal;
 
-  // run menu
-  // let menu = new Menu($ptty, () => game.start());
-  // menu.start();
+  if(DEBUG) { // SKIP the menu
+    game.start();
+  } else {
+    menu.start();
+  }
+
+
+
 });

@@ -14,13 +14,14 @@
 // choose file name
 // if not found start menu again
 export default class Menu {
-  constructor($ptty, startGame) {
+  constructor(terminal, startGame) {
     this.mode = null;
     this.length = null;
     this.difficulty = null;
     this.secretPassword = null;
-    this.$ptty = $ptty;
+    this.terminal = terminal;
     this.startGame = startGame;
+    this.startGamePs = "COMMAND>";
   }
 
   skipLine(n) {
@@ -28,7 +29,7 @@ export default class Menu {
     for (let i = 0; i < n; i++) {
       str += "\n";
     }
-    this.$ptty.echo(str);
+    this.terminal.$terminal.echo(str);
   }
 
   start() {
@@ -38,7 +39,7 @@ export default class Menu {
     this.secretPassword = null;
     this.skipLine(2);
     // tag line
-    this.$ptty.echo("Latest update-21 Sept 78");
+    this.terminal.$terminal.echo("Latest update-21 Sept 78");
     this.skipLine(1);
     // ask mode
     this.ask(
@@ -60,11 +61,11 @@ export default class Menu {
       );
     } else if (/tournament/.test(input)) {
       this.mode = "tournament";
-      this.$ptty.echo("Sorry that's not implemented.");
+      this.terminal.$terminal.echo("Sorry that's not implemented.");
       this.start();
     } else if (/frozen/.test(input)) {
       this.mode = "frozen";
-      this.$ptty.echo("Sorry that's not implemented.");
+      this.terminal.$terminal.echo("Sorry that's not implemented.");
       this.start();
     }
   }
@@ -102,12 +103,17 @@ export default class Menu {
     }
     this.prompt(
       "Please type in a secret password (9 characters maximum)-",
-      this.chooseSecretPassword.bind(this)
+      this.chooseSecretPassword.bind(this), this.startGamePs
     );
   }
 
   chooseSecretPassword(input) {
     this.secretPassword = input;
+    this.finish();
+  }
+
+  finish() {
+    this.terminal.$terminal.change_settings({ps: this.startGamePs});
     // start game now !!!!
     this.startGame();
   }
@@ -118,15 +124,18 @@ export default class Menu {
   // unregister question
   // call method , pass input
   **/
-  prompt(question, method) {
-    this.$ptty.echo(question);
-    this.$ptty.register("command", {
+  prompt(question, method, ps) {
+    this.terminal.$terminal.echo(question);
+    this.terminal.$terminal.register("command", {
       name: "ask",
       method: cmd => {
-        let input = this.$ptty.get_input(); // save this
-        this.$ptty.unregister("command", "ask");
+        let input = this.terminal.$terminal.get_input(); // save this
+        this.terminal.$terminal.unregister("command", "ask");
         // delay a bit so our terminal can finish processing
         setTimeout(() => method(input), 10);
+        if(ps) {
+          return {ps};
+        }
       },
       regex: new RegExp(`[\s\S]*`, "i")
     });
@@ -139,12 +148,12 @@ export default class Menu {
   // call method , pass input
   **/
   ask(question, options, method) {
-    this.$ptty.echo(question);
-    this.$ptty.register("command", {
+    this.terminal.$terminal.echo(question);
+    this.terminal.$terminal.register("command", {
       name: "ask",
       method: cmd => {
-        let input = this.$ptty.get_input(); // save this
-        this.$ptty.unregister("command", "ask");
+        let input = this.terminal.$terminal.get_input(); // save this
+        this.terminal.$terminal.unregister("command", "ask");
         // delay a bit so our terminal can finish processing
         setTimeout(() => method(input), 10);
       },

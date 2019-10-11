@@ -44,8 +44,6 @@ class Command {
     this.options =  {};
     this.info = "No info.";
   }
-  formatGrid() {}
-  concatGrid() {}
   run(commandObj) {
     commandObj.out = "Not implemented.";
     return commandObj;
@@ -133,11 +131,11 @@ specifying the <no> option, shields are not raised after firing.
 Phasers have no effect on starbases (which are shielded) or on stars.`;
   }
   getMode(arg) {
-
-    //todo::
+    let autoOption = optionRegexifier("automatic", "auto", "a");
+    let manualOption = optionRegexifier("manual", "man", "m");
     return {
-      auto: false,
-      manual: true
+      auto: autoOption.test(arg),
+      manual: manualOption.test(arg)
     }
   }
   run(commandObj) {
@@ -152,12 +150,22 @@ Phasers have no effect on starbases (which are shielded) or on stars.`;
 
     // figure out the mode
     let {auto, manual} = this.getMode(commandObj.arguments[0]);
+
+    // automatic is assumed
+    let amounts = [];
+    if(!auto && !manual) {
+      auto = true;
+      amounts = commandObj.arguments.slice(0);  // no mode option specified in args
+    } else {
+      amounts = commandObj.arguments.slice(1);  // ignore mode option specified in args
+    }
+
     // strip out the options
     if(auto) {
       // in automatic mode the ship automatically fires kill shots
       // at each target, closest first, until the energy amount
       // specified is expended
-      let amount = Number.parseInt(commandObj.arguments[1]);
+      let amount = Number.parseInt(amounts[0]);
       if(Number.isNaN(amount)) {
         this.terminal.printLine(`Try again.`);
         return;
@@ -171,19 +179,43 @@ Phasers have no effect on starbases (which are shielded) or on stars.`;
       // sort entries by distance
       let enemyArr = [];
       enemies.forEach(e => {
+        let distance = Galaxy.calculateDistance(e.gameObject.sector, playerSector);
         //calculate kill shot
+        let energy = this.player.phasers.calculateSureKill(distance, e.target.health);
         enemyArr.push({
           enemy: e,
-          distance: Galaxy.calculateDistance(e.gameObject.sector, playerSector),
-          amount: null
+          distance: distance,
+          amount: energy
         });
       });
       enemyArr.sort((a, b) => a.distance - b.distance);
-
+      // fire kill shots until the amount of energy to use is exhausted
+      // add the entries into toFire, until we run out of energy
+      let toFire = [];
+      let amountToFire = amount;
+      for(let i = 0; amount > 0 && i < enemyArr.length; i++) {
+        let {amount} = enemyArr[i];
+        if(amountToFire < amount) {
+          amount = amountToFire;
+        }
+        // amount = Math.ceil(amount);
+        amountToFire -= amount;
+        enemyArr[i].amount = amount;
+        toFire.push(enemyArr[i]);
+        if(amountToFire <= 0) {
+          break;
+        }
+      }
+      this.player.firePhasersMultiTarget(toFire, false);
+      if(amountToFire > 0) {
+        // fire excess energy into space
+        this.terminal.echo(`Firing ${amountToFire.toFixed(2)} excess units into space.`);
+        this.player.useEnergy(amountToFire);
+      }
       //
     } else if (manual) {
       // get amounts (phasers manual ...n
-      let toFire = commandObj.arguments.slice(1).map(str => Number.parseInt(str));
+      let toFire = amounts.map(str => Number.parseInt(str));
 
       // parse, and check for errors
       let hasParseErrors = toFire.some(n => Number.isNaN(n));
@@ -228,9 +260,6 @@ Phasers have no effect on starbases (which are shielded) or on stars.`;
 
       // have our player fire away
       this.player.firePhasersMultiTarget(targetArray, false);
-    } else {
-      // shouldn't happen
-      debugger;
     }
     return commandObj;
   }
@@ -1162,6 +1191,77 @@ export class LongRangeScanCommand extends Command {
     this.terminal.newLine();
 
     return commandObj;
+  }
+}
+export class DockCommand extends Command {
+  constructor(game, terminal, player) {
+    super();
+    this.game = game;
+    this.terminal = terminal;
+    this.player = player;
+    this.abbreviation =  "d";
+    this.name = "dock";
+    this.fullName = "dock at starbase";
+    this.regex = regexifier(this.abbreviation, this.name, this.fullName);
+    this.deviceUsed = "";
+    this.options =  {};
+    this.info = `
+  Mnemonic:  DOCK
+  Shortest abbreviation:  D
+
+You may dock your starship whenever you are in one of the eight
+sector positions immediately adjacent to a starbase.  When you dock,
+your starship is resupplied with energy, shield energy photon
+torpedoes, and life support reserves.  Repairs also proceed faster at
+starbase, so if some of your devices are damaged, you may wish to
+stay at base (by using the "REST" command) until they are fixed.  If
+your ship has more than its normal maximum energy (which can happen
+if you've loaded crystals) the ship's energy is not changed.
+
+You may not dock while in standard orbit around a planet.
+
+Starbases have their own deflector shields, so you are completely
+safe from phaser attack while docked.  You are also safe from
+long-range tractor beams.
+
+Starbases also have both short and long range sensors, which you can
+use if yours are broken. There's also a subspace radio to get
+information about happenings in the galaxy. Mr. Spock will update the
+star chart if your ask for it while docked and your own radio is dead.`;
+  }
+  run(commandObj) {
+    if(this.player.docked) {
+      this.terminal.echo("Already docked.");
+      return;
+    }
+    // if you're in one of the eight adjacent sectors of a starbase
+    // then "dock"
+    let sector = this.player.gameObject.sector;
+    let quadrant = this.player.gameObject.quadrant;
+
+    let found = false;
+    for(let x = sector.x - 1; x <= sector.x + 1; x++) {
+      for(let y = sector.y - 1; y < sector.y + 1; y++) {
+        try {
+          let nearbySector = quadrant.getSector(x, y);
+          let starbase = nearbySector.container.getGameObjectsOfType(StarBase)[0];
+          if(starbase) {
+            found = true;
+            this.player.dock(starbase);
+            this.terminal.echo("Docked.");
+            break;
+          }
+        } catch(e) {
+          // not found
+        }
+      }
+      if(found) {
+        break;
+      }
+    }
+    if(!found) {
+      this.terminal.echo(`${this.player.name} is not adjacent to a starbase.`);
+    }
   }
 }
 /**
