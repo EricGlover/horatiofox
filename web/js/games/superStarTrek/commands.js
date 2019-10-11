@@ -52,12 +52,34 @@ class Command {
 // how do the commands and the player communicate ?
 // how much logic should be in the command as opposed to the player ?
 
-// do manual first
-// then add high speed control
+export class PhotonsCommand extends Command {
+  constructor(game, terminal, player) {
+    super();
+    this.game = game;
+    this.terminal = terminal;
+    this.player = player;
+
+  }
+  run(commandObj) {
+    // todo::
+    let playerSector = this.player.gameObject.sector;
+    let args = commandObj.arguments;
+    let number = args.shift();
+    let targets = [];
+    for(let i = 0; i < args.length; i += 2) {
+      let x = Number.parseFloat(args[i]);
+      let y = Number.parseFloat(args[i + 1]);
+      if(Number.isNaN(x) || Number.isNaN(y)) {
+        this.terminal.echo("Try again");
+      }
+      // check that those sector numbers make sense ???
+      targets.push({x, y});
+    }
+
+    // fire photon torpedoes
+  }
+}
 // then add the no option (if no appears anywhere then don't raise shields using high speed control)
-// then add automatic
-// automatic just breaks up the amount to fire for you
-//
 export class PhasersCommand extends Command {
   constructor(game, terminal, player) {
     super();

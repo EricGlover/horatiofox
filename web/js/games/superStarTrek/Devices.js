@@ -2,8 +2,8 @@ import {terminal} from './Terminal.js';
 
 
 class Device {
-    constructor(damaged) {
-        this._damaged = damaged;    // apparently this is should be an int not a bool so you can do repairs
+    constructor() {
+        this._damaged = false;    // apparently this is should be an int not a bool so you can do repairs
     }
     isDamaged() {
         return this._damaged;
@@ -181,5 +181,18 @@ export class Phasers extends Device {
         target.target.takeHit(damage);
         this.amountRecentlyFired += amount;
         this.checkOverHeat();
+    }
+}
+
+/// todo:: collision detection
+export class PhotonTorpedoLauncher extends Device {
+    constructor(parent) {
+        super();
+        this.parent = parent;
+        this.parent.photons = this;
+    }
+    // fire at sector x y , can be floats or ints
+    fire(x, y) {
+        ///
     }
 }

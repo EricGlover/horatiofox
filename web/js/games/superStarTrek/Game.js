@@ -15,6 +15,7 @@ import {
 } from "./Enemies/Enemies.js";
 
 import {
+  PhotonsCommand,
   DockCommand,
   PhasersCommand,
   ShieldsCommand,
@@ -364,6 +365,7 @@ Good Luck!
     this.commands.push(new MoveCommand(this, this.terminal, this.player, this.galaxy));
     this.commands.push(new PhasersCommand(this, this.terminal, this.player));
     this.commands.push(new DockCommand(this, this.terminal, this.player));
+    this.commands.push(new PhotonsCommand(this, this.terminal, this.player));
   }
   // register all our commands with our terminal,
   // all commands get pass to runCommand with the command name

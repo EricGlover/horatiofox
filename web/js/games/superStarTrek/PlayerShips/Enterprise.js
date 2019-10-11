@@ -1,7 +1,7 @@
 import { GameObject, Mover } from "../Components.js";
 import {AbstractEnemy} from "../Enemies/Enemies.js";
 import {Sector} from '../Galaxy.js';
-import {Phasers, Shields} from "../Devices.js";
+import {Phasers, Shields, PhotonTorpedoLauncher} from "../Devices.js";
 
 const CONDITION_GREEN = 1;
 const CONDITION_YELLOW = 2;
@@ -18,6 +18,7 @@ export default class Enterprise {
     this.phasers = new Phasers(this);
     this.warpFactor = 5.0; // todo:::
     this.torpedoes = this.torpedoCapacity;
+    this.photons = new PhotonTorpedoLauncher(this);
     this.shields = new Shields(this);
     this.docked = false;  // todo::
     this.dockedAt = null;
