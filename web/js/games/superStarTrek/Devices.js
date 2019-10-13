@@ -83,12 +83,65 @@ export class Shields extends Device {
 }
 
 // can be hit with weapons
-export class Target {
-    constructor(parent, health = 1) {
+// colliders are rectangles or points
+// points have width = 0, height = 0
+// width and height are in units 1/100 * sector width
+export class Collider {
+    constructor(parent, gameObject, width = 0, height = 0, health = 1) {
         this.parent = parent;
-        this.parent.target = this;
+        this.parent.collider = this;
         this.health = health;
         this.terminal = terminal;
+        this.width = width;
+        this.height = height;
+        this.gameObject = gameObject;
+    }
+    getCoordinates() {
+        let topLeft = {x: this.gameObject.x, y: this.gameObject.y};
+        let bottomLeft = {x: topLeft.x, y: topLeft.y + this.height};
+        let topRight = {x: topLeft.x + this.width, y: topLeft.y};
+        let bottomRight = {x: topRight.x, y: bottomLeft.y};
+        let center = {x: topLeft.x + this.width / 2, y: topLeft.y + this.width / 2};
+        return {
+            topLeft,
+            bottomLeft,
+            topRight,
+            bottomRight,
+            center
+        }
+    }
+    getLeftSideX() {
+        return this.gameObject.x;
+    }
+    getRightSideX() {
+        return this.gameObject.x + (this.width / 100);
+    }
+    getTopSideY() {
+        return this.gameObject.y;
+    }
+    getBottomSideY() {
+        return this.gameObject.y + (this.height / 100);
+    }
+    collision(a) {
+        return Collider.collision(this, a);
+    }
+    static collision(a, b) {
+        // a and b need to be gameObjects
+        // and colliders
+        // our coordinates are given in the center of the objects
+
+        // if a left side < b right side
+        // and a right side is > b left side
+        // and a top side is < b bottom side
+        // and a bottom side is > b top side then collision
+        if(a.getLeftSideX() < b.getRightSideX()
+            && a.getRightSideX() > b.getLeftSideX()
+            && a.getTopSideY() < b.getBottomSideY()
+            && a.getBottomSideY() > b.getTopSideY()
+        )  {
+            return true;
+        }
+        return false;
     }
     takeHit(damage) {
         this.health -= damage;
@@ -160,7 +213,7 @@ export class Phasers extends Device {
             return;
         }
         // target needs to be targetable
-        if( !(target.target instanceof Target) ) {
+        if( !(target.target instanceof Collider) ) {
             console.error("You can't hit that", target);
             return;
         }
@@ -178,7 +231,7 @@ export class Phasers extends Device {
         let distance = Galaxy.calculateDistance(this.parent.gameObject.sector, target.gameObject.sector);
         // distance scaling
         let damage = this.calculateDamage(distance, amount);
-        target.target.takeHit(damage);
+        target.collider.takeHit(damage);
         this.amountRecentlyFired += amount;
         this.checkOverHeat();
     }
@@ -186,13 +239,42 @@ export class Phasers extends Device {
 
 /// todo:: collision detection
 export class PhotonTorpedoLauncher extends Device {
-    constructor(parent) {
+    constructor(parent, count = 0, capacity = 0) {
         super();
         this.parent = parent;
         this.parent.photons = this;
+        this.terminal = terminal;
+        this._capacity = capacity;
+        this._torpedoes = count;
+    }
+    addTorpedoes(n) {
+        if(n <= 0) {
+            return;
+        } else if(this._torpedoes + n > this._capacity) {
+            this._torpedoes = this._capacity;
+            return;
+        }
+        this._torpedoes += n;
+    }
+    getTorpedoCount() {
+        return this._torpedoes;
     }
     // fire at sector x y , can be floats or ints
     fire(x, y) {
-        ///
+        if(this.isDamaged()) {
+            this.terminal.echo("Photon torpedoes are damaged and can't fire.");
+            return;
+        }
+        if(this._torpedoes <= 0) {
+            this.terminal.echo("Not enough torpedoes.");
+            return;
+        }
+        debugger;
+        /// movement / collision detection test
+
+        // place torpedo at our current position
+        // move it some distance
+        // test for collision
+        // repeat
     }
 }

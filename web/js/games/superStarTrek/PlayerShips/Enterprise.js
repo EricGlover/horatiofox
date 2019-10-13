@@ -11,19 +11,18 @@ const CONDITION_DOCKED = 4;
 export default class Enterprise {
   constructor() {
     this.energyCapacity = 5000.0;
-    this.torpedoCapacity = 10;
     this.gameObject = new GameObject(this);
     this.mover = new Mover(this);
-    this.energy = this.energyCapacity; //todo::
+    this.energy = this.energyCapacity;
     this.phasers = new Phasers(this);
-    this.warpFactor = 5.0; // todo:::
-    this.torpedoes = this.torpedoCapacity;
-    this.photons = new PhotonTorpedoLauncher(this);
+    this.warpFactor = 5.0;
+    this.photons = new PhotonTorpedoLauncher(this, 10, 10);
     this.shields = new Shields(this);
-    this.docked = false;  // todo::
+    this.docked = false;
     this.dockedAt = null;
     this.name = "Enterprise";
   }
+
   firePhasersMultiTarget(targets, leaveShieldsDown = false) {
     // fast shield control ?
     if(this.shields.up) {
@@ -51,7 +50,7 @@ export default class Enterprise {
       return;
     }
     this.energy = this.energyCapacity;
-    this.torpedoes = this.torpedoCapacity;
+    this.photons.addTorpedoes(this.photons._capacity - this.photons.getTorpedoCount());
     this.docked = true;
     this.dockedAt = starbase;
   }
@@ -61,14 +60,14 @@ export default class Enterprise {
   }
   impulseTo(sector) {
     // calculate resources needed
-    this.mover.moveTo(sector);
+    this.mover.moveToSector(sector);
   }
   warpTo(sector) {
     if(!sector instanceof Sector) {
       throw new Error("Can't move there");
     }
     // calculate resources needed
-    this.mover.moveTo(sector);
+    this.mover.moveToSector(sector);
   }
   hasLifeSupport() {
     // TODO::

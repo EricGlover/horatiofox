@@ -26,6 +26,8 @@ import {
   LongRangeScanCommand,
   RequestCommand, ShortRangeScanCommand, StatusCommand} from "./commands.js";
 
+import {DEBUG} from './superStarTrek.js';
+
 /** Game length options **/
 const GAME_LENGTH_SHORT = 1;
 const GAME_LENGTH_MEDIUM = 2;
@@ -50,9 +52,30 @@ export default class Game {
 
     // place player in random quad and sector
     this.player = new Enterprise();
-    let quad = this.galaxy.getRandomQuadrant();
-    let sector = quad.getRandomSector();
-    this.player.gameObject.placeIn(this.galaxy, quad, sector);
+    if(DEBUG) {
+      // testing torpedoes
+      let quad = this.galaxy.getQuadrant(0, 0);
+      let sector = quad.getSector(0, 0);
+      this.player.gameObject.placeIn(this.galaxy, quad, sector);
+
+      // place a klingon
+      // k 1
+      sector = quad.getSector(2, 0);
+      let klingon = new Klingon();
+      klingon.gameObject.placeIn(this.galaxy, quad, sector);
+      // k 2
+      sector = quad.getSector(0, 2);
+      klingon = new Klingon();
+      klingon.gameObject.placeIn(this.galaxy, quad, sector);
+      // k 3
+      sector = quad.getSector(2, 2);
+      klingon = new Klingon();
+      klingon.gameObject.placeIn(this.galaxy, quad, sector);
+    } else {
+      let quad = this.galaxy.getRandomQuadrant();
+      let sector = quad.getRandomSector();
+      this.player.gameObject.placeIn(this.galaxy, quad, sector);
+    }
 
     // defaults for testing
     this.length = GAME_LENGTH_SHORT;
@@ -319,7 +342,7 @@ export default class Game {
 
     /// make our moveable object (klingons, klingonCommanders, Romulans)
     this.makeEnemies();
-    this.testingPhasers();
+    //this.testingPhasers();
   }
 
   start() {
@@ -354,12 +377,13 @@ Good Luck!
     this.commands = [];
     let chartCommand = new ChartCommand(this, this.terminal, this.player);
     let commandsCommand = new CommandsCommand(this, this.terminal);
+    let statusCommand = new StatusCommand(this, this.terminal, this.player, this.galaxy);
     this.commands.push(new ShieldsCommand(this, this.terminal, this.player));
     this.commands.push(commandsCommand);
-    this.commands.push(new StatusCommand(this, this.terminal));
-    this.commands.push(new RequestCommand(this, this.terminal));
+    this.commands.push(statusCommand);
+    this.commands.push(new RequestCommand(this, this.terminal, statusCommand));
     this.commands.push(chartCommand);
-    this.commands.push(new ShortRangeScanCommand(this, this.terminal, chartCommand));
+    this.commands.push(new ShortRangeScanCommand(this, this.terminal, chartCommand, statusCommand));
     this.commands.push(new LongRangeScanCommand(this, this.terminal));
     this.commands.push(new GetHelpCommand(this, this.terminal, commandsCommand));
     this.commands.push(new MoveCommand(this, this.terminal, this.player, this.galaxy));
@@ -402,34 +426,5 @@ Good Luck!
       return commandObj;
     }
     return match.run(commandObj);
-  }
-
-  // todo:: move this to the status command
-  getStatusText() {
-    let date = `Stardate\t${this.starDate}`
-    let condition = `Condition\t${this.player.printCondition()}`;
-
-    let playerQuad = this.player.gameObject.quadrant;
-    let playerSector = this.player.gameObject.sector;
-    let position = `Position\t${playerQuad.y + 1} - ${playerQuad.x + 1}, ${playerSector.y + 1} - ${playerSector.x + 1}`;
-    let lifeSupport = `Life Support\t${this.player.hasLifeSupport() ? 'ACTIVE' : 'FAILED'}`;
-    let warpFactor = `Warp Factor\t${this.player.warpFactor}`;
-    let energy = `Energy\t\t${this.player.energy}`;
-    let torpedoes = `Torpedoes\t${this.player.torpedoes}`;
-    let shields = `Shields\t\t${this.player.shields.printInfo()}`;
-    let klingonsRemaining = `Klingons Left\t${this.galaxy.container.getCountOfGameObjects(AbstractKlingon)}`;
-    let timeLeft = `Time Left\t${this.daysRemaining}`;
-    return [
-        date,
-        condition,
-        position,
-        lifeSupport,
-        warpFactor,
-        energy,
-        torpedoes,
-        shields,
-        klingonsRemaining,
-        timeLeft
-    ];
   }
 }

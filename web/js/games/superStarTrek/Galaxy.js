@@ -1,11 +1,5 @@
 import { GameObjectContainer } from "./Components.js";
 
-export class OutsideOfGalaxyError extends Error {
-  constructor(message) {
-    super();
-  }
-}
-
 export class Sector {
   constructor(x, y, quadrant) {
     this.container = new GameObjectContainer(this);
@@ -18,8 +12,10 @@ export class Sector {
     this.globalX = coordinates.x;
     this.globalY = coordinates.y;
   }
+  // game object that take up the whole sector
+  // fill up the whole sector (Planets, Bases, Stars, BlackHoles, Ships, etc..)
   isFull() {
-    return this.container.getCountOfGameObjects(Object) > 0;
+    return this.container.getAllGameObjects().some(obj => obj.gameObject.takesWholeSector);
   }
 }
 
@@ -30,7 +26,7 @@ export class Quadrant {
     this.container = new GameObjectContainer(this);
     // todo:: setup number of stars per quadrant
     this.galaxy = galaxy;
-    // both x and y are 1 based
+    // both x and y are 0 based
     this.x = x; // my column # in the galaxy
     this.y = y; // my row # in the galaxy
     this.width = width;
@@ -137,6 +133,7 @@ export class Galaxy {
   }
 
   // calculate globalX and globalY
+  // refers to the top left point of the sector
   getGlobalCoordinates(sector) {
     let x = sector.quadrant.x * this.quadrantWidth + sector.x;
     let y = sector.quadrant.y * this.quadrantLength + sector.y;
