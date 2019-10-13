@@ -1,4 +1,5 @@
 import {terminal} from './Terminal.js';
+import {GameObject, Mover} from "./Components.js";
 
 
 class Device {
@@ -213,7 +214,7 @@ export class Phasers extends Device {
             return;
         }
         // target needs to be targetable
-        if( !(target.target instanceof Collider) ) {
+        if( !(target.collider instanceof Collider) ) {
             console.error("You can't hit that", target);
             return;
         }
@@ -234,6 +235,14 @@ export class Phasers extends Device {
         target.collider.takeHit(damage);
         this.amountRecentlyFired += amount;
         this.checkOverHeat();
+    }
+}
+
+class Torpedo {
+    constructor() {
+        this.gameObject = new GameObject(this, false);
+        this.mover = new Mover(this);
+        this.collider = new Collider(this, this.gameObject, 0, 0, 1);
     }
 }
 
@@ -260,7 +269,7 @@ export class PhotonTorpedoLauncher extends Device {
         return this._torpedoes;
     }
     // fire at sector x y , can be floats or ints
-    fire(x, y) {
+    fire(sectorX, sectorY) {
         if(this.isDamaged()) {
             this.terminal.echo("Photon torpedoes are damaged and can't fire.");
             return;
@@ -269,12 +278,23 @@ export class PhotonTorpedoLauncher extends Device {
             this.terminal.echo("Not enough torpedoes.");
             return;
         }
+        // get global x y for target
+        let x = this.parent.gameObject.quadrant.x + sectorX;
+        let y = this.parent.gameObject.quadrant.y + sectorY;
         debugger;
-        /// movement / collision detection test
-
+        // make torpedo
+        let torpedo = new Torpedo();
         // place torpedo at our current position
-        // move it some distance
-        // test for collision
-        // repeat
+        torpedo.gameObject.placeIn(this.parent.gameObject.galaxy,
+            this.parent.gameObject.quadrant,
+            this.parent.gameObject.sector);
+        /// movement / collision detection test
+        let moveGenerator = torpedo.mover.moveTo(x, y);
+        let ret;
+        do {
+            ret = moveGenerator.next();
+            // check collision
+            debugger;
+        } while (!ret.done)
     }
 }

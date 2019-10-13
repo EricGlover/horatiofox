@@ -41,6 +41,7 @@ export class Mover {
     let deltaY = sector.globalY - this.gameObject.sector.globalY;
     return {x: deltaX, y: deltaY};
   }
+
   calculateDestination(deltaQy = 0, deltaQx = 0, deltaSy = 0, deltaSx = 0) {
     let sector = this.gameObject.sector;
     let x = sector.globalX + (deltaQx * 10) + deltaSx;
@@ -55,7 +56,8 @@ export class Mover {
     return Math.hypot(deltaX, deltaY);
   }
   // delta = max amount to move per move
-  *moveTo(globalX, globalY, delta) {
+  *moveTo(globalX, globalY, delta = 1) {
+    debugger;
     // find total distance
     let distance = Mover.calculateDistance(this.gameObject.x, this.gameObject.y, globalX, globalY);
     let remaining = distance;
@@ -65,17 +67,24 @@ export class Mover {
     // angle
     let theta = Math.atan( distanceY / distanceX);
     // find deltaX and deltaY (amount to move each move)
+    // this finds the x and y of the right triangle using delta as hypotenuse
     let deltaX = delta * Math.cos(theta);
     let deltaY = delta * Math.sin(theta);
 
     let keepGoing = true;
+    let i = 0;
     while(remaining > 0 && keepGoing) {
+      if(i > 100) return;
       // move by deltax deltay
       this.gameObject.x += deltaX;
       this.gameObject.y += deltaY;
+      // todo:: check bounds
+      //todo:: update the sector and quadrant if need be
       remaining -= delta;
       keepGoing = yield;
+      i++;
     }
+    return;
   }
   // only basic collision detection
   // drops the object into the sector
@@ -98,6 +107,7 @@ export class GameObject {
     this.galaxy = null;
     this.quadrant = null;
     this.sector = null;
+    // x and y are floats
     this.x = null;
     this.y = null;
     this.takesWholeSector = takesWholeSector;
@@ -113,9 +123,11 @@ export class GameObject {
     this.x = null;
     this.y = null;
   }
-  placeIn(galaxy, quadrant, sector) {
+  // the x and y in the sector 0 - 0 is top left
+  // .5 - .5 is center
+  placeIn(galaxy, quadrant, sector, x = .5, y = .5) {
     // check that sector is empty
-    if (!sector.container.isEmpty()) {
+    if (this.takesWholeSector && !sector.container.isEmpty()) {
       throw new Error("Cant place object in non empty sector");
     }
     this.galaxy = galaxy;
@@ -124,10 +136,10 @@ export class GameObject {
     this.galaxy.container.addGameObject(this.parent);
     this.quadrant.container.addGameObject(this.parent);
     this.sector.container.addGameObject(this.parent);
-    // set x and y (sector x and y are topleft point)
-    // place in the center ...
-    this.x = this.sector.globalX + .5;
-    this.y = this.sector.globalY + .5;
+
+    // set global x y
+    this.x = this.sector.globalX + x;
+    this.y = this.sector.globalY + y;
   }
   // todo:: modify getSectorXY to correctly display
   // when coordinates are not in the center of a center
@@ -148,13 +160,4 @@ export class GameObject {
   getSectorLocation() {
     return `Sector ${this.getSectorX() + 1} - ${this.getSectorY() + 1}`;
   }
-}
-
-// rename later
-// movable component
-export class MoveableGameObject {
-  constructor(gameObject) {
-    this.gameObject = gameObject;
-  }
-  move(galaxy, quadrant, sector) {}
 }

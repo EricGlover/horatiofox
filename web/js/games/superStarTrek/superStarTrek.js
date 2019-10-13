@@ -3,6 +3,7 @@ import Game from "./Game.js";
 import Menu from "./Menu.js";
 import {terminal} from './Terminal.js';
 export const DEBUG = true;
+
 $(document).ready(function() {
   const versions = {
     1: {

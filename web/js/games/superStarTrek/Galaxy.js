@@ -1,11 +1,28 @@
 import { GameObjectContainer } from "./Components.js";
 
+/**
+ Coordinate System
+ Both internal and external are x then y (x - y)
+ Quadrant is specified first or omitted, then the sector in that quadrant
+ Users interact with a 1 based system with centered sectors
+  so 1 - 1, 1 - 1 refers to the top left quadrant and the top left sector in it, the dead center of that sector
+  1 - 1, .5 - .5 refers to the same quadrant and sector but the top left corner of it
+
+ Internally is basically the same but sectors are considered to start at the top left point
+ and it's 0 based
+ so 0 - 0, 0 - 0 refers to the top left quadrant and the top left sector in it at the top left corner of that sector
+ and 0 - 0, 0.5 - 0.5 refers to the same quadrant and sector but the dead center of it
+**/
+
+
+
+
 export class Sector {
   constructor(x, y, quadrant) {
     this.container = new GameObjectContainer(this);
     this.quadrant = quadrant;
     this.galaxy = quadrant.galaxy;
-    // both x and y are 0 based
+    // both x and y are 1 based
     this.x = x; // my column # in the galaxy
     this.y = y; // my row # in the galaxy
     let coordinates = this.galaxy.getGlobalCoordinates(this);
@@ -26,9 +43,13 @@ export class Quadrant {
     this.container = new GameObjectContainer(this);
     // todo:: setup number of stars per quadrant
     this.galaxy = galaxy;
-    // both x and y are 0 based
+    // both x and y are 1 based
     this.x = x; // my column # in the galaxy
     this.y = y; // my row # in the galaxy
+    // global coordinates
+    let coordinates  = this.galaxy.getGlobalCoordinatesForQuadrant(this);
+    this.globalX = coordinates.x;
+    this.globalY = coordinates.y;
     this.width = width;
     this.length = length;
     this.sectors = [];
@@ -105,15 +126,6 @@ export class Galaxy {
     }
   }
 
-  // returns B's displacement from A, given in X, Y
-  static calculateDisplacement(sectorA, sectorB) {
-    debugger;
-    return {
-      x: 0,
-      y: 0
-    }
-  }
-
   // return positive int value
   static calculateDistance(sectorA, sectorB) {
     let deltaX = Math.abs(sectorA.globalX - sectorB.globalX);
@@ -128,6 +140,7 @@ export class Galaxy {
     return this.quadrants[y][x];
   }
 
+  // i is 0 based
   getRow(i) {
     return this.quadrants[i];
   }
@@ -140,12 +153,21 @@ export class Galaxy {
     return {x,y};
   }
 
+  // calculate globalX and globalY
+  // refers to the top left point of the sector
+  getGlobalCoordinatesForQuadrant(quadrant) {
+    let x = quadrant.x * this.quadrantWidth;
+    let y = quadrant.y * this.quadrantLength;
+    return {x,y};
+  }
+
   // using global coordinates
+  // x and y can be floats
   getSectorGlobal(x, y) {
     let quadrantX = Math.floor(x / this.quadrantWidth);
     let quadrantY = Math.floor(y / this.quadrantLength);
-    let sectorX = x % this.quadrantWidth;
-    let sectorY = y % this.quadrantLength;
+    let sectorX = Math.floor(x % this.quadrantWidth);
+    let sectorY = Math.floor(y % this.quadrantLength);
     return this.getSector(quadrantX, quadrantY, sectorX, sectorY);
   }
 

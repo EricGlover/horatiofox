@@ -167,8 +167,10 @@ inclusive.
 
     // todo:: collision things
     debugger;
-    // fire photon torpedoes
-    targets.forEach(target => this.player.photons.fire(target.x, target.y));
+    // fire photon torpedoes (translate coordinates)
+    // this makes no sense
+    // coordinate system changes incoming .....
+    targets.forEach(target => this.player.photons.fire(target.x - .5, target.y - .5));
   }
 }
 // then add the no option (if no appears anywhere then don't raise shields using high speed control)
