@@ -29,6 +29,9 @@ export class Sector {
     this.globalX = coordinates.x;
     this.globalY = coordinates.y;
   }
+  getAdjacentSectors(includeSelf = false) {
+    return this.quadrant.getSectorsAdjacentTo(this.x, this.y, includeSelf);
+  }
   // game object that take up the whole sector
   // fill up the whole sector (Planets, Bases, Stars, BlackHoles, Ships, etc..)
   isFull() {
@@ -64,19 +67,45 @@ export class Quadrant {
     }
   }
 
+  // internal coordinates x y
+  getSectorsAdjacentTo(sectorX,sectorY, includeSelf = false) {
+    let sectors = [];
+    for(let y = sectorY - 1; y < sectorY + 1; y++) {
+      for(let x = sectorX - 1; x < sectorX + 1; x++) {
+        if(this.areValidCoordinates(x, y)) {
+          if(includeSelf || x !== sectorX && y !== sectorY) {
+            sectors.push(this.sectors[y][x]);
+          }
+        }
+      }
+    }
+    return sectors;
+  }
+
+  areValidCoordinates(x, y) {
+    if (y < 0 || y > this.length - 1) {
+     return false;
+    }
+    if (x < 0 || x > this.width - 1) {
+      return false;
+    }
+    return true;
+  }
+
   getRandomSector() {
     let x = Math.round(Math.random() * (this.width - 1));
     let y = Math.round(Math.random() * (this.length - 1));
     return this.sectors[y][x];
   }
 
+  // x and y may be floats
+  // internal coordinates
   getSector(x, y) {
-    if (y < 0 || y > this.length - 1) {
+    if(!this.areValidCoordinates(x, y)) {
       throw new Error(`There is no sector ${x} - ${y}.`);
     }
-    if (x < 0 || x > this.width - 1) {
-      throw new Error(`There is no sector ${x} - ${y}.`);
-    }
+    x = Math.trunc(x);
+    y = Math.trunc(y);
     return this.sectors[y][x];
   }
 
@@ -100,6 +129,14 @@ export class Quadrant {
     if (emptySectors.length === 0) return;
     let idx = Math.round(Math.random() * (emptySectors.length - 1));
     return emptySectors[idx];
+  }
+
+  getEdge(startX, startY, angle) {
+
+    return {
+      x: 0,
+      y: 0
+    }
   }
 }
 
@@ -131,6 +168,11 @@ export class Galaxy {
     let deltaX = Math.abs(sectorA.globalX - sectorB.globalX);
     let deltaY = Math.abs(sectorA.globalY - sectorB.globalY);
     return Math.hypot(deltaX, deltaY);
+  }
+
+  // convert user global coordinates
+  static convertUserCoordinates(x, y) {
+    return {x: x - .5, y: y - .5};
   }
 
   getRandomQuadrant() {

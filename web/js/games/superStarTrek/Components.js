@@ -29,10 +29,9 @@ export class GameObjectContainer {
   }
 }
 export class Mover {
-  constructor(parent) {
+  constructor(parent, gameObject) {
     this.parent = parent;
-    this.gameObject = this.parent.gameObject;
-    // speed ?
+    this.gameObject = gameObject;
   }
 
   calculateDisplacement(sector) {
@@ -42,7 +41,7 @@ export class Mover {
     return {x: deltaX, y: deltaY};
   }
 
-  calculateDestination(deltaQy = 0, deltaQx = 0, deltaSy = 0, deltaSx = 0) {
+  calculateDestination(deltaQx = 0, deltaQy = 0, deltaSx = 0, deltaSy = 0) {
     let sector = this.gameObject.sector;
     let x = sector.globalX + (deltaQx * 10) + deltaSx;
     let y = sector.globalY + (deltaQy * 10) + deltaSy;
@@ -55,8 +54,30 @@ export class Mover {
     let deltaY = Math.abs(y2 - y1);
     return Math.hypot(deltaX, deltaY);
   }
+
+  // theta is our direction, delta is our distance per move
+  *moveInDirection(theta, delta = .5) {
+    // find deltaX and deltaY (amount to move each move)
+    // this finds the x and y of the right triangle using delta as hypotenuse
+    let deltaX = delta * Math.cos(theta);
+    let deltaY = delta * Math.sin(theta);
+
+    let i = 0;  // failsafe
+    let keepGoing = true;
+    while(keepGoing) {
+      if(i > 1000) return;
+      // todo:: check bounds
+      this.gameObject.x += deltaX;
+      this.gameObject.y += deltaY;
+      this.gameObject.updateSectorAfterMove();
+      keepGoing = yield;
+      i++;
+    }
+    return;
+  }
+
   // delta = max amount to move per move
-  *moveTo(globalX, globalY, delta = 1) {
+  *moveTo(globalX, globalY, delta = .5) {
     debugger;
     // find total distance
     let distance = Mover.calculateDistance(this.gameObject.x, this.gameObject.y, globalX, globalY);
@@ -72,17 +93,26 @@ export class Mover {
     let deltaY = delta * Math.sin(theta);
 
     let keepGoing = true;
-    let i = 0;
     while(remaining > 0 && keepGoing) {
-      if(i > 100) return;
-      // move by deltax deltay
+      // todo:: check bounds
+      // move by deltax deltay, or the remaining distance (whichever is less)
+      let remainingX = Math.abs(globalX - this.gameObject.x);
+      let remainingY = Math.abs(globalY - this.gameObject.y);
+      // don't overshoot the landing
+      if(remainingX < deltaX) {
+        deltaX = globalX - this.gameObject.x;
+      }
+      if(remainingY < deltaY) {
+        deltaY = globalY - this.gameObject.y;
+      }
       this.gameObject.x += deltaX;
       this.gameObject.y += deltaY;
-      // todo:: check bounds
-      //todo:: update the sector and quadrant if need be
-      remaining -= delta;
+      this.gameObject.updateSectorAfterMove();
+      remaining -= delta; // technically incorrect if deltas modified but whatever
+      if(remaining <= 0) {
+        return;
+      }
       keepGoing = yield;
-      i++;
     }
     return;
   }
@@ -123,11 +153,32 @@ export class GameObject {
     this.x = null;
     this.y = null;
   }
+
+  // check that sector is empty
+  canMoveTo(sector) {
+    if (this.takesWholeSector && !sector.container.isEmpty()) {
+      return false;
+    }
+    return true;
+  }
+
+  updateSectorAfterMove() {
+    let currentSector = this.galaxy.getSectorGlobal(this.x, this.y);
+    if(currentSector !== this.sector) {
+      if(!this.canMoveTo(currentSector)) {
+        throw new Error("Cant place object in non empty sector");
+      }
+      this.quadrant.container.removeGameObject(this.parent);
+      this.sector.container.removeGameObject(this.parent);
+      this.quadrant = currentSector.quadrant;
+      this.sector = currentSector;
+    }
+  }
+
   // the x and y in the sector 0 - 0 is top left
   // .5 - .5 is center
   placeIn(galaxy, quadrant, sector, x = .5, y = .5) {
-    // check that sector is empty
-    if (this.takesWholeSector && !sector.container.isEmpty()) {
+    if(!this.canMoveTo(sector)) {
       throw new Error("Cant place object in non empty sector");
     }
     this.galaxy = galaxy;
@@ -143,10 +194,16 @@ export class GameObject {
   }
   // todo:: modify getSectorXY to correctly display
   // when coordinates are not in the center of a center
-  getSectorY() {
+  getSectorY(float = false) {
+    // if(float) {
+    //   return this.y % this.quadrant.width;
+    // }
     return this.sector.y;
   }
-  getSectorX() {
+  getSectorX(float = false) {
+    // if(float) {
+    //   return this.x % this.quadrant.width;
+    // }
     return this.sector.x;
   }
   getLocation() {
@@ -157,7 +214,12 @@ export class GameObject {
   }
   // ugggghhhhh... coordinate systems
   // todo:::
-  getSectorLocation() {
-    return `Sector ${this.getSectorX() + 1} - ${this.getSectorY() + 1}`;
+  getSectorLocation(includeSector = true, float) {
+    return `${includeSector ? 'Sector ' : ''}${this.getSectorX() + 1} - ${this.getSectorY() + 1}`;
+  }
+  getSectorLocationFloat(includeSector = true) {
+    let x = ((this.x % this.quadrant.width) + .5).toFixed(1);
+    let y = ((this.y % this.quadrant.width) + .5).toFixed(1);
+    return `${includeSector ? 'Sector ' : ''}${x} - ${y}`
   }
 }

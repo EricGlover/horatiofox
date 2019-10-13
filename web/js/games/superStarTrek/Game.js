@@ -384,7 +384,7 @@ Good Luck!
     this.commands.push(new RequestCommand(this, this.terminal, statusCommand));
     this.commands.push(chartCommand);
     this.commands.push(new ShortRangeScanCommand(this, this.terminal, chartCommand, statusCommand));
-    this.commands.push(new LongRangeScanCommand(this, this.terminal));
+    this.commands.push(new LongRangeScanCommand(this, this.terminal, this.player));
     this.commands.push(new GetHelpCommand(this, this.terminal, commandsCommand));
     this.commands.push(new MoveCommand(this, this.terminal, this.player, this.galaxy));
     this.commands.push(new PhasersCommand(this, this.terminal, this.player));

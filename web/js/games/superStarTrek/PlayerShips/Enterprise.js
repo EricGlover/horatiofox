@@ -12,7 +12,7 @@ export default class Enterprise {
   constructor() {
     this.energyCapacity = 5000.0;
     this.gameObject = new GameObject(this);
-    this.mover = new Mover(this);
+    this.mover = new Mover(this, this.gameObject);
     this.energy = this.energyCapacity;
     this.phasers = new Phasers(this);
     this.warpFactor = 5.0;

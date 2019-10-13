@@ -5,8 +5,8 @@ import {terminal} from '../Terminal.js';
 
 export class AbstractEnemy {
   constructor() {
-    this.collider = new Collider(this);
     this.gameObject = new GameObject(this, true);
+    this.collider = new Collider(this, this.gameObject, 80, 80);
     this.terminal = terminal;
     this.name = this.constructor.name;
   }

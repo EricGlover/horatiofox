@@ -165,12 +165,17 @@ inclusive.
       return;
     }
 
+    // convert coordinates
+    targets = targets.map(target => Galaxy.convertUserCoordinates(target.x, target.y));
     // todo:: collision things
     debugger;
     // fire photon torpedoes (translate coordinates)
     // this makes no sense
     // coordinate system changes incoming .....
-    targets.forEach(target => this.player.photons.fire(target.x - .5, target.y - .5));
+    targets.forEach((target, i) => {
+      this.terminal.echo(`\nTrack for torpedo number ${i + 1}:  `);
+      this.player.photons.fire(target.x, target.y)
+    });
   }
 }
 // then add the no option (if no appears anywhere then don't raise shields using high speed control)
@@ -725,13 +730,13 @@ retaliate.`;
     // for collisions
   }
   // manual mode
-  manual(deltaQy, deltaQx, deltaSy, deltaSx) {
+  manual( deltaQx, deltaQy, deltaSx, deltaSy) {
     // calculate the destination
-    let destination = this.player.mover.calculateDestination(deltaQy, deltaQx, deltaSy, deltaSx);
+    let destination = this.player.mover.calculateDestination( deltaQx,deltaQy,  deltaSx, deltaSy);
     this.moveTo(destination);
   }
   // automatic mode
-  automatic(quadY, quadX, sectorY, sectorX) {
+  automatic(quadX, quadY, sectorX, sectorY) {
     // get sector
     let sector = this.galaxy.getSector(quadX, quadY, sectorX, sectorY);
     this.moveTo(sector);
@@ -764,7 +769,7 @@ retaliate.`;
       if(args.length !== 2) {
         throw new Error("need y and x");
       }
-      let [argY, argX] = args;
+      let [argX, argY] = args;
       // quadrant based args <deltaX> <deltaY>
       // fuck that I'm making them <deltaY> <deltaX> so that they're consistent
       let deltaQx = Math.trunc(argX);
@@ -772,7 +777,7 @@ retaliate.`;
       let deltaSx = Math.trunc((argX * 10) % 10);
       let deltaSy = Math.trunc((argY * 10) % 10);
       // todo:: check bounds
-      this.manual(deltaQy, deltaQx, deltaSy, deltaSx);
+      this.manual( deltaQx, deltaQy, deltaSx, deltaSy);
     } else if(automatic) {
       console.log("automatic mode");
       // parse args <quadY> <quadX> <sectorY> <sectorX>
@@ -785,7 +790,7 @@ retaliate.`;
         this.automatic(args[0] - 1, args[1] - 1, args[2] - 1, args[3] - 1);
       } else if (args.length === 2) {
         let quadrant = this.player.gameObject.quadrant;
-        this.automatic(quadrant.y, quadrant.x, args[0] - 1, args[1] - 1);
+        this.automatic(quadrant.x, quadrant.y, args[0] - 1, args[1] - 1);
       }
 
     }
@@ -872,7 +877,7 @@ See REQUEST command for details.`;
 
     let playerQuad = this.player.gameObject.quadrant;
     let playerSector = this.player.gameObject.sector;
-    let position = `Position\t${playerQuad.y + 1} - ${playerQuad.x + 1}, ${playerSector.y + 1} - ${playerSector.x + 1}`;
+    let position = `Position\t${playerQuad.x + 1} - ${playerQuad.y + 1}, ${playerSector.x + 1} - ${playerSector.y + 1}`;
     let lifeSupport = `Life Support\t${this.player.hasLifeSupport() ? 'ACTIVE' : 'FAILED'}`;
     let warpFactor = `Warp Factor\t${this.player.warpFactor}`;
     let energy = `Energy\t\t${this.player.energy}`;
@@ -1064,7 +1069,7 @@ export class ChartCommand extends Command {
     this.terminal.newLine();
     this.terminal.echo( this.makeChartText());
     let q = this.player.gameObject.quadrant;
-    this.terminal.echo(`\n\nEnterprise is currently in Quadrant ${q.y + 1} - ${q.x + 1}\n\n`);
+    this.terminal.echo(`\n\nEnterprise is currently in ${this.player.gameObject.getQuadrantLocation()}\n\n`);
     return commandObj;
   }
 }
@@ -1235,10 +1240,11 @@ export class ShortRangeScanCommand extends Command {
   }
 }
 export class LongRangeScanCommand extends Command {
-  constructor(game, terminal) {
+  constructor(game, terminal, player) {
     super();
     this.terminal = terminal;
     this.game = game;
+    this.player = player;
     this.abbreviation =  "l";
     this.name =  "lrscan";
     this.regex =  regexifier("l", "lrscan", "long range scan");
@@ -1332,7 +1338,7 @@ export class LongRangeScanCommand extends Command {
       }
       matrix.push(textRow);
     }
-    this.terminal.echo(`\nLong-range scan for Quadrant ${playerQuadrant.y} - ${playerQuadrant.x}\n\n`);
+    this.terminal.echo(`\nLong-range scan for ${this.player.gameObject.getQuadrantLocation()}\n\n`);
     let txt = this.terminal.formatGrid(matrix).map(row => row.join("\t")).join("\n");
     this.terminal.echo(txt);
     this.terminal.newLine();
