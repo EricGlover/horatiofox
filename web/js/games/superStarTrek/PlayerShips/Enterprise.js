@@ -1,4 +1,4 @@
-import { GameObject, Mover } from "../Components.js";
+import { GameObject, Mover, Collider } from "../Components.js";
 import {AbstractEnemy} from "../Enemies/Enemies.js";
 import {Sector} from '../Galaxy.js';
 import {Phasers, Shields, PhotonTorpedoLauncher} from "../Devices.js";
@@ -13,6 +13,7 @@ export default class Enterprise {
     this.energyCapacity = 5000.0;
     this.gameObject = new GameObject(this);
     this.mover = new Mover(this, this.gameObject);
+    this.collider = new Collider(this, this.gameObject, 80, 80, 400);
     this.energy = this.energyCapacity;
     this.phasers = new Phasers(this);
     this.warpFactor = 5.0;

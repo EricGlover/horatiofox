@@ -2,7 +2,7 @@ import "../../../lib/ptty.jquery.js";
 import Game from "./Game.js";
 import Menu from "./Menu.js";
 import {terminal} from './Terminal.js';
-export const DEBUG = true;
+export const DEBUG = false;
 
 $(document).ready(function() {
   const versions = {

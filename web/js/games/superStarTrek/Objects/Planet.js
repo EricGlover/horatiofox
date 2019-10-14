@@ -1,12 +1,14 @@
-import { GameObject } from "../Components.js";
+import { GameObject, Collider } from "../Components.js";
 
 export default class Planet {
   constructor(pClass, hasCrystals, known = false) {
     this.gameObject = new GameObject(this, true);
+    this.collider = new Collider(this, this.gameObject, 80, 80, 1000);
     this._planetClass = null;
     this.planetClass = pClass; // M N or O
     this.hasCrystals = hasCrystals;
     this.known = false;
+    this.name = "planet";
   }
 
   get planetClass() {

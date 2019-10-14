@@ -1,6 +1,4 @@
-import { GameObject } from "../Components.js";
-import {Collider} from '../Devices.js';
-
+import { GameObject, Collider } from "../Components.js";
 import {terminal} from '../Terminal.js';
 
 export class AbstractEnemy {

@@ -1,6 +1,5 @@
 import Service from "./utils/Service.js";
-import { Galaxy, Quadrant } from "./Galaxy.js";
-import { GameObject } from "./Components.js";
+import { Galaxy } from "./Galaxy.js";
 import Enterprise from "./PlayerShips/Enterprise.js";
 import Star from "./Objects/Star.js";
 import StarBase from "./Objects/StarBase.js";
@@ -82,40 +81,6 @@ export default class Game {
     this.starDate = 'todo';
     this.daysRemaining = this.length * 7;
     this.skill = SKILL_NOVICE;
-  }
-
-  testingPhasers() {
-    // place klingons near player
-    for(let i = 0; i < 3; i++) {
-      let quadrant = this.player.gameObject.quadrant;
-      let sector = quadrant.getRandomEmptySector();
-      console.log("placing hostile klingon");
-      let klingon = new Klingon();
-      klingon.gameObject.placeIn(this.galaxy, quadrant, sector);
-    }
-
-  }
-  // generate number of stuff first ?
-  // todo::
-  calculate() {
-    //enemies
-    let numberOfEnemies = Math.round(
-      this.length *
-        14 *
-        ((this.skill + 1 - 2 * Math.random()) * this.skill * 0.1 + 0.15)
-    );
-    console.log(`number of enemies = ${numberOfEnemies}`);
-    // split out the enemies into klingons and such
-    let numberOfCommanders = Math.round(
-      this.skill + 0.0625 * numberOfEnemies * Math.random()
-    );
-    let maxNumberOfCommanders = 10;
-    numberOfCommanders = Math.min(maxNumberOfCommanders, numberOfCommanders);
-
-    let numberOfSuperCommanders = this.skill > SKILL_FAIR ? 1 : 0;
-    if (numberOfEnemies > 50) {
-      // add a base
-    }
   }
 
   makeBlackHoles() {
@@ -349,9 +314,9 @@ export default class Game {
     this.setup();
 
     let starBases = this.galaxy.container.getGameObjectsOfType(StarBase);
-    // quadrants are listed y - x
+    // quadrants are listed x - y
     let sbq = starBases.map(base =>
-      [base.gameObject.quadrant.y, base.gameObject.quadrant.x].join(" - ")
+      [base.gameObject.quadrant.x, base.gameObject.quadrant.y].join(" - ")
     );
 
     let baseStr = sbq.join("   ");
@@ -367,6 +332,8 @@ You will have ${starBases.length} supporting starbases.
 Starbase locations-   ${baseStr}
 
 The Enterprise is currently in ${this.player.gameObject.getLocation()}
+
+TRY TYPING "COMMANDS"
 
 Good Luck!
 `;

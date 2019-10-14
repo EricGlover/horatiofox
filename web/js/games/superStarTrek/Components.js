@@ -1,33 +1,97 @@
+
 // game objects and containers work together
 // is something that can contain game objects
-export class GameObjectContainer {
-  constructor(parent) {
+import {terminal} from "./Terminal.js";
+
+
+// can collide into other colliders
+// width and height are in units 1/100 * sector width
+export class Collider {
+  constructor(parent, gameObject, width = 0, length = 0, health = 1) {
     this.parent = parent;
-    this.parent.container = this;
-    this.gameObjects = [];
+    this.parent.collider = this;
+    this.health = health;
+    this.terminal = terminal;
+    this.width = width;
+    this.length = length;
+    this.gameObject = gameObject;
+    this._indestructible = false;
   }
-  isEmpty() {
-    return this.gameObjects.length === 0;
+  makeIndestructible() {
+    this._indestructible = true;
   }
-  getCountOfGameObjects(type) {
-    return this.gameObjects.reduce((count, object) => {
-      if (object instanceof type) count++;
-      return count;
-    }, 0);
+  getCoordinates() {
+    let topLeft = {x: this.gameObject.x, y: this.gameObject.y};
+    let bottomLeft = {x: topLeft.x, y: topLeft.y + this.length};
+    let topRight = {x: topLeft.x + this.width, y: topLeft.y};
+    let bottomRight = {x: topRight.x, y: bottomLeft.y};
+    let center = {x: topLeft.x + this.width / 2, y: topLeft.y + this.width / 2};
+    return {
+      topLeft,
+      bottomLeft,
+      topRight,
+      bottomRight,
+      center
+    }
   }
-  getGameObjectsOfType(type) {
-    return this.gameObjects.filter(object => object instanceof type);
+  getLeftSideX() {
+    return this.gameObject.x;
   }
-  getAllGameObjects() {
-    return this.gameObjects.slice();
+  getRightSideX() {
+    return this.gameObject.x + (this.width / 100);
   }
-  addGameObject(obj) {
-    this.gameObjects.push(obj);
+  getTopSideY() {
+    return this.gameObject.y;
   }
-  removeGameObject(obj) {
-    this.gameObjects = this.gameObjects.filter(o => o !== obj);
+  getBottomSideY() {
+    return this.gameObject.y + (this.length / 100);
+  }
+  collision(a) {
+    if(!a.collider) {
+      console.log(a, ' is not a collider.');
+      return false;
+    }
+    return Collider.collision(this, a.collider);
+  }
+  static collision(a, b) {
+    if(! a instanceof Collider || ! b instanceof Collider) {
+      console.error('both a and b need to be colliders, ', a, b);
+      return false;
+    }
+    if(a === b) {
+      return false;
+    }
+    // if a left side < b right side
+    // and a right side is > b left side
+    // and a top side is < b bottom side
+    // and a bottom side is > b top side then collision
+    if(a.getLeftSideX() < b.getRightSideX()
+        && a.getRightSideX() > b.getLeftSideX()
+        && a.getTopSideY() < b.getBottomSideY()
+        && a.getBottomSideY() > b.getTopSideY()
+    )  {
+      return true;
+    }
+    return false;
+  }
+  takeHit(damage) {
+    if(this._indestructible) {
+      this.terminal.printLine(`Consumed by ${this.gameObject.name} at ${this.gameObject.getSectorLocation()}`)
+      return;
+    }
+    this.health -= damage;
+    this.terminal.printLine(`${damage.toFixed(2)} unit hit on ${this.gameObject.name} at ${this.gameObject.getSectorLocation()}`)
+    if(this.health < 0) {
+      if(this.parent.die) {
+        this.parent.die();
+      } else {
+        this.terminal.echo(`${this.gameObject.name} destroyed.`);
+      }
+    }
   }
 }
+
+// things that can move
 export class Mover {
   constructor(parent, gameObject) {
     this.parent = parent;
@@ -83,10 +147,10 @@ export class Mover {
     let distance = Mover.calculateDistance(this.gameObject.x, this.gameObject.y, globalX, globalY);
     let remaining = distance;
     // total x and y
-    let distanceX = Math.abs(this.gameObject.x - globalX);
-    let distanceY = Math.abs(this.gameObject.y - globalY);
-    // angle
-    let theta = Math.atan( distanceY / distanceX);
+    // let distanceX = Math.abs(this.gameObject.x - globalX);
+    // let distanceY = Math.abs(this.gameObject.y - globalY);
+    // angle  // todo:: check this later
+    let theta = Math.atan2( this.gameObject.y - globalY / this.gameObject.x - globalX);
     // find deltaX and deltaY (amount to move each move)
     // this finds the x and y of the right triangle using delta as hypotenuse
     let deltaX = delta * Math.cos(theta);
@@ -128,6 +192,37 @@ export class Mover {
     this.gameObject.placeIn(this.gameObject.galaxy, sector.quadrant, sector);
   }
 }
+
+// a thing that holds game objects
+export class GameObjectContainer {
+  constructor(parent) {
+    this.parent = parent;
+    this.parent.container = this;
+    this.gameObjects = [];
+  }
+  isEmpty() {
+    return this.gameObjects.length === 0;
+  }
+  getCountOfGameObjects(type) {
+    return this.gameObjects.reduce((count, object) => {
+      if (object instanceof type) count++;
+      return count;
+    }, 0);
+  }
+  getGameObjectsOfType(type) {
+    return this.gameObjects.filter(object => object instanceof type);
+  }
+  getAllGameObjects() {
+    return this.gameObjects.slice();
+  }
+  addGameObject(obj) {
+    this.gameObjects.push(obj);
+  }
+  removeGameObject(obj) {
+    this.gameObjects = this.gameObjects.filter(o => o !== obj);
+  }
+}
+
 // a game object is simply a thing with a position in
 // the game
 export class GameObject {
@@ -141,6 +236,13 @@ export class GameObject {
     this.x = null;
     this.y = null;
     this.takesWholeSector = takesWholeSector;
+  }
+  get name() {
+    if(this.parent.name) {
+      return this.parent.name;
+    } else {
+      return this.parent.constructor.name;
+    }
   }
   removeSelf() {
     this.galaxy.container.removeGameObject(this.parent);

@@ -1,5 +1,5 @@
 import {terminal} from './Terminal.js';
-import {GameObject, Mover} from "./Components.js";
+import {GameObject, Mover, Collider} from "./Components.js";
 
 class Device {
     constructor() {
@@ -79,88 +79,6 @@ export class Shields extends Device {
         }
         this.units += e;
         return e;
-    }
-}
-
-// can be hit with weapons
-// colliders are rectangles or points
-// points have width = 0, height = 0
-// width and height are in units 1/100 * sector width
-export class Collider {
-    constructor(parent, gameObject, width = 0, length = 0, health = 1) {
-        this.parent = parent;
-        this.parent.collider = this;
-        this.health = health;
-        this.terminal = terminal;
-        this.width = width;
-        this.length = length;
-        this.gameObject = gameObject;
-    }
-    getCoordinates() {
-        let topLeft = {x: this.gameObject.x, y: this.gameObject.y};
-        let bottomLeft = {x: topLeft.x, y: topLeft.y + this.length};
-        let topRight = {x: topLeft.x + this.width, y: topLeft.y};
-        let bottomRight = {x: topRight.x, y: bottomLeft.y};
-        let center = {x: topLeft.x + this.width / 2, y: topLeft.y + this.width / 2};
-        return {
-            topLeft,
-            bottomLeft,
-            topRight,
-            bottomRight,
-            center
-        }
-    }
-    getLeftSideX() {
-        return this.gameObject.x;
-    }
-    getRightSideX() {
-        return this.gameObject.x + (this.width / 100);
-    }
-    getTopSideY() {
-        return this.gameObject.y;
-    }
-    getBottomSideY() {
-        return this.gameObject.y + (this.length / 100);
-    }
-    collision(a) {
-        if(!a.collider) {
-            console.log(a, ' is not a collider.');
-            return false;
-        }
-        return Collider.collision(this, a.collider);
-    }
-    static collision(a, b) {
-        if(! a instanceof Collider || ! b instanceof Collider) {
-            console.error('both a and b need to be colliders, ', a, b);
-            return false;
-        }
-        if(a === b) {
-            return false;
-        }
-        // if a left side < b right side
-        // and a right side is > b left side
-        // and a top side is < b bottom side
-        // and a bottom side is > b top side then collision
-        if(a.getLeftSideX() < b.getRightSideX()
-            && a.getRightSideX() > b.getLeftSideX()
-            && a.getTopSideY() < b.getBottomSideY()
-            && a.getBottomSideY() > b.getTopSideY()
-        )  {
-            return true;
-        }
-        return false;
-    }
-    takeHit(damage) {
-        this.health -= damage;
-        this.terminal.printLine(`${damage.toFixed(2)} unit hit on ${this.parent.name} at ${this.parent.gameObject.getSectorLocation()}`)
-        if(this.health < 0) {
-            if(this.parent.die) {
-                this.parent.die();
-            } else {
-                let name = this.parent.name ? this.parent.name : 'something';
-                this.terminal.echo(`${name} destroyed.`);
-            }
-        }
     }
 }
 
@@ -256,7 +174,6 @@ class Torpedo {
     }
 }
 
-/// todo:: collision detection
 export class PhotonTorpedoLauncher extends Device {
     constructor(parent, count = 0, capacity = 0) {
         super();
@@ -278,25 +195,23 @@ export class PhotonTorpedoLauncher extends Device {
     getTorpedoCount() {
         return this._torpedoes;
     }
+    calcAngleDegrees(x, y) {
+        return Math.atan2(y, x) * 180 / Math.PI;
+    }
     // fire at sector x y , can be floats or ints
     fire(sectorX, sectorY) {
-        if(this.isDamaged()) {
+        if (this.isDamaged()) {
             this.terminal.echo("Photon torpedoes are damaged and can't fire.");
             return;
         }
-        if(this._torpedoes <= 0) {
+        if (this._torpedoes <= 0) {
             this.terminal.echo("Not enough torpedoes.");
             return;
         }
-        this._torpedoes --;
+        this._torpedoes--;
         // get global x y for target
         let x = this.parent.gameObject.quadrant.x + sectorX;
         let y = this.parent.gameObject.quadrant.y + sectorY;
-        // todo::
-        // convert this to the x and y that are in the same direction
-        // but at the edge of the quadrant
-        // let theta = Math.hypot(x,y);
-
 
         // make torpedo
         let torpedo = new Torpedo();
@@ -305,19 +220,18 @@ export class PhotonTorpedoLauncher extends Device {
             this.parent.gameObject.quadrant,
             this.parent.gameObject.sector);
 
-        /// movement test
-        // let moveGenerator = torpedo.mover.moveTo(x, y);
+        /// calculate the direction to shoot the torpedo
         let quadrant = this.parent.gameObject.quadrant;
         let deltaX = x - this.parent.gameObject.x;
         let deltaY = y - this.parent.gameObject.y;
-        let theta = Math.atan(deltaY / deltaX);
+        let theta = Math.atan2(deltaY, deltaX);    // -PI , PI
+        //
         let moveGenerator = torpedo.mover.moveInDirection(theta);
         let ret;
         let keepGoing = true;
         let hit = false;
         let thingHit = null;
         do {
-            debugger;
             ret = moveGenerator.next(keepGoing);
             // if we've left the quadrant then stop
             if(torpedo.gameObject.quadrant !== quadrant) {
@@ -326,7 +240,6 @@ export class PhotonTorpedoLauncher extends Device {
                 break;
             }
             this.terminal.echo(`${torpedo.gameObject.getSectorLocationFloat(false)}    `);
-            console.log('torpedo at ', torpedo.gameObject.x, torpedo.gameObject.y);
             // check for collisions, could do a better job of broad sweeping here...
             // get stuff in the torpedo's current sector, and the adjacent ones
             // and nearby sectors

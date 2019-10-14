@@ -50,6 +50,9 @@ class Command {
     commandObj.out = "Not implemented.";
     return commandObj;
   }
+  makeInfo() {
+    // set mnemonic shortest abbrev full name text
+  }
 }
 // how do the commands and the player communicate ?
 // how much logic should be in the command as opposed to the player ?
@@ -167,8 +170,7 @@ inclusive.
 
     // convert coordinates
     targets = targets.map(target => Galaxy.convertUserCoordinates(target.x, target.y));
-    // todo:: collision things
-    debugger;
+
     // fire photon torpedoes (translate coordinates)
     // this makes no sense
     // coordinate system changes incoming .....
@@ -178,7 +180,7 @@ inclusive.
     });
   }
 }
-// then add the no option (if no appears anywhere then don't raise shields using high speed control)
+// then add the no option (if no appears anywh  ere then don't raise shields using high speed control)
 export class PhasersCommand extends Command {
   constructor(game, terminal, player) {
     super();
@@ -732,14 +734,24 @@ retaliate.`;
   // manual mode
   manual( deltaQx, deltaQy, deltaSx, deltaSy) {
     // calculate the destination
-    let destination = this.player.mover.calculateDestination( deltaQx,deltaQy,  deltaSx, deltaSy);
-    this.moveTo(destination);
+    try {
+      let destination = this.player.mover.calculateDestination( deltaQx,deltaQy,  deltaSx, deltaSy);
+      this.moveTo(destination);
+    } catch(e) {
+      this.terminal.printLine(`Can't move outside the quadrant!`);
+      return;
+    }
   }
   // automatic mode
   automatic(quadX, quadY, sectorX, sectorY) {
-    // get sector
-    let sector = this.galaxy.getSector(quadX, quadY, sectorX, sectorY);
-    this.moveTo(sector);
+    try {
+      // get sector
+      let sector = this.galaxy.getSector(quadX, quadY, sectorX, sectorY);
+      this.moveTo(sector);
+    } catch(e) {
+      this.terminal.printLine(`There is no ${quadX} - ${quadY}, ${sectorX} - ${sectorY}.`)
+      return;
+    }
   }
   run(commandObj) {
     // modes : manual and automatic
@@ -997,7 +1009,10 @@ export class ChartCommand extends Command {
     this.name =  "chart";
     this.regex =  regexifier("c", "chart", "star chart");
     this.fullName =  "star chart";
-    this.info =  `As you proceed in the game, you learn more and more about what things
+    this.info =  `
+      Mnemonic:  ${this.name}
+      Shortest abbreviation:  ${this.abbreviation}
+      As you proceed in the game, you learn more and more about what things
     are where in the galaxy. When ever you first do a scan in a quadrant,
     telemetry sensors are ejected which will report any changes in the
     quadrant(s) back to your ship, providing the sub-space radio is
