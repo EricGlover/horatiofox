@@ -120,12 +120,14 @@ export class Mover {
   }
 
   // theta is our direction, delta is our distance per move
-  *moveInDirection(theta, delta = .5) {
+  *moveInDirection(theta, delta = .5, dist) {
+    // debugger;
+    delta = dist;
     // find deltaX and deltaY (amount to move each move)
     // this finds the x and y of the right triangle using delta as hypotenuse
     let deltaX = delta * Math.cos(theta);
-    let deltaY = delta * Math.sin(theta);
-
+    let deltaY = -1 * (delta * Math.sin(theta));  // y axis is inverted
+    console.log(deltaX, deltaY);
     let i = 0;  // failsafe
     let keepGoing = true;
     while(keepGoing) {
@@ -265,15 +267,20 @@ export class GameObject {
   }
 
   updateSectorAfterMove() {
-    let currentSector = this.galaxy.getSectorGlobal(this.x, this.y);
-    if(currentSector !== this.sector) {
-      if(!this.canMoveTo(currentSector)) {
-        throw new Error("Cant place object in non empty sector");
+    try {
+      let currentSector = this.galaxy.getSectorGlobal(this.x, this.y);
+      if(currentSector !== this.sector) {
+        if(!this.canMoveTo(currentSector)) {
+          throw new Error("Cant place object in non empty sector");
+        }
+        this.quadrant.container.removeGameObject(this.parent);
+        this.sector.container.removeGameObject(this.parent);
+        this.quadrant = currentSector.quadrant;
+        this.sector = currentSector;
       }
-      this.quadrant.container.removeGameObject(this.parent);
-      this.sector.container.removeGameObject(this.parent);
-      this.quadrant = currentSector.quadrant;
-      this.sector = currentSector;
+    } catch(e) {
+       // left galaxy
+      this.removeSelf();
     }
   }
 

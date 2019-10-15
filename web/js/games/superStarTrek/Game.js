@@ -54,22 +54,40 @@ export default class Game {
     if(DEBUG) {
       // testing torpedoes
       let quad = this.galaxy.getQuadrant(0, 0);
-      let sector = quad.getSector(0, 0);
+      let sector = quad.getSector(4, 4);
       this.player.gameObject.placeIn(this.galaxy, quad, sector);
 
       // place a klingon
       // k 1
-      sector = quad.getSector(2, 0);
+      sector = quad.getSector(0, 0);
       let klingon = new Klingon();
       klingon.gameObject.placeIn(this.galaxy, quad, sector);
       // k 2
-      sector = quad.getSector(0, 2);
+      sector = quad.getSector(9, 0);
       klingon = new Klingon();
       klingon.gameObject.placeIn(this.galaxy, quad, sector);
       // k 3
-      sector = quad.getSector(2, 2);
+      sector = quad.getSector(9, 9);
       klingon = new Klingon();
       klingon.gameObject.placeIn(this.galaxy, quad, sector);
+      // k 4
+      sector = quad.getSector(0, 9);
+      klingon = new Klingon();
+      klingon.gameObject.placeIn(this.galaxy, quad, sector);
+      // top right bottom left
+      sector = quad.getSector(4, 0);
+      klingon = new Klingon();
+      klingon.gameObject.placeIn(this.galaxy, quad, sector);
+      sector = quad.getSector(9, 4);
+      klingon = new Klingon();
+      klingon.gameObject.placeIn(this.galaxy, quad, sector);
+      sector = quad.getSector(4, 9);
+      klingon = new Klingon();
+      klingon.gameObject.placeIn(this.galaxy, quad, sector);
+      sector = quad.getSector(0, 4);
+      klingon = new Klingon();
+      klingon.gameObject.placeIn(this.galaxy, quad, sector);
+
     } else {
       let quad = this.galaxy.getRandomQuadrant();
       let sector = quad.getRandomSector();

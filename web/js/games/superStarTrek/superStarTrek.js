@@ -2,7 +2,36 @@ import "../../../lib/ptty.jquery.js";
 import Game from "./Game.js";
 import Menu from "./Menu.js";
 import {terminal} from './Terminal.js';
-export const DEBUG = false;
+export const DEBUG = true;
+
+function calcAngle(from, to) {
+  let deltaX = to[0] - from[0];
+  let deltaY = -1 * (to[1] - from[1]);
+  return Math.atan2(deltaY, deltaX);
+}
+function convertToDegrees(rad) {
+  return rad * 180 / Math.PI;
+}
+function testAngle() {
+  let me = [0,0];
+  let topLeft = [-1,-1];
+  let top = [0,-1];
+  let topRight = [1,-1];
+  let right = [1,0];
+  let bottomRight = [1,1];
+  let bottom = [0,1];
+  let bottomLeft = [-1,1];
+  let left = [-1,0];
+
+  let points  = [topLeft, top, topRight, right, bottomRight, bottom, bottomLeft, left];
+  points.forEach(point => {
+    let angle = calcAngle(me, point);
+    console.log(angle);
+    console.log(convertToDegrees(angle));
+    debugger;
+  })
+}
+// testAngle();
 
 $(document).ready(function() {
   const versions = {

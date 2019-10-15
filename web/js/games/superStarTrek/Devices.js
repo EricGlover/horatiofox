@@ -222,11 +222,16 @@ export class PhotonTorpedoLauncher extends Device {
 
         /// calculate the direction to shoot the torpedo
         let quadrant = this.parent.gameObject.quadrant;
+        // deltas are to - from, BUT because the y axis is inverted from
+        // the normal math y axis you'll need to flip the y
         let deltaX = x - this.parent.gameObject.x;
-        let deltaY = y - this.parent.gameObject.y;
+        let deltaY = -1 *(y - this.parent.gameObject.y);
         let theta = Math.atan2(deltaY, deltaX);    // -PI , PI
+        // debugger;
+        console.log(deltaX, deltaY);
+
         //
-        let moveGenerator = torpedo.mover.moveInDirection(theta);
+        let moveGenerator = torpedo.mover.moveInDirection(theta, .5, Math.hypot(deltaX, deltaY));
         let ret;
         let keepGoing = true;
         let hit = false;
