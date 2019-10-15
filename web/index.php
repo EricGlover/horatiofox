@@ -34,7 +34,7 @@
   
   set_error_handler($errorHandler);
   set_exception_handler($exceptionHandler);
-
+    error_log('log');
   //set timezone
   date_default_timezone_set("America/Chicago");
 

@@ -16,16 +16,22 @@
   {
     public function __invoke(Request $request, Application $app) : Response
     {
+        error_log('message');
       // need an email and password
       if(!$request->request->has("email") || !$request->request->has("password")) {
+          error_log('no has');
         return new Response("", Response::HTTP_BAD_REQUEST);
       }
+      error_log('has');
       $email = \strip_tags($request->request->get("email"));
       $password = \strip_tags($request->request->get("password"));
 
       // if they're already logged in
       /** @var User **/
       $user = $app["user"];
+      error_log('dank');
+      error_log(print_r($user, true));
+
       if(!empty($user) && $user->getEmail() === $email) {
         return new Response("Please logout first", 400);
       } else if (!empty($user) && $user->getEmail() !== $email) {       // if they're logged in on a different account
@@ -35,10 +41,13 @@
       } else if (false && !empty($user) && $user->isVerified()) { // email verifaction not done yet
         return new Reponse("Please check your email and verify your account.");
       } else if (empty($user)) {
+          error_log('empty');
+          // we return a response of user empty and then the js has problems ?
+          // bundle issue ?
         return new Response("Sorry something went wrong", 500);
       }
       // TODO:: RATE LIMIT LOGIN ATTEMPTS
-
+        error_log('here we are');
       $pdo = DB::getPDO();
       $mapper = new UserMapper($pdo);
       /** @var User **/

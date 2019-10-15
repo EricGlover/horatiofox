@@ -1,3 +1,6 @@
+local mysql server running via homebrew installation
+changed mysql local to use password auth plugin
+
 locally start up php server
 cd into /web
 php -S localhost:8080

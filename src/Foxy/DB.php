@@ -10,14 +10,12 @@
     private static $pdo;
     /** @var bool **/
     private static $init = false;
-
-    private static $host = "localhost";
     private static $dbname = "horatio_fox";
 
     private static function init()
     {
       include(__DIR__ . "/../../config.php");
-      $host = self::$host;
+      $host = $config['HOST'];
       $dbname = self::$dbname;
       $user = $config["DB_USERNAME"];
       $password = $config["DB_PASSWORD"];
