@@ -1,10 +1,12 @@
 import {GameObject, Collider} from "../Components.js";
 import {terminal} from '../Terminal.js';
+import AI from '../AI.js';
 
 export class AbstractEnemy {
     constructor() {
         this.gameObject = new GameObject(this, true);
         this.collider = new Collider(this, this.gameObject, 80, 80);
+        this.ai = new AI(this);
         this.terminal = terminal;
         this.name = this.constructor.name;
     }

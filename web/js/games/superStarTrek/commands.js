@@ -39,9 +39,11 @@ export function regexifier(...strings) {
     // the capture group is so that "p" with no whitespace is still matched
     return new RegExp(`^\\s*(${strings.join("|")})\\s*`, 'i');
 }
+const INFO_COMMAND = "info";
+const ATTACK_COMMAND = "attack";
+const MOVE_COMMAND = "move";
 
 // what to do for options
-
 // todo:: make command classes
 class Command {
     constructor() {
@@ -53,6 +55,19 @@ class Command {
         this.deviceUsed = "";
         this.options = {};
         this.info = "No info.";
+        this.type = null;
+    }
+
+    isInfoCommand() {
+        return this.type === INFO_COMMAND;
+    }
+
+    isAttackCommand() {
+        return this.type === ATTACK_COMMAND;
+    }
+
+    isMoveCommand() {
+        return this.type === MOVE_COMMAND;
     }
 
     run(commandObj) {
@@ -81,6 +96,7 @@ export class PhotonsCommand extends Command {
         this.deviceUsed = "";
         this.maxPerBurst = 3;
         this.options = {};
+        this.type = ATTACK_COMMAND;
         this.info = `
   Mnemonic:  PHOTONS
   Shortest abbreviation:  PHO
@@ -204,6 +220,7 @@ export class PhasersCommand extends Command {
         this.abbreviation = "p";
         this.fullName = "phasers";
         this.regex = regexifier(this.name, this.abbreviation, this.fullName);
+        this.type = ATTACK_COMMAND;
         this.info = `
   Mnemonic:  PHASERS
   Shortest abbreviation:  P
@@ -519,6 +536,7 @@ export class CommandsCommand extends Command {
         this.terminal = terminal;
         this.name = "commands";
         this.regex = regexifier("commands");
+        this.type = INFO_COMMAND;
         this.info = `
  ABBREV    FULL COMMAND                             DEVICE USED
  ------    ------------                             -----------
@@ -608,6 +626,7 @@ Impulse engines require 20 units to warm up, plus 100 units per
 
     run(commandObj) {
         this.terminal.newLine();
+        debugger;
         this.terminal.echo(this.printCommands());
         return commandObj;
     }
@@ -623,6 +642,7 @@ export class GetHelpCommand extends Command {
         this.name = "help";
         this.regex = regexifier("help");
         this.fullName = "ask for help";
+        this.type = INFO_COMMAND;
         this.info = `  Mnemonic:  HELP
   Full command:  HELP [command]
 
@@ -668,6 +688,7 @@ export class MoveCommand extends Command {
         this.name = "move";
         this.regex = regexifier("m", "move");
         this.fullName = "move under warp drive";
+        this.type = MOVE_COMMAND;
         this.info = `  Mnemonic:  MOVE
   Shortest abbreviation:  M
   Full command:  MOVE MANUAL [displacement]
@@ -849,6 +870,7 @@ export class StatusCommand extends Command {
         this.name = 'status';
         this.regex = regexifier("st", "status", "status report");
         this.fullName = 'status report';
+        this.type = INFO_COMMAND;
         this.info = `Mnemonic:  STATUS
   Shortest abbreviation: ST
 
@@ -959,6 +981,7 @@ export class RequestCommand extends Command {
         this.regex = regexifier("req", "request", "request information");
         this.fullName = "request information";
         this.arguments = 1;
+        this.type = INFO_COMMAND;
         this.info = `Mnemonic:  REQUEST
   Shortest abbreviation:  REQ
   Full command:  REQUEST [ITEM]
@@ -1043,6 +1066,7 @@ export class ChartCommand extends Command {
         this.name = "chart";
         this.regex = regexifier("c", "chart", "star chart");
         this.fullName = "star chart";
+        this.type = INFO_COMMAND;
         this.info = `
       Mnemonic:  ${this.name}
       Shortest abbreviation:  ${this.abbreviation}
@@ -1136,6 +1160,7 @@ export class ShortRangeScanCommand extends Command {
         this.name = "srscan";
         this.regex = regexifier("s", "srscan", "short range scan");
         this.fullName = "short range scan";
+        this.type = INFO_COMMAND;
         this.options = {
             no: {
                 abbreviation: "n",
@@ -1302,6 +1327,7 @@ export class LongRangeScanCommand extends Command {
         this.name = "lrscan";
         this.regex = regexifier("l", "lrscan", "long range scan");
         this.fullName = "Long Range Scan";
+        this.type = INFO_COMMAND;
         this.info = `  Mnemonic:  LRSCAN
       Shortest abbreviation:  L
 
@@ -1413,6 +1439,7 @@ export class DockCommand extends Command {
         this.regex = regexifier(this.abbreviation, this.name, this.fullName);
         this.deviceUsed = "";
         this.options = {};
+        this.type = INFO_COMMAND;
         this.info = `
   Mnemonic:  DOCK
   Shortest abbreviation:  D

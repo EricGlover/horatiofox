@@ -10,7 +10,8 @@ import {
     Klingon,
     KlingonCommander,
     KlingonSuperCommander,
-    Romulan
+    Romulan,
+    AbstractEnemy
 } from "./Enemies/Enemies.js";
 
 import {
@@ -27,6 +28,7 @@ import {
 } from "./commands.js";
 
 import {DEBUG} from './superStarTrek.js';
+
 
 /** Game length options **/
 const GAME_LENGTH_SHORT = 1;
@@ -100,6 +102,9 @@ export default class Game {
         this.starDate = 'todo';
         this.daysRemaining = this.length * 7;
         this.skill = SKILL_NOVICE;
+
+        // user input stuff
+        this.resolveUserCommand = null; // our promise function for awaiting input
     }
 
     makeBlackHoles() {
@@ -314,7 +319,6 @@ export default class Game {
 
     setup() {
         this.makeCommands();
-        this.registerCommands();
 
         // these methods should probably be on the game .... whatever
         // do some setup for our galaxy, make the immovable objects
@@ -326,7 +330,10 @@ export default class Game {
 
         /// make our moveable object (klingons, klingonCommanders, Romulans)
         this.makeEnemies();
-        //this.testingPhasers();
+
+        // technically this should be last so we can't have users trying to do stuff
+        this.registerCommands();
+        this.loop();
     }
 
     start() {
@@ -359,6 +366,54 @@ Good Luck!
         this.terminal.$terminal.echo(startText);
     }
 
+    // if there are enemies in the player's current quadrant
+    isInCombat() {
+        let quadrant = this.player.gameObject.quadrant;
+        return quadrant.container.getCountOfGameObjects(AbstractEnemy) > 0;
+    }
+
+    getUserCommand() {
+        return new Promise((resolve, reject) => {
+            this.resolveUserCommand = resolve;
+        });
+    }
+
+    // maybe this could be a generator function
+    // or use generator functions
+    async loop() {
+        while(true) {
+            // user turn
+            // if info command ignore
+            // if attack then end user turn
+            let userTurn = true;
+            let aiTurn = false;
+            while(userTurn) {
+                let {command, commandObj} = await this.getUserCommand();
+                debugger;
+                if(command.isInfoCommand()) {
+                    continue;
+                } else {
+                    userTurn = false;
+                }
+
+                /**
+                // if in battle
+                if(this.isInCombat()) {
+
+                } else {
+
+                }
+                // if not in battle
+                 **/
+            }
+
+            // now it's the ai's turn
+            this.player.gameObject.quadrant.container.getGameObjectsOfType(AbstractEnemy).forEach(enemy => {
+                enemy.ai.takeTurn();
+            })
+        }
+    }
+
     makeCommands() {
         this.commands = [];
         let chartCommand = new ChartCommand(this, this.terminal, this.player);
@@ -387,7 +442,7 @@ Good Luck!
         this.commands.forEach(command => {
             this.terminal.$terminal.register("command", {
                 name: command.name,
-                method: (commandObj) => {
+                method:  commandObj => {
                     // get arguments
                     let input = this.terminal.$terminal.get_input();
                     let args = input.replace(command.regex, "");
@@ -412,6 +467,7 @@ Good Luck!
             commandObj.out = "Not recognized.";
             return commandObj;
         }
+        this.resolveUserCommand({command: match, commandObj});
         return match.run(commandObj);
     }
 }
