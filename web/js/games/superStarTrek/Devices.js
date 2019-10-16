@@ -5,12 +5,14 @@ class Device {
     constructor() {
         this._damaged = false;    // apparently this is should be an int not a bool so you can do repairs
     }
+
     isDamaged() {
         return this._damaged;
     }
 }
 
-export class DeviceDamagedError extends Error{}
+export class DeviceDamagedError extends Error {
+}
 
 export class Shields extends Device {
     constructor(parent) {
@@ -22,15 +24,17 @@ export class Shields extends Device {
         this.units = 2500;
         this.terminal = terminal;
     }
+
     printInfo() {
         return `${this.up ? "UP" : "DOWN"}, 100% ${this.units} units`;
     }
+
     recharge() {
         this.units = this.capacity;
     }
 
     lower() {
-        if(!this.up) {
+        if (!this.up) {
             this.terminal.printLine("Shields already down.");
             return;
         }
@@ -39,42 +43,45 @@ export class Shields extends Device {
     }
 
     raise() {
-        if(this.up) {
+        if (this.up) {
             this.terminal.printLine("Shields already up.");
             return;
         }
         this.up = true;
         this.terminal.printLine("Shields raised.");
     }
+
     // returns amount exchanged
     // throws error when not enough energy, or damaged
     // transfer energy to the shields
     transferEnergy(e) {
-        if(this.isDamaged()) {
+        if (this.isDamaged()) {
             throw new DeviceDamagedError(`Can't transfer energy because shields are damaged.`);
         }
-        if(e > 0) {
+        if (e > 0) {
             return this.charge(e);
-        } else if (e < 0 ) {
+        } else if (e < 0) {
             return this.drain(e);
         }
     }
+
     // returns amount drained
     drain(e) {
-        if(this.units - e < 0) {
+        if (this.units - e < 0) {
             throw new Error("Not enough energy");
         }
         this.units -= e;
 
-        if(this.units === 0) {
+        if (this.units === 0) {
             this.up = false;
         }
         return this.units;
     }
+
     // returns amount charged
     charge(e) {
         // don't exceed capacity
-        if(this.units + e > this.capacity) {
+        if (this.units + e > this.capacity) {
             e = this.capacity - this.units;
         }
         this.units += e;
@@ -115,15 +122,15 @@ export class Phasers extends Device {
 
     // check to see if the phasers overheated
     checkOverHeat() {
-        if(this.amountRecentlyFired > this.overheatThreshold) {
+        if (this.amountRecentlyFired > this.overheatThreshold) {
             /**
-            double chekbrn = (rpow-1500.)*0.00038;
-            if (Rand() <= chekbrn) {
+             double chekbrn = (rpow-1500.)*0.00038;
+             if (Rand() <= chekbrn) {
                 prout("Weapons officer Sulu-  \"Phasers overheated, sir.\"");
                 damage[DPHASER] = damfac*(1.0 + Rand()) * (1.0+chekbrn);
             }**/
             let diff = this.amountRecentlyFired - this.overheatThreshold;
-            if(Math.random() <= diff * .00038) {
+            if (Math.random() <= diff * .00038) {
                 this.terminal.printLine(`Phasers overheated!`);
                 this._damaged = true;
             }
@@ -131,23 +138,23 @@ export class Phasers extends Device {
     }
 
     fire(amount, target) {
-        if(amount <= 0) {
+        if (amount <= 0) {
             return;
         }
-        if(!target) {
+        if (!target) {
             return;
         }
         // target needs to be targetable
-        if( !(target.collider instanceof Collider) ) {
+        if (!(target.collider instanceof Collider)) {
             console.error("You can't hit that", target);
             return;
         }
         // device can't be damaged
-        if(this.isDamaged()) {
+        if (this.isDamaged()) {
             this.terminal.printLine('Phaser control damaged.');
             return;
         }
-        if(!this.parent.gameObject) {
+        if (!this.parent.gameObject) {
             console.error('derp a lerp.');
             debugger;
             return;
@@ -169,6 +176,7 @@ class Torpedo {
         this.collider = new Collider(this, this.gameObject, 100, 100, 1);
         this.damage = 100;
     }
+
     die() {
         this.gameObject.removeSelf();
     }
@@ -183,21 +191,25 @@ export class PhotonTorpedoLauncher extends Device {
         this._capacity = capacity;
         this._torpedoes = count;
     }
+
     addTorpedoes(n) {
-        if(n <= 0) {
+        if (n <= 0) {
             return;
-        } else if(this._torpedoes + n > this._capacity) {
+        } else if (this._torpedoes + n > this._capacity) {
             this._torpedoes = this._capacity;
             return;
         }
         this._torpedoes += n;
     }
+
     getTorpedoCount() {
         return this._torpedoes;
     }
+
     calcAngleDegrees(x, y) {
         return Math.atan2(y, x) * 180 / Math.PI;
     }
+
     // fire at sector x y , can be floats or ints
     fire(sectorX, sectorY) {
         if (this.isDamaged()) {
@@ -225,7 +237,7 @@ export class PhotonTorpedoLauncher extends Device {
         // deltas are to - from, BUT because the y axis is inverted from
         // the normal math y axis you'll need to flip the y
         let deltaX = x - this.parent.gameObject.x;
-        let deltaY = -1 *(y - this.parent.gameObject.y);
+        let deltaY = -1 * (y - this.parent.gameObject.y);
         let theta = Math.atan2(deltaY, deltaX);    // -PI , PI
         // debugger;
         console.log(deltaX, deltaY);
@@ -239,7 +251,7 @@ export class PhotonTorpedoLauncher extends Device {
         do {
             ret = moveGenerator.next(keepGoing);
             // if we've left the quadrant then stop
-            if(torpedo.gameObject.quadrant !== quadrant) {
+            if (torpedo.gameObject.quadrant !== quadrant) {
                 console.log("We've left the quadrant.", quadrant, torpedo.gameObject.quadrant);
                 moveGenerator.next(false);
                 break;
@@ -251,27 +263,27 @@ export class PhotonTorpedoLauncher extends Device {
             let sectors = torpedo.gameObject.sector.getAdjacentSectors(true);
 
             sectors.forEach(sector => {
-                if(hit) return;
+                if (hit) return;
                 sector.container.getAllGameObjects().forEach(obj => {
-                    if(hit) return;
+                    if (hit) return;
                     // check that it's a collider and not the thing firing the torpedo, and it's not the torpedo
-                    if(obj.collider && obj !== torpedo && obj !== this.parent) {
+                    if (obj.collider && obj !== torpedo && obj !== this.parent) {
                         hit = torpedo.collider.collision(obj);
-                        if(hit) {
+                        if (hit) {
                             thingHit = obj;
                             console.log("HIT!!!", obj);
                         }
                     }
                 });
             })
-            if(hit) {
+            if (hit) {
                 moveGenerator.next(false);
                 break;
             }
         } while (!ret.done);
         this.terminal.echo("\n");
         // we've hit something or left the quadrant
-        if(hit) {
+        if (hit) {
             thingHit.collider.takeHit(torpedo.damage);
         } else {
             this.terminal.echo("Torpedo missed and has left the quadrant!");

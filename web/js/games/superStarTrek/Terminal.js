@@ -3,21 +3,27 @@ class Terminal {
         this.$terminal = null;
         this._out = "";
     }
+
     echo(str) {
         this._out += str;
     }
+
     newLine() {
         this._out += "\n";
     }
+
     printLine(str) {
         this._out += str + "\n";
     }
+
     getOutput() {
         return this._out;
     }
+
     clear() {
         this._out = "";
     }
+
     /**
      *
      * Specify a column width or defaults to the largest
@@ -33,12 +39,12 @@ class Terminal {
             }, 0);
             return l > l2 ? l : l2;
         }, 0)
-        if(columnWidth === null) {
+        if (columnWidth === null) {
             columnWidth = longest;
         }
         return grid.map(row => {
             return row.map(str => {
-                if(padLeft) {
+                if (padLeft) {
                     return str.padStart(columnWidth)
                 } else {
                     return str.padEnd(columnWidth);
@@ -46,6 +52,7 @@ class Terminal {
             });
         });
     }
+
     /**
      * @param grid
      * @param columnSeparator
@@ -60,10 +67,11 @@ class Terminal {
             rows.push(line + "\n");
         }
         var text = rows.join(rowSeparator);
-        if(echo) {
+        if (echo) {
             this.$terminal.echo(text);
         }
         return text;
     };
 }
+
 export const terminal = new Terminal();

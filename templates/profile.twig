@@ -31,11 +31,12 @@
 <!-- body -->
 
 <div class="ui container segment">
-  {% if playTester %}
-    <h1 style="display: flex; align-items: center;">{{ user.username|striptags|title }}'s Profile <a style="margin-left: 20px;" class="ui green label">Playtester</a></h1>
-  {% else %}
-    <h1>{{ user.username|striptags|title }}'s Profile</h1>
-  {% endif %}
+    {% if playTester %}
+        <h1 style="display: flex; align-items: center;">{{ user.username|striptags|title }}'s Profile <a
+                    style="margin-left: 20px;" class="ui green label">Playtester</a></h1>
+    {% else %}
+        <h1>{{ user.username|striptags|title }}'s Profile</h1>
+    {% endif %}
 
 
     <!-- <img class="right" src="/web/images/wireframe/image.png" alt=""> -->
