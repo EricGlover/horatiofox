@@ -16,7 +16,7 @@
       $user = null;
       session_start();
       if (!isset($_SESSION["user"])) {     //if not logged in
-        ///
+        $app['user'] = null;
       } else {
         $user = $_SESSION["user"];
         $userId = (int) $user["id"];

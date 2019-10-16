@@ -1,13 +1,10 @@
 <?php
-  // god I hate php
-
   // setup the autoloader
   require(__DIR__ . "/../vendor/autoload.php");
 
   // setup error logging
   use Monolog\Logger;
   use Monolog\Handler\StreamHandler;
-  use Silex\Application;
   use Foxy\ApplicationBuilder;
 
 
@@ -34,7 +31,6 @@
   
   set_error_handler($errorHandler);
   set_exception_handler($exceptionHandler);
-    error_log('log');
   //set timezone
   date_default_timezone_set("America/Chicago");
 

@@ -1,5 +1,9 @@
 local mysql server running via homebrew installation
 changed mysql local to use password auth plugin
+local mysql users : root, localPhp, local
+all have the auth plugin reset to password, and workbench is caching them
+
+remember to switch config vars before deploying
 
 locally start up php server
 cd into /web

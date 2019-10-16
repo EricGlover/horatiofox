@@ -2,54 +2,63 @@
 <html>
 
 <head>
-  <meta charset="utf-8">
-  <title>HoratioFox</title>
-  <meta name="author" content="Eric Glover">
-  <meta name="description" content="Game site">
-  <meta name="viewport" content="width=device-width, initial-scale=1">
+    <meta charset="utf-8">
+    <title>HoratioFox</title>
+    <meta name="author" content="Eric Glover">
+    <meta name="description" content="Game site">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
 
-  <!-- CSS -->
-  <!-- Semantic UI -->
-  <link rel="stylesheet" type="text/css" href="/lib/semantic/semantic.min.css">
-  <link rel="stylesheet" href="/css/index.css">
-  <link rel="stylesheet" href="/css/navbar.css">
-
-
-  <!-- JS -->
-  <script
-  src="https://code.jquery.com/jquery-3.1.1.min.js"
-  integrity="sha256-hVVnYaiADRTO2PzUGmuLJr8BLUSjGIZsDYGmIJLv2b8="
-  crossorigin="anonymous"></script>
-  <script type="text/javascript" src="/lib/semantic/semantic.min.js"></script>
+    <!-- CSS -->
+    <!-- Semantic UI -->
+    <link rel="stylesheet" type="text/css" href="/lib/semantic/semantic.min.css">
+    <link rel="stylesheet" href="/css/index.css">
+    <link rel="stylesheet" href="/css/navbar.css">
 
 
-  <!-- TODO::: SETUP THE DEFAULTS FOR MODULES NOT BEING SUPPORTED  -->
-  <!-- IT'S IN THE GOOGLE WEB DEVELOPER GUIDE I THINK -->
-  <script type='module' src='/dist/main.bundle.js' ></script>
-  <!-- <script type="module" src="/js/Errors.js"></script>
-  <script type="module" src="/js/index.js"></script> -->
+    <!-- JS -->
+    <script
+            src="https://code.jquery.com/jquery-3.1.1.min.js"
+            integrity="sha256-hVVnYaiADRTO2PzUGmuLJr8BLUSjGIZsDYGmIJLv2b8="
+            crossorigin="anonymous"></script>
+    <script type="text/javascript" src="/lib/semantic/semantic.min.js"></script>
+
+
+    <!-- TODO::: SETUP THE DEFAULTS FOR MODULES NOT BEING SUPPORTED  -->
+    <!-- IT'S IN THE GOOGLE WEB DEVELOPER GUIDE I THINK -->
+    <script type='module' src='/dist/main.bundle.js'></script>
+    <!-- <script type="module" src="/js/Errors.js"></script>
+    <script type="module" src="/js/index.js"></script> -->
 </head>
 
 <body>
-  {{ include('/partials/navbar.twig') }}
-  {#  body#}
-  <div class="ui container segment">
+{{ include('/partials/navbar.twig') }}
+{#  body#}
+<div class="ui container segment">
     <h1>HoratioFox Games</h1>
     <p>Hello, world! And welcome to HoratioFox Games!</p>
-    <p>The site is currently under construction but stay tuned for some moderately entertaining HTML5 and Unity Games made by yours truly - HoratioFox</p>
-  </div>
-  {#  games list#}
-  <div class="ui container">
+    <p>The site is currently under construction but stay tuned for some moderately entertaining HTML5 and Unity Games
+        made by yours truly - HoratioFox</p>
+</div>
+{#  games list#}
+<div class="ui container">
     <div class="ui link cards">
         <div class="ui card">
-          <a class="content" href="/games/pong">
-            <div class="header">Pong</div>
-            <div class="description">The bounciest</div>
-{#            <div class="meta">play count : xK</div>#}
-          </a>
-      </div>
+            <a class="content" href="/games/pong">
+                <div class="header">Pong</div>
+                <div class="description">The bounciest</div>
+            </a>
+        </div>
+        {#        playtester builds#}
+        {% if playTester %}
+            <div class="ui card">
+                <a href="/games/superStarTrek" class="content">
+                    <div class="header">Super Star Trek</div>
+                    <div class="description">1978 style never looked so good.</div>
+                </a>
+            </div>
+        {% endif %}
     </div>
-  </div>
+</div>
 
 </body>
 </html>

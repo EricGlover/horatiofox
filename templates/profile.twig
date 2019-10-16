@@ -2,94 +2,100 @@
 <html>
 
 <head>
-  <meta charset="utf-8">
-  <title>HoratioFox</title>
-  <meta name="author" content="Eric Glover">
-  <meta name="description" content="Game site.">
-  <meta name="viewport" content="width=device-width, initial-scale=1">
-  <!-- <meta name="google-site-verification" content="V3hjZurJSQkS2Wi3VX0f1nQ7RysKH_r4GHKeppHKd44" /> -->
+    <meta charset="utf-8">
+    <title>HoratioFox</title>
+    <meta name="author" content="Eric Glover">
+    <meta name="description" content="Game site.">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <!-- <meta name="google-site-verification" content="V3hjZurJSQkS2Wi3VX0f1nQ7RysKH_r4GHKeppHKd44" /> -->
 
-  <!-- Semantic UI -->
-  <link rel="stylesheet" type="text/css" href="/lib/semantic/semantic.min.css">
-  <script
-  src="https://code.jquery.com/jquery-3.1.1.min.js"
-  integrity="sha256-hVVnYaiADRTO2PzUGmuLJr8BLUSjGIZsDYGmIJLv2b8="
-  crossorigin="anonymous"></script>
-  <script type="text/javascript" src="/lib/semantic/semantic.min.js"></script>
+    <!-- Semantic UI -->
+    <link rel="stylesheet" type="text/css" href="/lib/semantic/semantic.min.css">
+    <script
+            src="https://code.jquery.com/jquery-3.1.1.min.js"
+            integrity="sha256-hVVnYaiADRTO2PzUGmuLJr8BLUSjGIZsDYGmIJLv2b8="
+            crossorigin="anonymous"></script>
+    <script type="text/javascript" src="/lib/semantic/semantic.min.js"></script>
 
-  <link href="/css/index.css" rel="stylesheet">
-  <link href="/css/navbar.css" rel="stylesheet">
-  <!-- TODO::: SETUP THE DEFAULTS FOR MODULES NOT BEING SUPPORTED  -->
-  <!-- IT'S IN THE GOOGLE WEB DEVELOPER GUIDE I THINK -->
-  <script type="module" src="/js/components/Errors.js"></script>
-  <script type="module" src="/js/pages/profile.js"></script>
+    <link href="/css/index.css" rel="stylesheet">
+    <link href="/css/navbar.css" rel="stylesheet">
+    <!-- TODO::: SETUP THE DEFAULTS FOR MODULES NOT BEING SUPPORTED  -->
+    <!-- IT'S IN THE GOOGLE WEB DEVELOPER GUIDE I THINK -->
+    <script type="module" src="/js/components/Errors.js"></script>
+    <script type="module" src="/js/pages/profile.js"></script>
 </head>
 
 <body>
-  {{ include('/partials/navbar.twig') }}
+{{ include('/partials/navbar.twig') }}
 
-  <!-- body -->
+<!-- body -->
 
-  <div class="ui container segment">
-    <h1>{{user.username|striptags|title}}'s Profile</h1>
+<div class="ui container segment">
+  {% if playTester %}
+    <h1 style="display: flex; align-items: center;">{{ user.username|striptags|title }}'s Profile <a style="margin-left: 20px;" class="ui green label">Playtester</a></h1>
+  {% else %}
+    <h1>{{ user.username|striptags|title }}'s Profile</h1>
+  {% endif %}
+
+
     <!-- <img class="right" src="/web/images/wireframe/image.png" alt=""> -->
-    <p>Joined on : {{user.joinedAt|date("m/d/Y")}}</p>
+    <p>Joined on : {{ user.joinedAt|date("m/d/Y") }}</p>
     <div class="ui divider"></div>
 
     <div id="form-container">
-      <form id="edit-profile" class="ui form" onsubmit="return false;">
-        <div class="field">
-          <label for="username">Username</label>
-          <div class="fluid input">
-              <input type="text" name="username" autocomplete="off" value="{{user.username|striptags}}">
-          </div>
+        <form id="edit-profile" class="ui form" onsubmit="return false;">
+            <div class="field">
+                <label for="username">Username</label>
+                <div class="fluid input">
+                    <input type="text" name="username" autocomplete="off" value="{{ user.username|striptags }}">
+                </div>
+            </div>
+
+            <div class="field">
+                <label for="email">Email</label>
+                <div class="fluid input">
+                    <input type="email" name="email" autocomplete="off" value="{{ user.email|striptags }}">
+                </div>
+            </div>
+
+            <div class="two fields">
+                <div class="field">
+                    <label for="">First Name</label>
+                    <input type="text" name="firstName" value="{{ user.firstName|striptags }}" autocomplete="off">
+                </div>
+                <div class="field">
+                    <label for="">Last Name</label>
+                    <input type="text" name="lastName" value="{{ user.lastName|striptags }}" autocomplete="off">
+                </div>
+            </div>
+
+
+            <button id="cancel" class="ui button">Cancel</button>
+            <button id="save" class="ui primary button">Save Changes</button>
+        </form>
+        <!-- Messges -->
+        <div class="ui success hidden message" id="success-message">
+            <i class="close icon"></i>
+            <div class="header">
+                Success
+            </div>
+            <p>Your account has been updated.</p>
         </div>
 
-        <div class="field">
-          <label for="email">Email</label>
-          <div class="fluid input">
-              <input type="email" name="email" autocomplete="off" value="{{user.email|striptags}}">
-          </div>
+        <div class="ui error hidden message" id="error-message">
+            <i class="close icon"></i>
+            <div class="header">
+                Error
+            </div>
+            <p>Sorry something went wrong there. None of the changes to your account were saved.</p>
         </div>
-
-        <div class="two fields">
-          <div class="field">
-            <label for="">First Name</label>
-            <input type="text" name="firstName" value="{{user.firstName|striptags}}" autocomplete="off">
-          </div>
-          <div class="field">
-            <label for="">Last Name</label>
-            <input type="text" name="lastName" value="{{user.lastName|striptags}}" autocomplete="off">
-          </div>
-        </div>
-
-
-        <button id="cancel" class="ui button">Cancel</button>
-        <button id="save" class="ui primary button">Save Changes</button>
-      </form>
-      <!-- Messges -->
-      <div class="ui success hidden message" id="success-message">
-        <i class="close icon"></i>
-        <div class="header">
-          Success
-        </div>
-        <p>Your account has been updated.</p>
-      </div>
-
-      <div class="ui error hidden message" id="error-message">
-        <i class="close icon"></i>
-        <div class="header">
-          Error
-        </div>
-        <p>Sorry something went wrong there. None of the changes to your account were saved.</p>
-      </div>
     </div>
 
     <!-- <h5>Reset Your Password</h5>
     <div class="ui divider"></div>
     <p>We'll send you an email with a link to reset your password</p>
     <button class="ui button" id="reset-password">Reset Password</button> -->
-  </div>
+</div>
 
 </body>
 </html>
