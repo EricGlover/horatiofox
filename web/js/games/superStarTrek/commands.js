@@ -39,6 +39,7 @@ export function regexifier(...strings) {
     // the capture group is so that "p" with no whitespace is still matched
     return new RegExp(`^\\s*(${strings.join("|")})\\s*`, 'i');
 }
+
 const INFO_COMMAND = "info";
 const ATTACK_COMMAND = "attack";
 const MOVE_COMMAND = "move";
@@ -941,10 +942,11 @@ See REQUEST command for details.`;
 
         let playerQuad = this.player.gameObject.quadrant;
         let playerSector = this.player.gameObject.sector;
+        let hullIntegrity = `Hull Integrity\t${this.player.collider.health.toFixed(2)}`
         let position = `Position\t${playerQuad.x + 1} - ${playerQuad.y + 1}, ${playerSector.x + 1} - ${playerSector.y + 1}`;
         let lifeSupport = `Life Support\t${this.player.hasLifeSupport() ? 'ACTIVE' : 'FAILED'}`;
         let warpFactor = `Warp Factor\t${this.player.warpFactor}`;
-        let energy = `Energy\t\t${this.player.energy}`;
+        let energy = `Energy\t\t${this.player.energy.toFixed(2)}`;
         let torpedoes = `Torpedoes\t${this.player.photons.getTorpedoCount()}`;
         let shields = `Shields\t\t${this.player.shields.printInfo()}`;
         let klingonsRemaining = `Klingons Left\t${this.galaxy.container.getCountOfGameObjects(AbstractKlingon)}`;
@@ -956,6 +958,7 @@ See REQUEST command for details.`;
             lifeSupport,
             warpFactor,
             energy,
+            hullIntegrity,
             torpedoes,
             shields,
             klingonsRemaining,
@@ -1020,6 +1023,7 @@ the [STATUS] command.  [ITEM] specifies which information as follows:
         let lifeSupport = optionRegexifier("lsupport", "l");
         let warpFactor = optionRegexifier("warpfactor", "w");
         let energy = optionRegexifier("energy", "e");
+        let hullIntegrity = optionRegexifier("hull", "health", "h");
         let torpedoes = optionRegexifier("torpedoes", "t");
         let shields = optionRegexifier("shields", "s");
         let klingonsRemaining = optionRegexifier("klingons", "s");
@@ -1038,14 +1042,16 @@ the [STATUS] command.  [ITEM] specifies which information as follows:
             output = status[4];
         } else if (energy.test(request)) {
             output = status[5];
-        } else if (torpedoes.test(request)) {
+        } else if (hullIntegrity.test(request)) {
             output = status[6];
-        } else if (shields.test(request)) {
+        } else if (torpedoes.test(request)) {
             output = status[7];
-        } else if (klingonsRemaining.test(request)) {
+        } else if (shields.test(request)) {
             output = status[8];
-        } else if (timeLeft.test(request)) {
+        } else if (klingonsRemaining.test(request)) {
             output = status[9];
+        } else if (timeLeft.test(request)) {
+            output = status[10];
         } else {
             output = "UNRECOGNIZED REQUEST. Legal requests are:\n" +
                 "  date, condition, position, lsupport, warpfactor,\n" +
@@ -1295,7 +1301,7 @@ export class ShortRangeScanCommand extends Command {
             // skip the header rows, then add the status text line by line
             let statusLines = this.statusCommand.getStatusText();
             statusLines.forEach((line, i) => {
-                matrix[i + 1] += "\t" + line;
+                matrix[i] += "\t" + line;
             })
             // join the rows with \n
             let text = matrix.join("\n");

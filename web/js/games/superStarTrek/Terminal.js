@@ -24,6 +24,11 @@ class Terminal {
         this._out = "";
     }
 
+    print() {
+        this.$terminal.echo(this._out);
+        this._out = "";
+    }
+
     /**
      *
      * Specify a column width or defaults to the largest

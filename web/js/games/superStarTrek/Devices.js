@@ -93,8 +93,10 @@ export class Phasers extends Device {
     constructor(parent) {
         super();
         this.parent = parent;
-        this.phasers = this.parent;
-        this.phaseFactor = 2.0;
+        if(!this.parent.energy) {
+            throw new Error('Phaser parent must have energy');
+        }
+        this.parent.phasers = this;
         this.overheated = false;
         this.amountRecentlyFired = 0;
         this.overheatThreshold = 1500;
@@ -139,9 +141,11 @@ export class Phasers extends Device {
 
     fire(amount, target) {
         if (amount <= 0) {
+            console.error("Can't fire amount ", amount);
             return;
         }
         if (!target) {
+            console.error("Need a target, ", target);
             return;
         }
         // target needs to be targetable

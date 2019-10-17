@@ -63,32 +63,32 @@ export default class Game {
             // place a klingon
             // k 1
             sector = quad.getSector(0, 0);
-            let klingon = new Klingon();
+            let klingon = new Klingon(this.galaxy, this.player);
             klingon.gameObject.placeIn(this.galaxy, quad, sector);
             // k 2
             sector = quad.getSector(9, 0);
-            klingon = new Klingon();
+            klingon = new Klingon(this.galaxy, this.player);
             klingon.gameObject.placeIn(this.galaxy, quad, sector);
             // k 3
             sector = quad.getSector(9, 9);
-            klingon = new Klingon();
+            klingon = new Klingon(this.galaxy, this.player);
             klingon.gameObject.placeIn(this.galaxy, quad, sector);
             // k 4
             sector = quad.getSector(0, 9);
-            klingon = new Klingon();
+            klingon = new Klingon(this.galaxy, this.player);
             klingon.gameObject.placeIn(this.galaxy, quad, sector);
             // top right bottom left
             sector = quad.getSector(4, 0);
-            klingon = new Klingon();
+            klingon = new Klingon(this.galaxy, this.player);
             klingon.gameObject.placeIn(this.galaxy, quad, sector);
             sector = quad.getSector(9, 4);
-            klingon = new Klingon();
+            klingon = new Klingon(this.galaxy, this.player);
             klingon.gameObject.placeIn(this.galaxy, quad, sector);
             sector = quad.getSector(4, 9);
-            klingon = new Klingon();
+            klingon = new Klingon(this.galaxy, this.player);
             klingon.gameObject.placeIn(this.galaxy, quad, sector);
             sector = quad.getSector(0, 4);
-            klingon = new Klingon();
+            klingon = new Klingon(this.galaxy, this.player);
             klingon.gameObject.placeIn(this.galaxy, quad, sector);
 
         } else {
@@ -252,7 +252,7 @@ export default class Game {
             do {
                 quadrant = this.galaxy.getRandomQuadrant();
             } while (quadrant.container.getCountOfGameObjects(AbstractKlingon) > 0);
-            let commander = new KlingonSuperCommander();
+            let commander = new KlingonSuperCommander(this.galaxy, this.player);
             let sector = quadrant.getRandomEmptySector();
             commander.gameObject.placeIn(this.galaxy, quadrant, sector);
             console.log("placing super commander");
@@ -266,7 +266,7 @@ export default class Game {
             do {
                 quadrant = this.galaxy.getRandomQuadrant();
             } while (quadrant.container.getCountOfGameObjects(AbstractKlingon) > 0);
-            let commander = new KlingonCommander();
+            let commander = new KlingonCommander(this.galaxy, this.player);
             let sector = quadrant.getRandomEmptySector();
             commander.gameObject.placeIn(this.galaxy, quadrant, sector);
             console.log("placing commander");
@@ -300,7 +300,7 @@ export default class Game {
                 // place klingons at random sectors (todo:: figure how they're actually dropped in)
                 let sector = quadrant.getRandomEmptySector();
                 console.log("placing klingon");
-                let klingon = new Klingon();
+                let klingon = new Klingon(this.galaxy, this.player);
                 klingon.gameObject.placeIn(this.galaxy, quadrant, sector);
                 n--;
             }
@@ -311,7 +311,7 @@ export default class Game {
         for (let i = 0; i < n; i++) {
             let quadrant = this.galaxy.getRandomQuadrant();
             let sector = quadrant.getRandomEmptySector();
-            let romulan = new Romulan();
+            let romulan = new Romulan(this.galaxy, this.player);
             console.log("placing romulan");
             romulan.gameObject.placeIn(this.galaxy, quadrant, sector);
         }
@@ -389,7 +389,6 @@ Good Luck!
             let aiTurn = false;
             while(userTurn) {
                 let {command, commandObj} = await this.getUserCommand();
-                debugger;
                 if(command.isInfoCommand()) {
                     continue;
                 } else {
@@ -411,6 +410,7 @@ Good Luck!
             this.player.gameObject.quadrant.container.getGameObjectsOfType(AbstractEnemy).forEach(enemy => {
                 enemy.ai.takeTurn();
             })
+            this.terminal.print();
         }
     }
 

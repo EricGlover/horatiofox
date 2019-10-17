@@ -13,7 +13,7 @@ export default class Enterprise {
         this.energyCapacity = 5000.0;
         this.gameObject = new GameObject(this);
         this.mover = new Mover(this, this.gameObject);
-        this.collider = new Collider(this, this.gameObject, 80, 80, 400);
+        this.collider = new Collider(this, this.gameObject, 80, 80, 1000);
         this.energy = this.energyCapacity;
         this.phasers = new Phasers(this);
         this.warpFactor = 5.0;
@@ -22,6 +22,10 @@ export default class Enterprise {
         this.docked = false;
         this.dockedAt = null;
         this.name = "Enterprise";
+    }
+
+    die() {
+
     }
 
     firePhasersMultiTarget(targets, leaveShieldsDown = false) {
