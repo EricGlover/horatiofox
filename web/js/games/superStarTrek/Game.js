@@ -59,7 +59,7 @@ export default class Game {
         this.commands = [];
 
         // place player in random quad and sector
-        this.player = new Enterprise();
+        this.player = new Enterprise(this.terminal);
         if (DEBUG) {
             // testing torpedoes
             let quad = this.galaxy.getQuadrant(0, 0);
@@ -112,6 +112,55 @@ export default class Game {
 
         // user input stuff
         this.resolveUserCommand = null; // our promise function for awaiting input
+
+        // initial counts of enemies
+        this.initialEnemies = null;
+        this.initialKlingons = null;
+        this.initialCommanders = null;
+        this.initialSuperCommands = null;
+        this.initialRomulans = null;
+        this.fallenFoes = [];
+    }
+
+    static gameDifficultyToString(diff) {
+        switch (diff) {
+            case SKILL_NOVICE:
+                return 'novice';
+            case SKILL_FAIR:
+                return 'fair';
+            case SKILL_GOOD:
+                return 'good';
+            case SKILL_EXPERT:
+                return 'expert';
+            case SKILL_EMERITUS:
+                return 'emeritus';
+            default:
+                console.error("unknown difficulty");
+        }
+    }
+
+    static gameLengthToString(length) {
+        switch(length) {
+            case GAME_LENGTH_SHORT:
+                return 'short';
+            case GAME_LENGTH_MEDIUM:
+                return 'medium';
+            case GAME_LENGTH_LONG:
+                return 'long';
+            default:
+                console.error("unknown game length");
+        }
+    }
+
+    killEnemy(enemy) {
+        this.fallenFoes.push(enemy);
+    }
+
+    getNumberOfTypeKilled(type) {
+        return this.fallenFoes.reduce((carry, foe) => {
+            if(foe instanceof type) carry++;
+            return carry;
+        }, 0);
     }
 
     setup() {
@@ -178,7 +227,7 @@ Good Luck!
     // maybe this could be a generator function
     // or use generator functions
     async loop() {
-        while(this.isDefeat() || this.isVictory()) {
+        while(!this.isDefeat() && !this.isVictory()) {
             // user turn
             // if info command ignore
             // if attack then end user turn
@@ -208,15 +257,16 @@ Good Luck!
                 enemy.ai.takeTurn();
             })
             this.terminal.print();
-
-            if(this.isVictory()) {
-
-            } else if (this.isDefeat()) {
-
-            }
+            debugger;
         }
-
         // show end game screen
+        if(this.isVictory()) {
+            this.terminal.echo("You win!");
+            this.terminal.print();
+        } else if (this.isDefeat()) {
+            this.terminal.echo("You lose...");
+            this.terminal.print();
+        }
     }
 
     showVictoryScreen() {
@@ -231,7 +281,7 @@ Good Luck!
 
     // destroy all klingons
     isVictory() {
-        return this.galaxy.container.getCountOfGameObjects(AbstractKlingon) > 0;
+        return this.galaxy.container.getCountOfGameObjects(AbstractKlingon) === 0;
     }
 
     makeCommands() {
@@ -421,6 +471,11 @@ Good Luck!
             numberOfEnemies - numberOfCommanders - numberOfSuperCommanders;
         this.numberOfKlingons = numberOfKlingons;
         let numberOfRomulans = Math.round(2.0 * Math.random() * this.skill);
+        this.initialEnemies = numberOfEnemies;
+        this.initialKlingons = numberOfKlingons;
+        this.initialCommanders = numberOfCommanders;
+        this.initialSuperCommands = numberOfSuperCommanders;
+        this.initialRomulans = numberOfRomulans;
         this.makeKlingons(numberOfKlingons);
         this.makeKlingonCommanders(numberOfCommanders);
         this.makeKlingonSuperCommanders(numberOfSuperCommanders);
@@ -436,7 +491,7 @@ Good Luck!
             do {
                 quadrant = this.galaxy.getRandomQuadrant();
             } while (quadrant.container.getCountOfGameObjects(AbstractKlingon) > 0);
-            let commander = new KlingonSuperCommander(this.galaxy, this.player);
+            let commander = new KlingonSuperCommander(this.galaxy, this.player, this);
             let sector = quadrant.getRandomEmptySector();
             commander.gameObject.placeIn(this.galaxy, quadrant, sector);
             console.log("placing super commander");
@@ -450,7 +505,7 @@ Good Luck!
             do {
                 quadrant = this.galaxy.getRandomQuadrant();
             } while (quadrant.container.getCountOfGameObjects(AbstractKlingon) > 0);
-            let commander = new KlingonCommander(this.galaxy, this.player);
+            let commander = new KlingonCommander(this.galaxy, this.player, this);
             let sector = quadrant.getRandomEmptySector();
             commander.gameObject.placeIn(this.galaxy, quadrant, sector);
             console.log("placing commander");
@@ -486,7 +541,7 @@ Good Luck!
                 // place klingons at random sectors (todo:: figure how they're actually dropped in)
                 let sector = quadrant.getRandomEmptySector();
                 console.log("placing klingon");
-                let klingon = new Klingon(this.galaxy, this.player);
+                let klingon = new Klingon(this.galaxy, this.player, this);
                 klingon.gameObject.placeIn(this.galaxy, quadrant, sector);
                 n--;
             }
@@ -497,7 +552,7 @@ Good Luck!
         for (let i = 0; i < n; i++) {
             let quadrant = this.galaxy.getRandomQuadrant();
             let sector = quadrant.getRandomEmptySector();
-            let romulan = new Romulan(this.galaxy, this.player);
+            let romulan = new Romulan(this.galaxy, this.player, this);
             console.log("placing romulan");
             romulan.gameObject.placeIn(this.galaxy, quadrant, sector);
         }

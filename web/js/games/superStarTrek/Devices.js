@@ -167,17 +167,24 @@ export class Phasers extends Device {
             debugger;
             return;
         }
+
+        if(!target.gameObject || !target.gameObject.isInGame()) {
+            console.error("Can't shoot something removed from the game.");
+            return;
+        }
+
         // get distance
         let distance = Galaxy.calculateDistance(this.parent.gameObject.sector, target.gameObject.sector);
         // distance scaling
         let damage = this.calculateDamage(distance, amount);
 
         // if they have shields hit the shields
-        if(target.shields instanceof Shields) {
-            target.shields.takeHit(damage);
-        } else if (target.collider instanceof Collider) {   // else the thing itself takes a beating
-            target.collider.takeHit(damage);
-        }
+        // if(target.shields instanceof Shields) {
+        //     target.shields.takeHit(damage);
+        // } else if (target.collider instanceof Collider) {   // else the thing itself takes a beating
+        //     target.collider.takeHit(damage);
+        // }
+        target.collider.takeHit(damage);
 
         this.amountRecentlyFired += amount;
         this.checkOverHeat();

@@ -9,7 +9,7 @@ const CONDITION_RED = 3;
 const CONDITION_DOCKED = 4;
 
 export default class Enterprise {
-    constructor() {
+    constructor(terminal) {
         this.energyCapacity = 5000.0;
         this.gameObject = new GameObject(this);
         this.mover = new Mover(this, this.gameObject);
@@ -23,6 +23,7 @@ export default class Enterprise {
         this.dockedAt = null;
         this.name = "Enterprise";
         this.dead = false;
+        this.terminal = terminal;
     }
 
     isDead() {
@@ -30,6 +31,7 @@ export default class Enterprise {
     }
 
     die() {
+        this.terminal.echo("Enterprise destroyed!!!!\n");
         this.dead = true;
         this.gameObject.removeSelf();
     }

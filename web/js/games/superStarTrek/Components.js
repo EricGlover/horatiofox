@@ -255,6 +255,14 @@ export class GameObject {
         this.takesWholeSector = takesWholeSector;
     }
 
+    // if something was removed from the game...
+    isInGame() {
+        if(!this.galaxy || !this.quadrant || !this.sector) {
+            return false;
+        }
+        return true;
+    }
+
     get name() {
         if (this.parent.name) {
             return this.parent.name;
