@@ -207,7 +207,6 @@ TRY TYPING "COMMANDS"
 Good Luck!
 `;
         this.terminal.$terminal.echo(startText);
-        debugger;
     }
 
     // if there are enemies in the player's current quadrant
