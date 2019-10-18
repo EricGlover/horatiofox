@@ -87,6 +87,10 @@ export class Shields extends Device {
         this.units += e;
         return e;
     }
+
+    takeHit(amount) {
+
+    }
 }
 
 export class Phasers extends Device {
@@ -167,7 +171,14 @@ export class Phasers extends Device {
         let distance = Galaxy.calculateDistance(this.parent.gameObject.sector, target.gameObject.sector);
         // distance scaling
         let damage = this.calculateDamage(distance, amount);
-        target.collider.takeHit(damage);
+
+        // if they have shields hit the shields
+        if(target.shields instanceof Shields) {
+            target.shields.takeHit(damage);
+        } else if (target.collider instanceof Collider) {   // else the thing itself takes a beating
+            target.collider.takeHit(damage);
+        }
+
         this.amountRecentlyFired += amount;
         this.checkOverHeat();
     }

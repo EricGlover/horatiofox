@@ -19,6 +19,7 @@ import Star from "./Objects/Star.js";
 import Enterprise from "./PlayerShips/Enterprise.js";
 import Planet from "./Objects/Planet.js";
 import BlackHole from "./Objects/BlackHole.js";
+import {DEBUG} from "./superStarTrek.js";
 
 // same thing as the regexifier but with the end of line character added
 // so that you when we break apart the command by \s it identifies it correctly
@@ -498,23 +499,78 @@ are up) and have essentially the same effect as phaser hits.`;
         } else if (down) {
             this.player.shieldsDown();
         } else if (transfer) {
+            if(!DEBUG) {
+                this.terminal.echo("Sorry not implemented yet.");
+                return;
+            }
+
             // get the amount to transfer
             let amount = commandObj.arguments[1];
             amount = Number.parseInt(amount);
             if (Number.isNaN(amount)) {
                 // parse error
-                debugger;
+                this.terminal(`${amount} is an gibberish amount to transfer captain.`);
             }
-            // transfer energy from ship to shields, or vice versa
-            // debugger;
+            // check that you can do the transfer
+            if (this.player.shields.isDamaged()) {
+                this.terminal.echo("Shields damaged.");
+            }
+
+            let shipEnergy = this.player.energy - amount;
+            let shieldEnergy = this.player.shields.units + amount;
+
+            if (amount > 0) {
+                this.terminal.echo("Transferring energy to shields.\n");
+            } else if (amount < 0) {
+                this.terminal.echo("Draining shields.\n");
+            } else {
+                this.terminal.echo("Transferring nothing to or from shields. Good work captain.\n");
+                return;
+            }
+            // check the ship side of the transfer
+            if (shipEnergy > this.player.energyCapacity) {
+                // only draw what we can hold
+                amount = this.player.energyCapacity - this.player.energy;
+                shieldEnergy = this.player.shields.units + amount;
+                this.terminal.echo("Ship energy maximized.\nExcess energy return to the shields.\n");
+            } else if (shipEnergy < 0) {
+                // we don't have that amount, transfer all that we have
+                amount = this.player.energy;
+                shieldEnergy = this.player.shields.units + amount;
+                this.terminal.echo(`Engineering to bridge--\nScott here. Power circuit problem, Captain.\nI can't drain the shields.`);
+            } else if (shipEnergy === 0) {
+                // is this a problem ?
+                this.terminal.echo("Ship energy down to 0!\n");
+            }
+
+            // check the shields side of the transfer
+            if (shieldEnergy > this.player.shields.capacity) {
+                // only transfer what we can hold
+                amount = this.player.shields.capacity - this.player.shields.units;
+                shipEnergy = this.player.energy - amount;
+                this.terminal.echo("Excess energy returned to ship energy.\n");
+            } else if (shieldEnergy < 0) {
+                // we can't drain that much, drain only what we have
+                amount = this.player.shields.units;
+                shipEnergy = this.player.energy - amount;
+                this.terminal.echo(`Engineering to bridge--\nScott here. Power circuit problem, Captain.\nI can't drain the shields.\n`);
+            } else if (shieldEnergy === 0) {
+                // this works
+                this.terminal.echo("Shields drained to 0, shields down.\n");
+            }
+
+            // do transfer
+            // this.player.energy = shipEnergy;
+            // this.player.shields.energy = shieldEnergy;
+            this.player.shields.transferEnergy(amount);
+            this.player.energy -= amount;
+
             //
-            let response = this.player.transferEnergyToShields(amount);
-            if (response.message) {
-                out += response.message;
+            if (this.player.shields.units === this.player.shields.capacity) {
+                this.terminal.echo("Shields maximized.\n");
             }
             // todo:: add the responses from Scotty
         } else if (!up && !down && !transfer) {
-            debugger;
             // arg not provided, ask them questions
             // ask Do you wish to change shield energy?
             // if no , ask

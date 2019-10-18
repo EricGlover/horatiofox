@@ -11,7 +11,7 @@ export default class AI {
     }
 
     takeTurn() {
-        debugger;
+        // debugger;
         console.log(`${this.parent.name} taking a turn.`);
         // decide between these
         // move

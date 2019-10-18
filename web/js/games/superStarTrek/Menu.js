@@ -1,3 +1,17 @@
+import {
+    GAME_LENGTH_SHORT,
+    GAME_LENGTH_MEDIUM,
+    GAME_LENGTH_LONG,
+    SKILL_NOVICE,
+    SKILL_FAIR,
+    SKILL_GOOD,
+    SKILL_EXPERT,
+    SKILL_EMERITUS,
+    GAME_MODE_REGULAR,
+    GAME_MODE_TOURNAMENT,
+    GAME_MODE_FROZEN
+} from './Game.js';
+
 // starting a game
 // choose mode
 // if regular
@@ -14,14 +28,15 @@
 // choose file name
 // if not found start menu again
 export default class Menu {
-    constructor(terminal, startGame) {
+    constructor(terminal) {
         this.mode = null;
         this.length = null;
         this.difficulty = null;
         this.secretPassword = null;
+        this.tournamentNumber = null;
         this.terminal = terminal;
-        this.startGame = startGame;
         this.startGamePs = "COMMAND>";
+        this.game = null;
     }
 
     skipLine(n) {
@@ -52,7 +67,7 @@ export default class Menu {
     chooseMode(input) {
         input = input.toLowerCase();
         if (/regular/.test(input)) {
-            this.mode = "regular";
+            this.mode = GAME_MODE_REGULAR;
             this.skipLine(1);
             this.ask(
                 "Would you like a Short, Medium, or Long game? ",
@@ -60,11 +75,11 @@ export default class Menu {
                 this.chooseLength.bind(this)
             );
         } else if (/tournament/.test(input)) {
-            this.mode = "tournament";
+            this.mode = GAME_MODE_TOURNAMENT;
             this.terminal.$terminal.echo("Sorry that's not implemented.");
             this.start();
         } else if (/frozen/.test(input)) {
-            this.mode = "frozen";
+            this.mode = GAME_MODE_FROZEN;
             this.terminal.$terminal.echo("Sorry that's not implemented.");
             this.start();
         }
@@ -73,11 +88,11 @@ export default class Menu {
     chooseLength(input) {
         input = input.toLowerCase();
         if (/short/.test(input)) {
-            this.length = "short";
+            this.length = GAME_LENGTH_SHORT;
         } else if (/medium/.test(input)) {
-            this.length = "medium";
+            this.length = GAME_LENGTH_MEDIUM;
         } else if (/long/.test(input)) {
-            this.length = "long";
+            this.length = GAME_LENGTH_LONG;
         }
         this.ask(
             "Are you a Novice, Fair, Good, Expert, or Emeritus player? ",
@@ -89,15 +104,15 @@ export default class Menu {
     chooseDifficulty(input) {
         input = input.toLowerCase();
         if (/novice/.test(input)) {
-            this.difficulty = "novice";
+            this.difficulty = SKILL_NOVICE;
         } else if (/fair/.test(input)) {
-            this.difficulty = "fair";
+            this.difficulty = SKILL_FAIR;
         } else if (/good/.test(input)) {
-            this.difficulty = "good";
+            this.difficulty = SKILL_GOOD;
         } else if (/expert/.test(input)) {
-            this.difficulty = "expert";
+            this.difficulty = SKILL_EXPERT;
         } else if (/emeritus/.test(input)) {
-            this.difficulty = "emeritus";
+            this.difficulty = SKILL_EMERITUS;
         } else {
             // hmmm ....
         }
@@ -114,8 +129,13 @@ export default class Menu {
 
     finish() {
         this.terminal.$terminal.change_settings({ps: this.startGamePs});
+        // give the game our settings
+        this.game.skill = this.difficulty;
+        this.game.length = this.length;
+        this.game.secretPassword = this.secretPassword;
+
         // start game now !!!!
-        this.startGame();
+        this.game.start();
     }
 
     /**

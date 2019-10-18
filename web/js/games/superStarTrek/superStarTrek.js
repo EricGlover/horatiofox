@@ -47,7 +47,9 @@ $(document).ready(function () {
 
     // make our game and menu
     let game = new Game(terminal);
-    let menu = new Menu(terminal, () => game.start());
+    let menu = new Menu(terminal);
+    menu.game = game;
+
 
     if (DEBUG) { // SKIP the menu
         game.start();
