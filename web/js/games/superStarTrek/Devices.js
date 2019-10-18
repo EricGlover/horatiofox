@@ -26,7 +26,7 @@ export class Shields extends Device {
     }
 
     printInfo() {
-        return `${this.up ? "UP" : "DOWN"}, 100% ${this.units} units`;
+        return `${this.up ? "UP" : "DOWN"}, 100% ${this.units.toFixed(2)} units`;
     }
 
     recharge() {
@@ -73,7 +73,7 @@ export class Shields extends Device {
         this.units -= e;
 
         if (this.units === 0) {
-            this.up = false;
+            this.lower();
         }
         return this.units;
     }
@@ -89,7 +89,18 @@ export class Shields extends Device {
     }
 
     takeHit(amount) {
-
+        if(!this.up || this.isDamaged()) {
+            this.parent.collider.takeHit(amount);
+            return;
+        }
+        this.terminal.printLine(`${amount.toFixed(2)} hit to shields.`);
+        if(this.units < amount) {
+            amount -= this.units;
+            this.drain(this.units);
+            this.parent.collider.takeHit(amount);
+        } else {
+            this.drain(amount);
+        }
     }
 }
 
@@ -179,12 +190,12 @@ export class Phasers extends Device {
         let damage = this.calculateDamage(distance, amount);
 
         // if they have shields hit the shields
-        // if(target.shields instanceof Shields) {
-        //     target.shields.takeHit(damage);
-        // } else if (target.collider instanceof Collider) {   // else the thing itself takes a beating
-        //     target.collider.takeHit(damage);
-        // }
-        target.collider.takeHit(damage);
+        if(target.shields instanceof Shields) {
+            target.shields.takeHit(damage);
+        } else if (target.collider instanceof Collider) {   // else the thing itself takes a beating
+            target.collider.takeHit(damage);
+        }
+        // target.collider.takeHit(damage);
 
         this.amountRecentlyFired += amount;
         this.checkOverHeat();

@@ -226,37 +226,52 @@ Good Luck!
     // maybe this could be a generator function
     // or use generator functions
     async loop() {
+        let wasInCombat = false;
+
         while(!this.isDefeat() && !this.isVictory()) {
             // user turn
-            // if info command ignore
-            // if attack then end user turn
             let userTurn = true;
-            let aiTurn = false;
+            let hasMovedInCombat = false;
+            let justArrivedIntoCombat = false;
+            let inCombat = false;
             while(userTurn) {
                 let {command, commandObj} = await this.getUserCommand();
+
+                // info commands never consume a turn
                 if(command.isInfoCommand()) {
                     continue;
-                } else {
-                    userTurn = false;
                 }
+                inCombat = this.isInCombat();
+                // don't let the ai shoot us when we don't let them shoot us immediately
+                justArrivedIntoCombat = inCombat && !wasInCombat;
 
-                /**
-                // if in battle
-                if(this.isInCombat()) {
-
-                } else {
-
+                // in combat you can move, then attack
+                if(inCombat) {
+                    if (command.isMoveCommand()) {
+                        // if we already moved in combat, or just arrived into combat
+                        // then moves consume a turn
+                        if(hasMovedInCombat || !wasInCombat) {
+                            userTurn = false;
+                        }
+                        hasMovedInCombat = true;
+                    } else if (command.isAttackCommand()) {
+                        userTurn = false;
+                    } else {
+                        userTurn = false;
+                    }
+                } else {    // if not in combat then keep going I guess ?
+                    continue;
                 }
-                // if not in battle
-                 **/
             }
 
-            // now it's the ai's turn
-            this.player.gameObject.quadrant.container.getGameObjectsOfType(AbstractEnemy).forEach(enemy => {
-                enemy.ai.takeTurn();
-            })
+            // now it's the ai's turn, start shooting if we're in combat
+            if(inCombat) {
+                this.player.gameObject.quadrant.container.getGameObjectsOfType(AbstractEnemy).forEach(enemy => {
+                    enemy.ai.takeTurn();
+                });
+            }
+            wasInCombat = inCombat;
             this.terminal.print();
-            debugger;
         }
         // show end game screen
         if(this.isVictory()) {
