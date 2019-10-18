@@ -82,11 +82,12 @@ class Command {
     }
 }
 
-class Report extends Command {
-    constructor(game, terminal, player) {
+export class ReportCommand extends Command {
+    constructor(game, terminal, galaxy, player) {
         super();
         this.game = game;
         this.terminal = terminal;
+        this.galaxy = galaxy;
         this.abbreviation = "rep";
         this.name = "report";
         this.regex = regexifier(this.abbreviation, this.name);
@@ -119,7 +120,21 @@ play a frozen game.`
     }
 
     run(commandObj) {
+        this.terminal.printLine(`You are now playing a ${this.game.getGameLengthStr()} ${this.game.getDifficultyStr()} game.`);
+        let killedKlingonsAll = this.game.getNumberOfTypeKilled(AbstractKlingon);
+        let killedKlingons = this.game.getNumberOfTypeKilled(Klingon);
+        let killedCommanders = this.game.getNumberOfTypeKilled(KlingonCommander);
+        let killedSuperCommanders = this.game.getNumberOfTypeKilled(KlingonSuperCommander);
 
+        this.terminal.printLine(`${killedKlingonsAll} of ${this.game.initialEnemies} klingons have been killed.`);
+        this.terminal.printLine(`${killedKlingons} klingon warbirds killed.`);
+        this.terminal.printLine(`${killedCommanders} klingon commanders killed.`);
+        this.terminal.printLine(`${killedSuperCommanders} klingon super commanders killed.`);
+
+        // remaining bases
+        let remainingBases = this.galaxy.container.getCountOfGameObjects(StarBase);
+        this.terminal.printLine(`There are ${remainingBases} remaining bases.`);
+        // todo:: bases destroyed, bases under attack, casualties, times called for help
     }
 }
 

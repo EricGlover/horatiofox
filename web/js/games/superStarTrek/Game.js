@@ -23,7 +23,7 @@ import {
     MoveCommand,
     GetHelpCommand,
     ChartCommand,
-    LongRangeScanCommand,
+    LongRangeScanCommand, ReportCommand,
     RequestCommand, ShortRangeScanCommand, StatusCommand
 } from "./commands.js";
 
@@ -69,32 +69,32 @@ export default class Game {
             // place a klingon
             // k 1
             sector = quad.getSector(0, 0);
-            let klingon = new Klingon(this.galaxy, this.player);
+            let klingon = new Klingon(this.galaxy, this.player, this);
             klingon.gameObject.placeIn(this.galaxy, quad, sector);
             // k 2
             sector = quad.getSector(9, 0);
-            klingon = new Klingon(this.galaxy, this.player);
+            klingon = new Klingon(this.galaxy, this.player, this);
             klingon.gameObject.placeIn(this.galaxy, quad, sector);
             // k 3
             sector = quad.getSector(9, 9);
-            klingon = new Klingon(this.galaxy, this.player);
+            klingon = new Klingon(this.galaxy, this.player, this);
             klingon.gameObject.placeIn(this.galaxy, quad, sector);
             // k 4
             sector = quad.getSector(0, 9);
-            klingon = new Klingon(this.galaxy, this.player);
+            klingon = new Klingon(this.galaxy, this.player, this);
             klingon.gameObject.placeIn(this.galaxy, quad, sector);
             // top right bottom left
             sector = quad.getSector(4, 0);
-            klingon = new Klingon(this.galaxy, this.player);
+            klingon = new Klingon(this.galaxy, this.player, this);
             klingon.gameObject.placeIn(this.galaxy, quad, sector);
             sector = quad.getSector(9, 4);
-            klingon = new Klingon(this.galaxy, this.player);
+            klingon = new Klingon(this.galaxy, this.player, this);
             klingon.gameObject.placeIn(this.galaxy, quad, sector);
             sector = quad.getSector(4, 9);
-            klingon = new Klingon(this.galaxy, this.player);
+            klingon = new Klingon(this.galaxy, this.player, this);
             klingon.gameObject.placeIn(this.galaxy, quad, sector);
             sector = quad.getSector(0, 4);
-            klingon = new Klingon(this.galaxy, this.player);
+            klingon = new Klingon(this.galaxy, this.player, this);
             klingon.gameObject.placeIn(this.galaxy, quad, sector);
 
         } else {
@@ -121,9 +121,21 @@ export default class Game {
         this.initialRomulans = null;
         this.fallenFoes = [];
     }
+    getGameLengthStr() {
+        switch(this.length) {
+            case GAME_LENGTH_SHORT:
+                return 'short';
+            case GAME_LENGTH_MEDIUM:
+                return 'medium';
+            case GAME_LENGTH_LONG:
+                return 'long';
+            default:
+                console.error("unknown game length");
+        }
+    }
 
-    static gameDifficultyToString(diff) {
-        switch (diff) {
+    getDifficultyStr() {
+        switch (this.skill) {
             case SKILL_NOVICE:
                 return 'novice';
             case SKILL_FAIR:
@@ -136,19 +148,6 @@ export default class Game {
                 return 'emeritus';
             default:
                 console.error("unknown difficulty");
-        }
-    }
-
-    static gameLengthToString(length) {
-        switch(length) {
-            case GAME_LENGTH_SHORT:
-                return 'short';
-            case GAME_LENGTH_MEDIUM:
-                return 'medium';
-            case GAME_LENGTH_LONG:
-                return 'long';
-            default:
-                console.error("unknown game length");
         }
     }
 
@@ -269,10 +268,6 @@ Good Luck!
         }
     }
 
-    showVictoryScreen() {
-
-    }
-
     // time ran out
     // enterprise destroyed
     isDefeat() {
@@ -301,6 +296,7 @@ Good Luck!
         this.commands.push(new PhasersCommand(this, this.terminal, this.player));
         this.commands.push(new DockCommand(this, this.terminal, this.player));
         this.commands.push(new PhotonsCommand(this, this.terminal, this.player));
+        this.commands.push(new ReportCommand(this, this.terminal, this.galaxy, this.player));
     }
 
     // register all our commands with our terminal,
