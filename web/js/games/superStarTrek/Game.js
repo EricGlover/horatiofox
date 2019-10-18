@@ -104,10 +104,10 @@ export default class Game {
         }
 
         // defaults for testing
-        this.length = GAME_LENGTH_LONG;
+        this.length = GAME_LENGTH_SHORT;
         this.starDate = 'todo';
         this.daysRemaining = this.length * 7;
-        this.skill = SKILL_EMERITUS;
+        this.skill = SKILL_NOVICE;
         this.secretPassword = null;
 
         // user input stuff
@@ -187,17 +187,15 @@ export default class Game {
         let starBases = this.galaxy.container.getGameObjectsOfType(StarBase);
         // quadrants are listed x - y
         let sbq = starBases.map(base =>
-            [base.gameObject.quadrant.x, base.gameObject.quadrant.y].join(" - ")
+            [base.gameObject.quadrant.x + 1, base.gameObject.quadrant.y + 1].join(" - ")
         );
 
         let baseStr = sbq.join("   ");
         // change terminal settings
-        let startText = `It is stardate 3100. The Federation is being attacked by
+        let startText = `The Federation is being attacked by
 a deadly Klingon invasion force. As captain of the United
 Starship U.S.S. Enterprise, it is your mission to seek out
-and destroy this invasion force of ${this.numberOfKlingons} battle cruisers.
-You have an initial allotment of ${this.daysRemaining} stardates to complete
-your mission.  As you proceed you may be given more time.
+and destroy this invasion force of ${this.numberOfKlingons} klingons.
 
 You will have ${starBases.length} supporting starbases.
 Starbase locations-   ${baseStr}
@@ -209,6 +207,7 @@ TRY TYPING "COMMANDS"
 Good Luck!
 `;
         this.terminal.$terminal.echo(startText);
+        debugger;
     }
 
     // if there are enemies in the player's current quadrant
@@ -265,7 +264,7 @@ Good Luck!
             }
 
             // now it's the ai's turn, start shooting if we're in combat
-            if(inCombat) {
+            if(inCombat && !justArrivedIntoCombat) {
                 this.player.gameObject.quadrant.container.getGameObjectsOfType(AbstractEnemy).forEach(enemy => {
                     enemy.ai.takeTurn();
                 });
@@ -305,7 +304,10 @@ Good Luck!
         this.commands.push(new RequestCommand(this, this.terminal, statusCommand));
         this.commands.push(chartCommand);
         this.commands.push(new ShortRangeScanCommand(this, this.terminal, chartCommand, statusCommand));
-        this.commands.push(new LongRangeScanCommand(this, this.terminal, this.player));
+        if(DEBUG) {
+            this.commands.push(new LongRangeScanCommand(this, this.terminal, this.player));
+        }
+
         this.commands.push(new GetHelpCommand(this, this.terminal, commandsCommand));
         this.commands.push(new MoveCommand(this, this.terminal, this.player, this.galaxy));
         this.commands.push(new PhasersCommand(this, this.terminal, this.player));
@@ -452,6 +454,7 @@ Good Luck!
                 if (!tooClose) {
                     // what sector ????
                     // for the moment choose a random sector
+                    console.log("making starbase");
                     let newBase = new StarBase();
                     let sector = quadrant.getRandomEmptySector(); // todo:: check that sector is empty
                     newBase.gameObject.placeIn(this.galaxy, quadrant, sector);

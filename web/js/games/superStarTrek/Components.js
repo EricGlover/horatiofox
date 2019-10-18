@@ -129,13 +129,10 @@ export class Mover {
 
     // theta is our direction, delta is our distance per move
     * moveInDirection(theta, delta = .5, dist) {
-        // debugger;
-        delta = dist;
         // find deltaX and deltaY (amount to move each move)
         // this finds the x and y of the right triangle using delta as hypotenuse
         let deltaX = delta * Math.cos(theta);
         let deltaY = -1 * (delta * Math.sin(theta));  // y axis is inverted
-        console.log(deltaX, deltaY);
         let i = 0;  // failsafe
         let keepGoing = true;
         while (keepGoing) {

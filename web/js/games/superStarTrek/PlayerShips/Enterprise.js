@@ -13,7 +13,8 @@ export default class Enterprise {
         this.energyCapacity = 5000.0;
         this.gameObject = new GameObject(this);
         this.mover = new Mover(this, this.gameObject);
-        this.collider = new Collider(this, this.gameObject, 80, 80, 1000);
+        this.maxHullIntegrity = 1000;
+        this.collider = new Collider(this, this.gameObject, 80, 80, this.maxHullIntegrity);
         this.energy = this.energyCapacity;
         this.phasers = new Phasers(this);
         this.warpFactor = 5.0;
@@ -59,12 +60,18 @@ export default class Enterprise {
         this.phasers.coolDown();
     }
 
+    repairHull() {
+        this.collider.health = this.maxHullIntegrity;
+    }
+
     dock(starbase) {
         if (this.docked) {
             return;
         }
         this.energy = this.energyCapacity;
         this.photons.addTorpedoes(this.photons._capacity - this.photons.getTorpedoCount());
+        this.shields.recharge();
+        this.repairHull();
         this.docked = true;
         this.dockedAt = starbase;
     }
@@ -83,6 +90,7 @@ export default class Enterprise {
         if (!sector instanceof Sector) {
             throw new Error("Can't move there");
         }
+        if(this.docked) this.undock();
         // calculate resources needed
         this.mover.moveToSector(sector);
     }

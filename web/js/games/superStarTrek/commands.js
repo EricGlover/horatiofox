@@ -555,6 +555,7 @@ are up) and have essentially the same effect as phaser hits.`;
         } else if (down) {
             this.player.shieldsDown();
         } else if (transfer) {
+            //todo::: this is all fucked up
             if(!DEBUG) {
                 this.terminal.echo("Sorry not implemented yet.");
                 return;
@@ -653,45 +654,20 @@ export class CommandsCommand extends Command {
         this.info = `
  ABBREV    FULL COMMAND                             DEVICE USED
  ------    ------------                             -----------
- ABANDON   ABANDON                                  shuttle craft
  C         CHART                                    (none)
- CA        CAPTURE                                  subspace radio, transporter
- CALL      CALL (for help)                          subspace radio
- CL        CLOAK                                    cloaking
- CO        COMPUTER                                 computer
- CR        CRYSTALS                                 (none)
- DA        DAMAGES                                  (none)
- DEATHRAY  DEATHRAY                                 (none)  
- DESTRUCT  DESTRUCT                                 computer
  D         DOCK                                     (none)
- E         EMEXIT                                   (none)
- FREEZE    FREEZE [FILE NAME]                       (none)
- I         IMPULSE [MANUAL] [DISPLACEMENT]          impulse engines
-           IMPULSE AUTOMATIC [DESTINATION]          impulse engines and computer
  L         LRSCAN                                   long-range sensors
- MI        MINE                                     (none)
  M         MOVE [MANUAL] [DISPLACEMENT]             warp engines
            MOVE AUTOMATIC [DESTINATION]             warp engines and computer
- O         ORBIT                                    warp or impulse engines
  P         PHASERS [TOTAL AMOUNT]                   phasers and computer
            PHASERS AUTOMATIC [TOTAL AMOUNT]         phasers, computer, sr sensors
            PHASERS MANUAL [AMT1] [AMT2] ...         phasers
  PHO       PHOTONS [NUMBER] [TARGETS]               torpedo tubes 
- PL        PLANETS                                  (none)
- PR        PROBE [ARMED] [MANUAL] [DISPLACEMENT]    probe launcher, radio 
-           PROBE [ARMED] AUTOMATIC [DESTINATION]    launcher, radio, computer
  REP       REPORT                                   (none)
  REQ       REQUEST                                  (none)
- R         REST [NUMBER OF STARDATES]               (none)
- QUIT      QUIT                                     (none)
  S         SRSCAN [NO or CHART]                     short-range sensors
- SC        SCORE                                    (none)
- SE        SENSORS                                  short-range sensors
  SH        SHIELDS [UP, DOWN, or TRANSFER]          deflector shields
- SHU       SHUTTLE                                  shuttle craft
  ST        STATUS                                   (none)
- T         TRANSPORT                                transporter
- W         WARP [FACTOR]                            (none)
 
  L. R. Scan:   thousands digit:   supernova
                hundreds digit:    Klingons
@@ -706,16 +682,7 @@ Ordinary Klingons have about 400 units of energy, Commanders about
     1200.  Romulans normally have about 800 units of energy, and the
     (GULP) "Super-Commander" has about 1800.
 Phaser fire diminishes to about 60 percent at 5 sectors.  Up to 1500
-    units may be fired in a single burst without danger of overheat.
-Warp 6 is the fastest safe speed.  At higher speeds, engine damage
-    may occur.  At warp 10 you may enter a time warp.
-Shields cost 50 units of energy to raise, and double the power
-    requirements of moving under warp drive.  Engaging the high-speed
-    shield control requires 200 units of energy.
-Warp drive requires (distance)*(warp factor cubed) units of energy
-    to travel at a speed of (warp factor squared)/10 quadrants per stardate.
-Impulse engines require 20 units to warm up, plus 100 units per
-     quadrant.  Speed is just under one sector per stardate.`
+    units may be fired in a single burst without danger of overheat.`
     }
 
     printCommands() {
@@ -739,7 +706,6 @@ Impulse engines require 20 units to warm up, plus 100 units per
 
     run(commandObj) {
         this.terminal.newLine();
-        debugger;
         this.terminal.echo(this.printCommands());
         return commandObj;
     }
@@ -1188,14 +1154,6 @@ export class ChartCommand extends Command {
         this.info = `
       Mnemonic:  ${this.name}
       Shortest abbreviation:  ${this.abbreviation}
-      As you proceed in the game, you learn more and more about what things
-    are where in the galaxy. When ever you first do a scan in a quadrant,
-    telemetry sensors are ejected which will report any changes in the
-    quadrant(s) back to your ship, providing the sub-space radio is
-    working. Spock will enter this information in the chart. If the radio
-    is not working, Spock can only enter new information discovered from
-    scans, and information in other quadrants may be obsolete.
-
     The chart looks like an 8 by 8 array of numbers.  These numbers are
     interpreted exactly as they are on a long-range scan. A period (.) in
     place of a digit means you do not know that information yet.  For
@@ -1260,9 +1218,17 @@ export class ChartCommand extends Command {
         super.run(commandObj);
         this.terminal.echo("\nSTAR CHART FOR THE KNOWN GALAXY\n");
         this.terminal.newLine();
-        this.terminal.echo(this.makeChartText());
+        this.terminal.printLine(this.makeChartText());
+        this.terminal.printLine();
+        this.terminal.printLine(`thousands digit:   supernova
+hundreds digit:    Klingons
+tens digit:        starbases
+ones digit:        stars
+period (.):        digit not known`);
+        this.terminal.printLine();
         let q = this.player.gameObject.quadrant;
-        this.terminal.echo(`\n\nEnterprise is currently in ${this.player.gameObject.getQuadrantLocation()}\n\n`);
+        this.terminal.printLine(`Enterprise is currently in ${this.player.gameObject.getQuadrantLocation()}`);
+        this.terminal.printLine();
         return commandObj;
     }
 }
@@ -1303,7 +1269,7 @@ export class ShortRangeScanCommand extends Command {
              1 2 3 4 5 6 7 8 9 10
           1  * . . . . R . . . .  Stardate      2516.3
           2  . . . E . . . . . .  Condition     RED
-          3  . . . . . * . B . .  Position      5 - 1, 2 - 4
+          3  . . . . . * . B . .  Position      1 - 5, 4 - 2
           4  . . . S . . . . . .  Life Support  DAMAGED, Reserves=2.30
           5  . . . . . . . K . .  Warp Factor   5.0
           6  . K .   . . . . * .  Energy        2176.24
@@ -1313,12 +1279,12 @@ export class ShortRangeScanCommand extends Command {
          10  . . . . . . . . . .  Time Left     3.72
 
 
-    The left part is a picture of the quadrant.  The E at sector 2 - 4
-    represents the Enterprise; the B at sector 3 - 8 is a starbase.
-    There are ordinary Klingons (K) at sectors 5 - 8 and 6 - 2, and a
+    The left part is a picture of the quadrant.  The E at sector 4 - 2
+    represents the Enterprise; the B at sector 8 - 3 is a starbase.
+    There are ordinary Klingons (K) at sectors 8 - 5 and 2 - 6, and a
     Klingon Commander (C) at 9 - 9.  The (GULP) "Super-commander" (S) is
-    occupies sector 4 - 4, and a Romulan (R) is at 1 - 6.  A planet (P)
-    is at sector 7 - 6.  There are also a large number of stars (*). The
+    occupies sector 4 - 4, and a Romulan (R) is at 6 - 1.  A planet (P)
+    is at sector 6 - 7.  There are also a large number of stars (*). The
     periods (.) are just empty space--they are printed to help you get
     your bearings.  Sector 6 - 4 contains a black hole ( ).
 
@@ -1333,10 +1299,7 @@ export class ShortRangeScanCommand extends Command {
     Short-range scans are free.  That is, they use up no energy and no
     time.  If you are in battle, doing a short-range scan does not give
     the enemies another chance to hit you.  You can safely do a
-    short-range scan anytime you like.
-
-    If your short-range sensors are damaged, this command will only show
-    the contents of adjacent sectors.`;
+    short-range scan anytime you like.`;
     }
 
     run(commandObj) {
@@ -1353,8 +1316,6 @@ export class ShortRangeScanCommand extends Command {
             printChart = true;
         }
 
-
-        let output = "";
         // use player location
         let quadrant = this.game.player.gameObject.quadrant;
         let matrix = [];
@@ -1430,8 +1391,9 @@ export class ShortRangeScanCommand extends Command {
         }
         this.terminal.newLine();
         this.terminal.newLine();
-        commandObj.out = output;
-        return commandObj;
+        this.terminal.printLine(". = nothing; K = klingon; C = commander; S = super commander; R = romulan; E = Enterprise;");
+        this.terminal.printLine("* = star; p = planet; b = base; empty = black hole.");
+        this.terminal.newLine();
     }
 }
 
@@ -1565,22 +1527,7 @@ export class DockCommand extends Command {
 You may dock your starship whenever you are in one of the eight
 sector positions immediately adjacent to a starbase.  When you dock,
 your starship is resupplied with energy, shield energy photon
-torpedoes, and life support reserves.  Repairs also proceed faster at
-starbase, so if some of your devices are damaged, you may wish to
-stay at base (by using the "REST" command) until they are fixed.  If
-your ship has more than its normal maximum energy (which can happen
-if you've loaded crystals) the ship's energy is not changed.
-
-You may not dock while in standard orbit around a planet.
-
-Starbases have their own deflector shields, so you are completely
-safe from phaser attack while docked.  You are also safe from
-long-range tractor beams.
-
-Starbases also have both short and long range sensors, which you can
-use if yours are broken. There's also a subspace radio to get
-information about happenings in the galaxy. Mr. Spock will update the
-star chart if your ask for it while docked and your own radio is dead.`;
+torpedoes.`;
     }
 
     run(commandObj) {
@@ -1595,7 +1542,7 @@ star chart if your ask for it while docked and your own radio is dead.`;
 
         let found = false;
         for (let x = sector.x - 1; x <= sector.x + 1; x++) {
-            for (let y = sector.y - 1; y < sector.y + 1; y++) {
+            for (let y = sector.y - 1; y <= sector.y + 1; y++) {
                 try {
                     let nearbySector = quadrant.getSector(x, y);
                     let starbase = nearbySector.container.getGameObjectsOfType(StarBase)[0];

@@ -12,7 +12,7 @@ class Terminal {
         this._out += "\n";
     }
 
-    printLine(str) {
+    printLine(str = '') {
         this._out += str + "\n";
     }
 

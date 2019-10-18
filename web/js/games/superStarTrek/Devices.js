@@ -26,7 +26,7 @@ export class Shields extends Device {
     }
 
     printInfo() {
-        return `${this.up ? "UP" : "DOWN"}, 100% ${this.units.toFixed(2)} units`;
+        return `${this.up ? "UP" : "DOWN"}, ${(this.units * 100/this.capacity).toFixed(1)}% ${this.units.toFixed(2)} units`;
     }
 
     recharge() {
@@ -281,6 +281,7 @@ export class PhotonTorpedoLauncher extends Device {
         let keepGoing = true;
         let hit = false;
         let thingHit = null;
+        let trackingLocations = [];
         do {
             ret = moveGenerator.next(keepGoing);
             // if we've left the quadrant then stop
@@ -289,7 +290,7 @@ export class PhotonTorpedoLauncher extends Device {
                 moveGenerator.next(false);
                 break;
             }
-            this.terminal.echo(`${torpedo.gameObject.getSectorLocationFloat(false)}    `);
+            trackingLocations.push(torpedo.gameObject.getSectorLocationFloat(false));
             // check for collisions, could do a better job of broad sweeping here...
             // get stuff in the torpedo's current sector, and the adjacent ones
             // and nearby sectors
@@ -314,12 +315,24 @@ export class PhotonTorpedoLauncher extends Device {
                 break;
             }
         } while (!ret.done);
+        // print tracking coordinates
+        for(let i = 0; i < trackingLocations.length; i++) {
+            //print first and last, otherwise skip every other one
+            if(i === 0) {
+                this.terminal.echo(`${trackingLocations[i]}    `);
+            } else if (i === trackingLocations.length - 1) {
+                this.terminal.echo(`${trackingLocations[i]}`);
+            } else if (i % 2 === 0) {
+                this.terminal.echo(`${trackingLocations[i]}    `);
+            }
+
+        }
         this.terminal.echo("\n");
         // we've hit something or left the quadrant
         if (hit) {
             thingHit.collider.takeHit(torpedo.damage);
         } else {
-            this.terminal.echo("Torpedo missed and has left the quadrant!");
+            this.terminal.printLine("Torpedo missed and has left the quadrant!");
         }
         torpedo.die();
     }

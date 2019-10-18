@@ -4,7 +4,7 @@ import Menu from "./Menu.js";
 import {terminal} from './Terminal.js';
 import Tests from './Tests.js';
 
-export const DEBUG = true;
+export const DEBUG = false;
 
 $(document).ready(function () {
     const versions = {

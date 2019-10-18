@@ -54,7 +54,7 @@ export default class Menu {
         this.secretPassword = null;
         this.skipLine(2);
         // tag line
-        this.terminal.$terminal.echo("Latest update-21 Sept 78");
+        this.terminal.$terminal.echo("Latest update- 18 Oct 2019.");
         this.skipLine(1);
         // ask mode
         this.ask(
