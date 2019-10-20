@@ -10,10 +10,10 @@ const CONDITION_DOCKED = 4;
 
 export default class Enterprise {
     constructor(terminal) {
-        this.energyCapacity = 5000.0;
+        this.energyCapacity = 3000.0;
         this.gameObject = new GameObject(this);
         this.mover = new Mover(this, this.gameObject);
-        this.maxHullIntegrity = 1000;
+        this.maxHullIntegrity = 700;
         this.collider = new Collider(this, this.gameObject, 80, 80, this.maxHullIntegrity);
         this.energy = this.energyCapacity;
         this.phasers = new Phasers(this);

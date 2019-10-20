@@ -104,6 +104,7 @@ general idea of how well you are performing.
     }
 
     run(commandObj) {
+        let score = 0;
         let killedKlingonsAll = this.game.getNumberOfTypeKilled(AbstractKlingon);
         let killedKlingons = this.game.getNumberOfTypeKilled(Klingon);
         let kScore = killedKlingons * 10;
@@ -113,7 +114,7 @@ general idea of how well you are performing.
         let scScore = killedSuperCommanders * 200;
         let killedRomulans = this.game.getNumberOfTypeKilled(Romulan);
         let romulanScore = killedRomulans * 20;
-        let score = kScore + cScore + scScore + romulanScore;
+        score += kScore + cScore + scScore + romulanScore;
 
         // let klingonsPerDate =
 
@@ -125,12 +126,12 @@ general idea of how well you are performing.
         this.terminal.printLine(`${killedCommanders} Klingon Commander ships destroyed`.padEnd(lineLength, ' ') + cScore);
         this.terminal.printLine(`${killedSuperCommanders} Klingon Super Commander ships destroyed`.padEnd(lineLength) + scScore);
         // victory adds 100 * skill
-        if(this.game.isVictory()) {
-            let v=  this.skill * 100;
+        if (this.game.isVictory()) {
+            let v = this.game.skill * 100;
             score += v;
             this.terminal.printLine(`Bonus for winning ${this.game.getDifficultyStr()} game `.padEnd(lineLength) + v);
         }
-        if(this.player.isDead()) {
+        if (this.player.isDead()) {
             let d = -200;
             score += d;
             this.terminal.printLine(`Penalty for getting yourself killed`.padEnd(lineLength) + d);
@@ -615,7 +616,7 @@ are up) and have essentially the same effect as phaser hits.`;
             this.player.shieldsDown();
         } else if (transfer) {
             //todo::: this is all fucked up
-            if(!DEBUG) {
+            if (!DEBUG) {
                 this.terminal.echo("Sorry not implemented yet.");
                 return;
             }

@@ -48,9 +48,15 @@ EOT;
             ":user_id" => $log->getUser()->getId(),
             ":game_id" => $log->getGame()->getId(),
             ":score" => $log->getScore(),
-            ":victory" => $log->isVictory()
+            ":victory" => (int)$log->isVictory()
             ];
-        $statement->execute($params);
+        if(!$statement->execute($params)){
+            error_log('creating game log failed');
+            $code = $statement->errorCode();
+            $info = print_r($statement->errorInfo(), true);
+            $ex = new \Exception("SQL ERROR : $code. $info");
+            throw $ex;
+        }
         $log->setId((int) $this->pdo->lastInsertId());
     }
 
@@ -72,7 +78,6 @@ EOT;
         $statement->execute([':user_id' => $user->getId()]);
         $results = $statement->fetchAll(\PDO::FETCH_OBJ);
         if (empty($results)) {
-            error_log('no logs found');
             return $logs;
         }
         $games = [];

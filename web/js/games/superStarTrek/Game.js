@@ -60,7 +60,7 @@ export default class Game {
 
         // place player in random quad and sector
         this.player = new Enterprise(this.terminal);
-        if (DEBUG) {
+        if (false && DEBUG) {
             // testing torpedoes
             let quad = this.galaxy.getQuadrant(0, 0);
             let sector = quad.getSector(4, 4);
@@ -252,7 +252,7 @@ Good Luck!
             let hasMovedInCombat = false;
             let justArrivedIntoCombat = false;
             let inCombat = false;
-            while(userTurn) {
+            while(userTurn && !this.isVictory() && !this.isDefeat()) {
                 let {command, commandObj} = await this.getUserCommand();
 
                 // info commands never consume a turn
@@ -282,6 +282,8 @@ Good Luck!
                 }
             }
 
+            if(this.isVictory() || this.isDefeat()) break;
+
             // now it's the ai's turn, start shooting if we're in combat
             if(inCombat && !justArrivedIntoCombat) {
                 this.player.gameObject.quadrant.container.getGameObjectsOfType(AbstractEnemy).forEach(enemy => {
@@ -291,14 +293,29 @@ Good Luck!
             wasInCombat = inCombat;
             this.terminal.print();
         }
+        let victory = this.isVictory();
+        let defeat = this.isDefeat();
+
+        // save a log of the game
+        let score = this.calculateScore();
+        this.service.createGameLog(score, victory);
+
+        this.terminal.skipLine(2);
+
         // show end game screen
-        if(this.isVictory()) {
-            this.terminal.echo("You win!");
+        if(victory) {
+            this.terminal.printLine("You win!");
             this.terminal.print();
-        } else if (this.isDefeat()) {
-            this.terminal.echo("You lose...");
+        } else if (defeat) {
+            this.terminal.printLine("You lose...");
             this.terminal.print();
         }
+
+        //print score
+        this.terminal.silent = false;
+        let scorePrinter = new ScoreCommand(this, this.terminal, this.player);
+        scorePrinter.run({});
+        this.terminal.print();
     }
 
     // time ran out

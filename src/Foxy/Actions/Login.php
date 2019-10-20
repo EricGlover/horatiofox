@@ -58,7 +58,6 @@
       $user->login();
       $mapper->update($user);
 
-      error_log(print_r($user, true));
       // set the session
       session_start();
       $_SESSION["user"] = ["id" => $user->getId()];

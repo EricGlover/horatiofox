@@ -23,6 +23,7 @@ export default class AI {
 
     firePhasers() {
         this.parent.phasers.fire(200, this.player);
-        this.parent.energy -= 200;
+        this.parent.energy -= 200;  // todo:::
+        this.parent.phasers.coolDown();
     }
 }
