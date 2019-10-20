@@ -3,6 +3,10 @@
 #endif
 
 
+iscore = 10*d.killk + 50*d.killc + ithperd + iwon
+			 - 100*d.basekl - 100*klship - 45*nhelp -5*d.starkl - casual
+		 + 20*d.nromkl + 200*d.nsckill - 10*d.nplankl + dnromrem;
+
 for (; k <= nenhr2; k++, kk++) {
 		// wham is amount of energy to expend
 		if ((wham = hits[k])==0) continue;

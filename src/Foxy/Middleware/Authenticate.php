@@ -20,8 +20,7 @@
       } else {
         $user = $_SESSION["user"];
         $userId = (int) $user["id"];
-        $pdo = DB::getPDO();
-        $mapper = new UserMapper($pdo);
+        $mapper = UserMapper::getUserMapper();
         $user = $mapper->getUserById($userId);
       }
       $app["user"] = $user;

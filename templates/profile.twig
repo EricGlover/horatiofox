@@ -38,11 +38,9 @@
         <h1>{{ user.username|striptags|title }}'s Profile</h1>
     {% endif %}
 
-
-    <!-- <img class="right" src="/web/images/wireframe/image.png" alt=""> -->
     <p>Joined on : {{ user.joinedAt|date("m/d/Y") }}</p>
     <div class="ui divider"></div>
-
+    {#    profile info section#}
     <div id="form-container">
         <form id="edit-profile" class="ui form" onsubmit="return false;">
             <div class="field">
@@ -96,6 +94,70 @@
     <div class="ui divider"></div>
     <p>We'll send you an email with a link to reset your password</p>
     <button class="ui button" id="reset-password">Reset Password</button> -->
+</div>
+
+{#    High scores and recent games#}
+<div class="ui container segment">
+    <div style="display: flex; justify-content: space-between;">
+        {#        High Scores on the left#}
+        <div style="margin-right: 30px; flex: 1 1 auto;">
+            <h3>High Scores</h3>
+            {% if noHighScores %}
+                <div>No high scores, you suck at life.</div>
+            {% else %}
+                {% for logs in highScores %}
+                    <h5>{{ logs[0].game.title }}</h5>
+                    <div class="ui divider"></div>
+                    <div class="ui list">
+                        {% for log in logs %}
+                            <div class="item" style="margin-top: 10px;">
+                                <div class="content">
+                                    <div class="header" style="display: flex; justify-content: space-between; align-items: center;">
+                                        <b>Score: {{ log.score }}</b>
+                                        {% if log.victory %}<span class="ui green basic label mini">Victory</span>
+                                        {% else %}<span class="ui red basic label mini">Loss</span>
+                                        {% endif %}
+                                    </div>
+                                    <div class="description" style="margin-top: 4px;">
+                                        On {{ log.occurredAt.format('m/d/Y') }} at {{ log.occurredAt.format('g:i a') }}
+                                    </div>
+                                </div>
+                            </div>
+                        {% endfor %}
+                    </div>
+                {% endfor %}
+            {% endif %}
+        </div>
+
+        {#        Last 5 games on the right #}
+        <div style="flex: 1 1 auto;">
+            <h3>Recent Games</h3>
+            {% if noRecentGames %}
+                <div>No recent games. Go play something!</div>
+            {% else %}
+                <div class="ui list">
+                    {% for log in recentGames %}
+                        <div class="item" style="margin-top: 10px;">
+                            <div class="content">
+                                <div class="header"
+                                     style="display: flex; justify-content: space-between; align-items: center;">
+                                    {{ log.game.title }}
+                                    {% if log.victory %}<span class="ui basic green label mini">Victory</span>
+                                    {% else %}<span class="ui basic red label mini">Loss</span>
+                                    {% endif %}
+                                </div>
+                                <div class="description">
+                                    <div>Score: <b>{{ log.score }}</b></div>
+                                    <div>On {{ log.occurredAt.format('m/d/Y') }}
+                                        at {{ log.occurredAt.format('g:i a') }}</div>
+                                </div>
+                            </div>
+                        </div>
+                    {% endfor %}
+                </div>
+            {% endif %}
+        </div>
+    </div>
 </div>
 
 </body>

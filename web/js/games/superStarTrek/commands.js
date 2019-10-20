@@ -82,6 +82,64 @@ class Command {
     }
 }
 
+export class ScoreCommand extends Command {
+    constructor(game, terminal, player) {
+        super();
+        this.game = game;
+        this.terminal = terminal;
+        this.player = player;
+        this.abbreviation = "sc";
+        this.name = "score";
+        this.regex = regexifier(this.abbreviation, this.name);
+        this.type = INFO_COMMAND;
+        this.info = `
+  Mnemonic:  SCORE
+  Shortest abbreviation: SC
+
+Shows what the score would be if the game were to end naturally at
+this point. Since the game hasn't really ended and you lose points if
+you quit, this is perhaps a meaningless command, but it gives you a
+general idea of how well you are performing.
+        `
+    }
+
+    run(commandObj) {
+        let killedKlingonsAll = this.game.getNumberOfTypeKilled(AbstractKlingon);
+        let killedKlingons = this.game.getNumberOfTypeKilled(Klingon);
+        let kScore = killedKlingons * 10;
+        let killedCommanders = this.game.getNumberOfTypeKilled(KlingonCommander);
+        let cScore = killedCommanders * 50;
+        let killedSuperCommanders = this.game.getNumberOfTypeKilled(KlingonSuperCommander);
+        let scScore = killedSuperCommanders * 200;
+        let killedRomulans = this.game.getNumberOfTypeKilled(Romulan);
+        let romulanScore = killedRomulans * 20;
+        let score = kScore + cScore + scScore + romulanScore;
+
+        // let klingonsPerDate =
+
+        let lineLength = 60;
+        this.terminal.printLine('Your score --');
+        // make these strings fixed length
+        this.terminal.printLine(`${killedRomulans} Romulan ships destroyed`.padEnd(lineLength, ' ') + romulanScore);
+        this.terminal.printLine(`${killedKlingons} Klingon war birds destroyed`.padEnd(lineLength, ' ') + kScore);
+        this.terminal.printLine(`${killedCommanders} Klingon Commander ships destroyed`.padEnd(lineLength, ' ') + cScore);
+        this.terminal.printLine(`${killedSuperCommanders} Klingon Super Commander ships destroyed`.padEnd(lineLength) + scScore);
+        // victory adds 100 * skill
+        if(this.game.isVictory()) {
+            let v=  this.skill * 100;
+            score += v;
+            this.terminal.printLine(`Bonus for winning ${this.game.getDifficultyStr()} game `.padEnd(lineLength) + v);
+        }
+        if(this.player.isDead()) {
+            let d = -200;
+            score += d;
+            this.terminal.printLine(`Penalty for getting yourself killed`.padEnd(lineLength) + d);
+        }
+        this.terminal.skipLine(2);
+        this.terminal.printLine(`TOTAL SCORE`.padEnd(lineLength) + score.toFixed(0));
+    }
+}
+
 export class ReportCommand extends Command {
     constructor(game, terminal, galaxy, player) {
         super();
@@ -140,6 +198,7 @@ play a frozen game.`
 
 // how do the commands and the player communicate ?
 // how much logic should be in the command as opposed to the player ?
+
 
 export class PhotonsCommand extends Command {
     constructor(game, terminal, player) {

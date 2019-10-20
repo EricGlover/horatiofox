@@ -2,18 +2,29 @@ class Terminal {
     constructor() {
         this.$terminal = null;
         this._out = "";
+        this.silent = true;
     }
 
     echo(str) {
+        if(this.silent) return;
         this._out += str;
     }
 
     newLine() {
+        if(this.silent) return;
         this._out += "\n";
     }
 
     printLine(str = '') {
+        if(this.silent) return;
         this._out += str + "\n";
+    }
+
+    skipLine(n = 1) {
+        if(this.silent) return;
+        for(let i = 0; i < n; i++) {
+            this._out += "\n";
+        }
     }
 
     getOutput() {
@@ -21,10 +32,12 @@ class Terminal {
     }
 
     clear() {
+        if(this.silent) return;
         this._out = "";
     }
 
     print() {
+        if(this.silent) return;
         this.$terminal.echo(this._out);
         this._out = "";
     }

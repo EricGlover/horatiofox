@@ -53,9 +53,7 @@
       $lastName = \strip_tags($body->get("lastName"));
       $user = new User($email, $password, $username, $firstName, $lastName);
       $user->login();
-
-      $pdo = DB::getPDO();
-      $mapper = new UserMapper($pdo);
+      $mapper = UserMapper::getUserMapper();
 
       try {
         $mapper->create($user);

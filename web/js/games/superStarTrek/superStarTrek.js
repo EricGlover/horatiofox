@@ -4,7 +4,8 @@ import Menu from "./Menu.js";
 import {terminal} from './Terminal.js';
 import Tests from './Tests.js';
 
-export const DEBUG = false;
+export const DEBUG = true;
+const RUN_TESTS = false;
 
 $(document).ready(function () {
     const versions = {
@@ -40,16 +41,16 @@ $(document).ready(function () {
         }
     });
     // test some things
-    if (DEBUG) {
+    if (RUN_TESTS) {
         let tester = new Tests();
-        // tester.testAngle();
+        tester.testAngle();
     }
 
     // make our game and menu
     let game = new Game(terminal);
     let menu = new Menu(terminal);
     menu.game = game;
-
+    terminal.silent = false;
 
     if (DEBUG) { // SKIP the menu
         game.start();

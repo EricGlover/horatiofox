@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace Foxy\Entities;
 
+
 class User
 {
     private $id;
@@ -21,6 +22,8 @@ class User
     private $verified;
     /** @var boolean */
     private $playtester;
+    /** @var GameLog[] */
+    private $gameLogs;
 
     public function __construct(string $email, string $password, string $username = null, string $firstName = null, string $lastName = null, string $avatarImg = null, bool $hashForMe = true, bool $playtester = false)
     {
@@ -36,6 +39,7 @@ class User
         $this->avatarImg = $avatarImg;
         $this->verified = false;
         $this->playtester = $playtester;
+        $this->gameLogs = [];
     }
 
     public function getId(): int
@@ -172,5 +176,27 @@ class User
         $this->playtester = $playtester;
     }
 
+    /**
+     * @return GameLog[]
+     */
+    public function getGameLogs(): array
+    {
+        return $this->gameLogs;
+    }
 
+    /**
+     * @param GameLog[] $gameLogs
+     */
+    public function setGameLogs(array $gameLogs): void
+    {
+        $this->gameLogs = $gameLogs;
+    }
+
+    /**
+     * @param GameLog $log
+     */
+    public function addGameLog(GameLog $log) : void
+    {
+        $this->gameLogs[] = $log;
+    }
 }

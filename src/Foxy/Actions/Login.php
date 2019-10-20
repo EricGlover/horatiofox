@@ -40,8 +40,7 @@
         return new Response("Sorry something went wrong", 500);
       }
       // TODO:: RATE LIMIT LOGIN ATTEMPTS
-      $pdo = DB::getPDO();
-      $mapper = new UserMapper($pdo);
+      $mapper = UserMapper::getUserMapper();
       /** @var User **/
       $user = $mapper->getUserByEmail($email);
       if(empty($user)) {
@@ -59,6 +58,7 @@
       $user->login();
       $mapper->update($user);
 
+      error_log(print_r($user, true));
       // set the session
       session_start();
       $_SESSION["user"] = ["id" => $user->getId()];

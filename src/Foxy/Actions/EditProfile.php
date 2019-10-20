@@ -36,8 +36,7 @@
       $user->setFirstName($firstName);
       $user->setLastName($lastName);
 
-      $pdo = DB::getPDO();
-      $mapper = new UserMapper($pdo);
+      $mapper = UserMapper::getUserMapper();
       $mapper->update($user);
       return new Response();
     }

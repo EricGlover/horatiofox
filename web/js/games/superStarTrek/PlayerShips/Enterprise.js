@@ -20,6 +20,7 @@ export default class Enterprise {
         this.warpFactor = 5.0;
         this.photons = new PhotonTorpedoLauncher(this, 10, 10);
         this.shields = new Shields(this);
+        this.shields.raise();
         this.docked = false;
         this.dockedAt = null;
         this.name = "Enterprise";

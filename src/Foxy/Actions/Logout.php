@@ -22,8 +22,7 @@
         return new Response("You're not logged in.", 400);
       }
       $user->logout();
-      $pdo = DB::getPDO();
-      $mapper = new UserMapper($pdo);
+      $mapper = UserMapper::getUserMapper();
       $mapper->update($user);
       session_start();
       unset($_SESSION["user"]);

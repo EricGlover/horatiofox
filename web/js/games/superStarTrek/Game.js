@@ -23,7 +23,7 @@ import {
     MoveCommand,
     GetHelpCommand,
     ChartCommand,
-    LongRangeScanCommand, ReportCommand,
+    LongRangeScanCommand, ReportCommand, ScoreCommand,
     RequestCommand, ShortRangeScanCommand, StatusCommand
 } from "./commands.js";
 
@@ -121,6 +121,26 @@ export default class Game {
         this.initialRomulans = null;
         this.fallenFoes = [];
     }
+
+    calculateScore() {
+        let killedKlingonsAll = this.getNumberOfTypeKilled(AbstractKlingon);
+        let killedKlingons = this.getNumberOfTypeKilled(Klingon);
+        let killedCommanders = this.getNumberOfTypeKilled(KlingonCommander);
+        let killedSuperCommanders = this.getNumberOfTypeKilled(KlingonSuperCommander);
+        let killedRomulans = this.getNumberOfTypeKilled(Romulan);
+        let score = killedKlingons * 10 + killedCommanders * 50 + killedSuperCommanders * 200;
+        score += killedRomulans * 20;
+
+        // victory adds 100 * skill
+        if(this.isVictory()) {
+            score += this.skill * 100;
+        }
+        if(this.player.isDead()) {
+            score -= 200;
+        }
+        return score;
+    }
+
     getGameLengthStr() {
         switch(this.length) {
             case GAME_LENGTH_SHORT:
@@ -313,6 +333,7 @@ Good Luck!
         this.commands.push(new DockCommand(this, this.terminal, this.player));
         this.commands.push(new PhotonsCommand(this, this.terminal, this.player));
         this.commands.push(new ReportCommand(this, this.terminal, this.galaxy, this.player));
+        this.commands.push(new ScoreCommand(this, this.terminal, this.player));
     }
 
     // register all our commands with our terminal,
