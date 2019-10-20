@@ -387,8 +387,18 @@ Good Luck!
             commandObj.out = "Not recognized.";
             return commandObj;
         }
-        this.resolveUserCommand({command: match, commandObj});
-        return match.run(commandObj);
+        // this is how the sausage is made
+
+        try {
+            debugger;
+            let out =  match.run(commandObj);
+            this.resolveUserCommand({command: match, commandObj});
+            return out;
+        } catch(e) {
+            console.error(e);
+            this.terminal.printLine("OOOF, that went really wrong. Try that again.");
+            this.terminal.print();
+        }
     }
 
     makeBlackHoles() {

@@ -1275,7 +1275,6 @@ export class ChartCommand extends Command {
     }
 
     run(commandObj) {
-        super.run(commandObj);
         this.terminal.echo("\nSTAR CHART FOR THE KNOWN GALAXY\n");
         this.terminal.newLine();
         this.terminal.printLine(this.makeChartText());
@@ -1363,7 +1362,6 @@ export class ShortRangeScanCommand extends Command {
     }
 
     run(commandObj) {
-        super.run(commandObj);
         // get the options
         let no = optionRegexifier("n", "no");
         let printStatus = true;
@@ -1514,7 +1512,6 @@ export class LongRangeScanCommand extends Command {
     }
 
     run(commandObj) {
-        super.run(commandObj);
         // todo:: save info
         // use player location
         let playerQuadrant = this.game.player.gameObject.quadrant;

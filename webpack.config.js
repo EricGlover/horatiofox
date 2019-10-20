@@ -1,7 +1,6 @@
 var path = require("path");
 
 module.exports = {
-  mode: "production",
   context: path.resolve(__dirname),
   entry: {
     main: "./web/js/pages/index.js",

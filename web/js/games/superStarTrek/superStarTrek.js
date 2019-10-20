@@ -1,3 +1,9 @@
+import GlobalErrorHandler from "../../components/Errors.js";
+import Navbar from "../../components/Navbar.js";
+
+const errorHandler = new GlobalErrorHandler("error");
+errorHandler.init();
+
 import "../../../lib/ptty.jquery.js";
 import Game from "./Game.js";
 import Menu from "./Menu.js";
@@ -9,6 +15,8 @@ const RUN_TESTS = false;
 export const LAST_UPDATED_AT = "Oct 10 2019";
 
 $(document).ready(function () {
+    let nav = new Navbar();
+    nav.init();
     const versions = {
         1: {
             name: "Star Trek",

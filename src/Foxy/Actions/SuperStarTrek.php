@@ -19,7 +19,6 @@ class SuperStarTrek
         $loader = new Twig_Loader_Filesystem(__DIR__ . "/../../.." . '/templates');
         $twig = new Twig_Environment($loader);
         $context = [
-            "playTester" => $user->isPlaytester(),
             "user" => $user,
             "loggedIn" => $loggedIn
         ];
