@@ -7,13 +7,13 @@
   use Monolog\Handler\StreamHandler;
   use Foxy\ApplicationBuilder;
 
-
   ini_set("log_errors", 1);
   ini_set("error_log", __DIR__ . "/../logs/error.log");
 
   // create a log channel
   $log = new Logger('logMan');
   $log->pushHandler(new StreamHandler(__DIR__ . '/../logs/error.1.log', Logger::WARNING));
+  $log->error("testing logger");
 
   $errorHandler = function(int $errno, string $errstr, string $errfile , int $errline , array $errcontext ) use($log)
   {
