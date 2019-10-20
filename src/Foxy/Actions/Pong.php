@@ -20,6 +20,6 @@ class Pong
         $loader = new Twig_Loader_Filesystem(__DIR__ . "/../../.." . '/templates');
         $twig = new Twig_Environment($loader);
         $context = ['user' => $user, 'loggedIn' => $loggedIn];
-        return new Response($twig->render("pong.twig"), $context);
+        return new Response($twig->render("pong.twig", $context));
     }
 }
