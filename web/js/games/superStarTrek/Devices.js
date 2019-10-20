@@ -255,8 +255,8 @@ export class PhotonTorpedoLauncher extends Device {
         }
         this._torpedoes--;
         // get global x y for target
-        let x = this.parent.gameObject.quadrant.x + sectorX;
-        let y = this.parent.gameObject.quadrant.y + sectorY;
+        let x = this.parent.gameObject.quadrant.globalX + sectorX;
+        let y = this.parent.gameObject.quadrant.globalY + sectorY;
 
         // make torpedo
         let torpedo = new Torpedo();

@@ -322,6 +322,7 @@ inclusive.
         // coordinate system changes incoming .....
         targets.forEach((target, i) => {
             this.terminal.echo(`\nTrack for torpedo number ${i + 1}:  `);
+            this.terminal.echo(`targeting ${target.x} - ${target.y}`)
             this.player.photons.fire(target.x, target.y)
         });
     }
