@@ -60,7 +60,7 @@ export default class Game {
 
         // place player in random quad and sector
         this.player = new Enterprise(this.terminal);
-        if (false && DEBUG) {
+        if (DEBUG) {
             // testing torpedoes
             let quad = this.galaxy.getQuadrant(0, 0);
             let sector = quad.getSector(4, 4);
@@ -388,9 +388,7 @@ Good Luck!
             return commandObj;
         }
         // this is how the sausage is made
-
         try {
-            debugger;
             let out =  match.run(commandObj);
             this.resolveUserCommand({command: match, commandObj});
             return out;

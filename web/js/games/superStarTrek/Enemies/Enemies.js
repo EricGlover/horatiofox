@@ -37,6 +37,7 @@ export class Klingon extends AbstractKlingon {
         super(galaxy, player, game);
         this.collider.health = 40;
         this.energy = 400;
+        this.name = "Klingon Warbird";
     }
 }
 
@@ -45,6 +46,7 @@ export class KlingonCommander extends AbstractKlingon {
         super(galaxy, player, game);
         this.collider.health = 100;
         this.energy = 1200;
+        this.name = "Klingon Commander";
     }
 }
 
@@ -53,6 +55,7 @@ export class KlingonSuperCommander extends AbstractKlingon {
         super(galaxy, player, game);
         this.collider.health = 400;
         this.energy = 1750;
+        this.name = "Klingon Super Commander";
     }
 }
 
@@ -61,5 +64,6 @@ export class Romulan extends AbstractEnemy {
         super(galaxy, player, game);
         this.collider.health = 40;
         this.energy = 700;
+        this.name = "Romulan";
     }
 }

@@ -26,7 +26,7 @@ export class Shields extends Device {
     }
 
     printInfo() {
-        return `${this.up ? "UP" : "DOWN"}, ${(this.units * 100/this.capacity).toFixed(1)}% ${this.units.toFixed(2)} units`;
+        return `${this.up ? "UP" : "DOWN"}, ${(this.units * 100 / this.capacity).toFixed(1)}% ${this.units.toFixed(2)} units`;
     }
 
     recharge() {
@@ -89,12 +89,12 @@ export class Shields extends Device {
     }
 
     takeHit(amount) {
-        if(!this.up || this.isDamaged()) {
+        if (!this.up || this.isDamaged()) {
             this.parent.collider.takeHit(amount);
             return;
         }
         this.terminal.printLine(`${amount.toFixed(2)} hit to shields.`);
-        if(this.units < amount) {
+        if (this.units < amount) {
             amount -= this.units;
             this.drain(this.units);
             this.parent.collider.takeHit(amount);
@@ -108,7 +108,7 @@ export class Phasers extends Device {
     constructor(parent) {
         super();
         this.parent = parent;
-        if(!this.parent.energy) {
+        if (!this.parent.energy) {
             throw new Error('Phaser parent must have energy');
         }
         this.parent.phasers = this;
@@ -179,7 +179,7 @@ export class Phasers extends Device {
             return;
         }
 
-        if(!target.gameObject || !target.gameObject.isInGame()) {
+        if (!target.gameObject || !target.gameObject.isInGame()) {
             console.error("Can't shoot something removed from the game.");
             return;
         }
@@ -190,7 +190,7 @@ export class Phasers extends Device {
         let damage = this.calculateDamage(distance, amount);
 
         // if they have shields hit the shields
-        if(target.shields instanceof Shields) {
+        if (target.shields instanceof Shields) {
             target.shields.takeHit(damage);
         } else if (target.collider instanceof Collider) {   // else the thing itself takes a beating
             target.collider.takeHit(damage);
@@ -309,16 +309,16 @@ export class PhotonTorpedoLauncher extends Device {
                         }
                     }
                 });
-            })
+            });
             if (hit) {
                 moveGenerator.next(false);
                 break;
             }
         } while (!ret.done);
         // print tracking coordinates
-        for(let i = 0; i < trackingLocations.length; i++) {
+        for (let i = 0; i < trackingLocations.length; i++) {
             //print first and last, otherwise skip every other one
-            if(i === 0) {
+            if (i === 0) {
                 this.terminal.echo(`${trackingLocations[i]}    `);
             } else if (i === trackingLocations.length - 1) {
                 this.terminal.echo(`${trackingLocations[i]}`);
