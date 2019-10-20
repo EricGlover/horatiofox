@@ -269,12 +269,6 @@ Good Luck!
         return quadrant.container.getCountOfGameObjects(AbstractEnemy) > 0;
     }
 
-    getUserCommand() {
-        return new Promise((resolve, reject) => {
-            this.resolveUserCommand = resolve;
-        });
-    }
-
     // maybe this could be a generator function
     // or use generator functions
     async loop() {
@@ -287,7 +281,7 @@ Good Luck!
             let justArrivedIntoCombat = false;
             let inCombat = false;
             while(userTurn && !this.isVictory() && !this.isDefeat()) {
-                let {command, commandObj} = await this.getUserCommand();
+                let {command, commandObj} = await this.terminal.runUserCommand();
                 // when does the command run ?
 
                 // info commands and instant ship commands (like scan or set warp) never consume a turn
@@ -328,6 +322,8 @@ Good Luck!
             }
             wasInCombat = inCombat;
             this.terminal.print();
+            // update time remaining in case the balance of power has shifted
+            this.recalculateTimeRemaining();
         }
         let victory = this.isVictory();
         let defeat = this.isDefeat();
@@ -344,6 +340,10 @@ Good Luck!
             this.terminal.print();
         } else if (defeat) {
             this.terminal.printLine("You lose...");
+            if(this.timeRemaining <= 0) {
+                this.terminal.printLine(`Your time has run out and the Federation has been conquered.
+With your starship confiscated by the Klingon High Command, you relocate to a mining facility and learn to love gagh.`);
+            }
             this.terminal.print();
         }
 
@@ -357,7 +357,7 @@ Good Luck!
     // time ran out
     // enterprise destroyed
     isDefeat() {
-        return this.player.isDead();
+        return this.player.isDead() || this.timeRemaining <= 0;
     }
 
     // destroy all klingons
@@ -397,53 +397,8 @@ Good Luck!
     // modify the output
     registerCommands() {
         this.commands.forEach(command => {
-            this.terminal.$terminal.register("command", {
-                name: command.name,
-                method:  commandObj => {
-                    // if(this.terminal.questionMode) {
-                    //     this.terminal.questionMode = false;
-                    //     this.terminal.answer();
-                    // }
-
-                    // get arguments
-                    let input = this.terminal.$terminal.get_input();
-                    let args = input.replace(command.regex, "");
-                    commandObj.command = command;
-                    commandObj.input = input;
-                    commandObj.argumentStr = args;
-                    commandObj.arguments = args.split(/\s/).filter(str => str.length > 0);
-                    //todo:: change this a bit to support question mode
-                    commandObj = this.runCommand(command.name, commandObj) || {};
-                    commandObj.out = this.terminal.getOutput();
-                    if(this.terminal.questionMode) {
-                        commandObj.ps = this.terminal.question;
-                        commandObj.next = command.name;
-                    }
-                    this.terminal.clear();
-                    return commandObj;
-                },
-                regex: command.regex
-            });
+            this.terminal.registerCommand(command);
         });
-    }
-
-    runCommand(command, commandObj) {
-        // find a command by name
-        let match = this.commands.find(c => c.name === command);
-        if (!match) {
-            commandObj.out = "Not recognized.";
-            return commandObj;
-        }
-        // this is how the sausage is made
-        try {
-            let out =  match.run(commandObj);
-            this.resolveUserCommand({command: match, commandObj});
-            return out;
-        } catch(e) {
-            console.error(e);
-            this.terminal.printLine("OOOF, that went really wrong. Try that again.");
-            this.terminal.print();
-        }
     }
 
     makeBlackHoles() {

@@ -104,9 +104,9 @@ export default class Enterprise {
 
         // calculate distance, and energy required
         let distance = Galaxy.calculateDistance(this.gameObject.sector, sector);
-        let energy = distance * Math.pow(this.warpFactor, 3);
+        let energy = .1 * distance * Math.pow(this.warpFactor, 3);
         if(this.shields.up) energy *= 2;
-
+        console.log(energy);
         if(this.energy < energy) {
             throw new Error("Not enough energy.");
         }

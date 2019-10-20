@@ -59,6 +59,7 @@ class Command {
         this.options = {};
         this.info = "No info.";
         this.type = null;
+        this.canAskQuestions = false;
     }
 
     isInstantShipCommand() {
@@ -890,6 +891,7 @@ export class MoveCommand extends Command {
         this.regex = regexifier("m", "move");
         this.fullName = "move under warp drive";
         this.type = MOVE_COMMAND;
+        this.canAskQuestions = true;
         this.info = `  Mnemonic:  MOVE
   Shortest abbreviation:  M
   Full command:  MOVE MANUAL [displacement]
@@ -963,12 +965,12 @@ command.  This enables you to move and hit them before they
 retaliate.`;
     }
 
-    moveTo(sector) {
+    *moveTo(sector) {
         // how do they do collisions ?
         // check path for objects
         // calculate distance, energy required and time expended
         let distance = Galaxy.calculateDistance(this.player.gameObject.sector, sector);
-        let energy = distance * Math.pow(this.player.warpFactor, 3);
+        let energy = .1 * distance * Math.pow(this.player.warpFactor, 3);
         if (this.player.shields.up) energy *= 2;
 
         if(this.player.energy < energy) {
@@ -990,8 +992,13 @@ retaliate.`;
             this.terminal.ask(`First Officer Spock- "Captain, I compute that such
   a trip would require approximately ${percentOfRemaining.toFixed(2)}% of our
   remaining time.  Are you sure this is wise?"`);
-            this.terminal.printLine();
-
+            let response = yield;
+            if(/(yes|y)/i.test(response)){
+                this.terminal.printLine("To boldly go...");
+            } else if (/(no|n)/i.test(response)) {
+                this.terminal.printLine("Cancelling move.");
+                return;
+            }
         }
 
 
@@ -1011,11 +1018,15 @@ retaliate.`;
     }
 
     // manual mode
-    manual(deltaQx, deltaQy, deltaSx, deltaSy) {
+    *manual(deltaQx, deltaQy, deltaSx, deltaSy) {
         // calculate the destination
         try {
             let destination = this.player.mover.calculateDestination(deltaQx, deltaQy, deltaSx, deltaSy);
-            this.moveTo(destination);
+            let iter = this.moveTo(destination);
+            if(!iter.next().done) {
+                let response = yield;
+                iter.next(response);
+            }
         } catch (e) {
             this.terminal.printLine(e.message);
             return;
@@ -1023,18 +1034,22 @@ retaliate.`;
     }
 
     // automatic mode
-    automatic(quadX, quadY, sectorX, sectorY) {
+    *automatic(quadX, quadY, sectorX, sectorY) {
         try {
             // get sector
             let sector = this.galaxy.getSector(quadX, quadY, sectorX, sectorY);
-            this.moveTo(sector);
+            let iter = this.moveTo(sector);
+            if(!iter.next().done) {
+                let response = yield;
+                iter.next(response);
+            }
         } catch (e) {
             this.terminal.printLine(e.message);
             return;
         }
     }
 
-    run(commandObj) {
+    *run(commandObj) {
         // modes : manual and automatic
         let manual = true;
         let automatic = false;
@@ -1070,7 +1085,11 @@ retaliate.`;
             let deltaSx = Math.trunc((argX * 10) % 10);
             let deltaSy = Math.trunc((argY * 10) % 10);
             // todo:: check bounds
-            this.manual(deltaQx, deltaQy, deltaSx, deltaSy);
+            let iter = this.manual(deltaQx, deltaQy, deltaSx, deltaSy);
+            if(!iter.next().done) {
+                let response = yield;
+                iter.next(response);
+            }
         } else if (automatic) {
             console.log("automatic mode");
             // parse args <quadY> <quadX> <sectorY> <sectorX>
@@ -1080,10 +1099,18 @@ retaliate.`;
             // make sure to convert from the 1 based commands
             // to the 0 based coordinates
             if (args.length === 4) {
-                this.automatic(args[0] - 1, args[1] - 1, args[2] - 1, args[3] - 1);
+                let iter = this.automatic(args[0] - 1, args[1] - 1, args[2] - 1, args[3] - 1);
+                if(!iter.next().done) {
+                    let response = yield;
+                    iter.next(response);
+                }
             } else if (args.length === 2) {
                 let quadrant = this.player.gameObject.quadrant;
-                this.automatic(quadrant.x, quadrant.y, args[0] - 1, args[1] - 1);
+                let iter = this.automatic(quadrant.x, quadrant.y, args[0] - 1, args[1] - 1);
+                if(!iter.next().done) {
+                    let response = yield;
+                    iter.next(response);
+                }
             }
 
         }
@@ -1216,6 +1243,7 @@ export class RequestCommand extends Command {
         this.fullName = "request information";
         this.arguments = 1;
         this.type = INFO_COMMAND;
+        this.canAskQuestions = true;
         this.info = `Mnemonic:  REQUEST
   Shortest abbreviation:  REQ
   Full command:  REQUEST [ITEM]
@@ -1237,12 +1265,12 @@ the [STATUS] command.  [ITEM] specifies which information as follows:
  TIME LEFT             TIME                                TI`;
     }
 
-    run(commandObj) {
+    *run(commandObj) {
         let request = commandObj.arguments[0];
         // ask
         if (!request) {
             this.terminal.ask("Information desired? ");
-            return;
+            request = yield;
         }
 
         // otherwise
