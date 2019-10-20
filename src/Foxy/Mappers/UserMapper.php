@@ -120,7 +120,7 @@ EOT;
         $query = <<<EOT
 UPDATE $this->schema.$this->table
 SET email = :email, username = :username, password = :password, first_name = :firstName, last_name = :lastName, last_login = :lastLogin, avatar_img = :avatarImg, active = :active, token = :token, playtester = :playtester
-WHERE id = :id
+WHERE user_id = :user_id
 LIMIT 1;
 EOT;
         $statement = $this->pdo->prepare($query);
@@ -134,8 +134,8 @@ EOT;
             ":avatarImg" => $user->getAvatarImg(),
             ":active" => (int)$user->getActive(),
             ":token" => $user->getToken(),
-            ":user_id" => $user->getId(),
-            ":playtester" => $user->isPlaytester(),
+            ":user_id" => (int)$user->getId(),
+            ":playtester" => (int)$user->isPlaytester(),
         ];
         $statement->execute($params);
     }
