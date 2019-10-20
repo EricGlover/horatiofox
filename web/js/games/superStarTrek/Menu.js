@@ -12,6 +12,8 @@ import {
     GAME_MODE_FROZEN
 } from './Game.js';
 
+import {LAST_UPDATED_AT} from './superStarTrek.js';
+
 // starting a game
 // choose mode
 // if regular
@@ -54,7 +56,7 @@ export default class Menu {
         this.secretPassword = null;
         this.skipLine(2);
         // tag line
-        this.terminal.$terminal.echo("Latest update- 18 Oct 2019.");
+        this.terminal.$terminal.echo(`Latest update- ${LAST_UPDATED_AT}.`);
         this.skipLine(1);
         // ask mode
         this.ask(
