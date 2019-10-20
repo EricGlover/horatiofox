@@ -195,7 +195,7 @@ class User
     /**
      * @param GameLog $log
      */
-    public function addGameLog(GameLog $log) : void
+    public function addGameLog(GameLog $log): void
     {
         $this->gameLogs[] = $log;
     }

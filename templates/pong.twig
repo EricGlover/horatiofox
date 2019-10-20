@@ -2,46 +2,46 @@
 <html>
 
 <head>
-  <meta charset="utf-8">
-  <title>HoratioFox</title>
-  <meta name="author" content="Eric Glover">
-  <meta name="description" content="Game site">
-  <meta name="viewport" content="width=device-width, initial-scale=1">
+    <meta charset="utf-8">
+    <title>HoratioFox</title>
+    <meta name="author" content="Eric Glover">
+    <meta name="description" content="Game site">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
 
-  <!-- Semantic UI -->
-  <link rel="stylesheet" type="text/css" href="/lib/semantic/semantic.min.css">
-  <script
-  src="https://code.jquery.com/jquery-3.1.1.min.js"
-  integrity="sha256-hVVnYaiADRTO2PzUGmuLJr8BLUSjGIZsDYGmIJLv2b8="
-  crossorigin="anonymous"></script>
-  <script type="text/javascript" src="/lib/semantic/semantic.min.js"></script>
+    <!-- Semantic UI -->
+    <link rel="stylesheet" type="text/css" href="/lib/semantic/semantic.min.css">
+    <script
+            src="https://code.jquery.com/jquery-3.1.1.min.js"
+            integrity="sha256-hVVnYaiADRTO2PzUGmuLJr8BLUSjGIZsDYGmIJLv2b8="
+            crossorigin="anonymous"></script>
+    <script type="text/javascript" src="/lib/semantic/semantic.min.js"></script>
 
-  <link rel="stylesheet" href="/css/index.css">
-  <link rel="stylesheet" href="/css/navbar.css">
-  <!-- TODO::: SETUP THE DEFAULTS FOR MODULES NOT BEING SUPPORTED  -->
-  <!-- IT'S IN THE GOOGLE WEB DEVELOPER GUIDE I THINK -->
-  <script type="module" src="/js/components/Errors.js"></script>
-  <script src="/gamesDir/pong/TemplateData/UnityProgress.js"></script>
-  <script src="/gamesDir/pong/Build/UnityLoader.js"></script>
-  <script>
-    var unityInstance = UnityLoader.instantiate("unityContainer", "/gamesDir/pong/Build/Pong.v1.2.GL.json", {onProgress: UnityProgress});
-  </script>
+    <link rel="stylesheet" href="/css/index.css">
+    <link rel="stylesheet" href="/css/navbar.css">
+    <!-- TODO::: SETUP THE DEFAULTS FOR MODULES NOT BEING SUPPORTED  -->
+    <!-- IT'S IN THE GOOGLE WEB DEVELOPER GUIDE I THINK -->
+    <script type="module" src="/js/components/Errors.js"></script>
+    <script src="/gamesDir/pong/TemplateData/UnityProgress.js"></script>
+    <script src="/gamesDir/pong/Build/UnityLoader.js"></script>
+    <script>
+        var unityInstance = UnityLoader.instantiate("unityContainer", "/gamesDir/pong/Build/Pong.v1.2.GL.json", {onProgress: UnityProgress});
+    </script>
 </head>
 
 <body>
-  {{ include('/partials/navbar.twig') }}
+{{ include('/partials/navbar.twig') }}
 
-  <!-- The Game Container  -->
-  <div class="webgl-content" style="display:flex; flex-flow: column nowrap; align-items: center;">
+<!-- The Game Container  -->
+<div class="webgl-content" style="display:flex; flex-flow: column nowrap; align-items: center;">
     <div id="unityContainer" style="width: 960px; height: 600px"></div>
     <div class="footer">
-      <div class="webgl-logo"></div>
-      <div class="fullscreen" onclick="unityInstance.SetFullscreen(1)"></div>
-      <h5>Controls</h5>
-      <p>WASD and Arrows</p>
-      <h5>Description</h5>
-      <p>Two player mode Pong.</p>
+        <div class="webgl-logo"></div>
+        <div class="fullscreen" onclick="unityInstance.SetFullscreen(1)"></div>
+        <h5>Controls</h5>
+        <p>WASD and Arrows</p>
+        <h5>Description</h5>
+        <p>Two player mode Pong.</p>
     </div>
-  </div>
+</div>
 </body>
 </html>

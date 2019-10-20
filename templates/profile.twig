@@ -112,7 +112,8 @@
                         {% for log in logs %}
                             <div class="item" style="margin-top: 10px;">
                                 <div class="content">
-                                    <div class="header" style="display: flex; justify-content: space-between; align-items: center;">
+                                    <div class="header"
+                                         style="display: flex; justify-content: space-between; align-items: center;">
                                         <b>Score: {{ log.score }}</b>
                                         {% if log.victory %}<span class="ui green basic label mini">Victory</span>
                                         {% else %}<span class="ui red basic label mini">Defeat</span>

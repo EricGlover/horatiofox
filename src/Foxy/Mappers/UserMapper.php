@@ -10,17 +10,17 @@ use Foxy\Entities\User;
 
 class UserMapper
 {
-    /** @var string  */
+    /** @var string */
     private $schema = "horatio_fox";
-    /** @var string  */
+    /** @var string */
     private $table = "user";
 
     /** @var \PDO * */
     private $pdo;
-    /** @var GameLogMapper  */
+    /** @var GameLogMapper */
     private $gameLogMapper;
 
-    /** @var UserMapper  */
+    /** @var UserMapper */
     private static $mapper;
 
     public function __construct(\PDO $pdo, GameLogMapper $scoreMapper)
@@ -29,9 +29,9 @@ class UserMapper
         $this->gameLogMapper = $scoreMapper;
     }
 
-    public static function getUserMapper() : UserMapper
+    public static function getUserMapper(): UserMapper
     {
-        if(!self::$mapper) {
+        if (!self::$mapper) {
             $pdo = DB::getPDO();
             $gameMapper = new GameMapper($pdo);
             $scoreMapper = new GameLogMapper($pdo, $gameMapper);
@@ -110,7 +110,7 @@ EOT;
 
         // create score records (probably none but I'll play it safe)
         /** @var GameLog $log */
-        foreach($user->getGameLogs() as $log) {
+        foreach ($user->getGameLogs() as $log) {
             $this->gameLogMapper->create($log);
         }
     }
@@ -150,7 +150,7 @@ EOT;
 
     private function convertIntoEntity(\stdClass $row): User
     {
-        $user = new User($row->email, $row->password, $row->username, $row->first_name, $row->last_name, $row->avatar_img, false, (bool) $row->playtester);
+        $user = new User($row->email, $row->password, $row->username, $row->first_name, $row->last_name, $row->avatar_img, false, (bool)$row->playtester);
         $user->setId((int)$row->user_id);
         $user->lastLogin = new \DateTime($row->last_login);
         $user->joinedAt = new \DateTime($row->joined_at);

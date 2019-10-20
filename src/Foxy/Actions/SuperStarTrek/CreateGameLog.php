@@ -16,7 +16,7 @@ class CreateGameLog
 {
     public function __invoke(Request $request, Application $app)
     {
-        /** @var User **/
+        /** @var User * */
         $user = $app["user"];
         // get some request vars
         $body = $request->request;
@@ -28,7 +28,7 @@ class CreateGameLog
         $gameMapper = GameMapper::getGameMapper();
         $game = $gameMapper->getGameById($gameId);
 
-        if(empty($game)) {
+        if (empty($game)) {
             return new Response("Game not recognized.", 400);
         }
         // make log

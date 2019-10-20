@@ -1,15 +1,15 @@
 <?php
 
-  declare(strict_types=1);
+declare(strict_types=1);
 
-  namespace Foxy\Email;
+namespace Foxy\Email;
 
 
-  class VerificationEmail
-  {
+class VerificationEmail
+{
 
     public function __construct(User $user)
     {
 
     }
-  }
+}

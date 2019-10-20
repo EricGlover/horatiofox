@@ -26,9 +26,9 @@ class GameLogMapper
         $this->gameMapper = $gameMapper;
     }
 
-    public static function getGameLogMapper() : GameLogMapper
+    public static function getGameLogMapper(): GameLogMapper
     {
-        if(!self::$mapper) {
+        if (!self::$mapper) {
             $pdo = DB::getPDO();
             $gameMapper = new GameMapper($pdo);
             self::$mapper = new GameLogMapper($pdo, $gameMapper);
@@ -36,7 +36,7 @@ class GameLogMapper
         return self::$mapper;
     }
 
-    public function create(GameLog $log) : void
+    public function create(GameLog $log): void
     {
         $query = <<<EOT
 insert into $this->schema.$this->table 
@@ -49,15 +49,15 @@ EOT;
             ":game_id" => $log->getGame()->getId(),
             ":score" => $log->getScore(),
             ":victory" => (int)$log->isVictory()
-            ];
-        if(!$statement->execute($params)){
+        ];
+        if (!$statement->execute($params)) {
             error_log('creating game log failed');
             $code = $statement->errorCode();
             $info = print_r($statement->errorInfo(), true);
             $ex = new \Exception("SQL ERROR : $code. $info");
             throw $ex;
         }
-        $log->setId((int) $this->pdo->lastInsertId());
+        $log->setId((int)$this->pdo->lastInsertId());
     }
 
     /**
@@ -65,7 +65,7 @@ EOT;
      * @return GameLog[]
      * @throws \Exception
      */
-    public function getGameLogsForUser(User $user) : array
+    public function getGameLogsForUser(User $user): array
     {
         /** @var GameLog[] $logs */
         $logs = [];
@@ -86,8 +86,8 @@ EOT;
             $log = $this->convertIntoEntity($result);
             $log->setUser($user);
             // get the game
-            $gameId = (int) $result->game_id;
-            if(!isset($games[$gameId])) {
+            $gameId = (int)$result->game_id;
+            if (!isset($games[$gameId])) {
                 $game = $this->gameMapper->getGameById($gameId);
                 $games[$gameId] = $game;
             }

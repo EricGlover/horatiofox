@@ -23,11 +23,11 @@ class GameLog
     {
         $this->score = $score;
         $this->victory = $victory;
-        if(!$occurredAt) $occurredAt = new \DateTime();
+        if (!$occurredAt) $occurredAt = new \DateTime();
         $this->occurredAt = $occurredAt;
     }
 
-    public static function makeLog(User $user, Game $game, int $score, bool $victory) : GameLog
+    public static function makeLog(User $user, Game $game, int $score, bool $victory): GameLog
     {
         $gameLog = new GameLog($score, $victory);
         $gameLog->user = $user;

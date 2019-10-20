@@ -20,9 +20,9 @@ class GameMapper
         $this->pdo = $pdo;
     }
 
-    public static function getGameMapper() : GameMapper
+    public static function getGameMapper(): GameMapper
     {
-        if(!self::$mapper) {
+        if (!self::$mapper) {
             $pdo = DB::getPDO();
             self::$mapper = new GameMapper($pdo);
         }
@@ -44,7 +44,7 @@ EOT;
             throw $ex;
         }
         $result = $statement->fetch(\PDO::FETCH_OBJ);
-        if(empty($result)) {
+        if (empty($result)) {
             return null;
         }
         return $this->convertIntoEntity($result);
@@ -54,7 +54,7 @@ EOT;
     private function convertIntoEntity(\stdClass $row): Game
     {
         $game = new Game($row->title);
-        $game->setId( $row->game_id);
+        $game->setId($row->game_id);
         return $game;
     }
 }

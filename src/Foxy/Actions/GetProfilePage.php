@@ -24,6 +24,7 @@ class GetProfilePage
         $loggedIn = !empty($user);
         $recentGames = [];
         $highScores = [];
+        $highScoreGameTitles = [];
         if($loggedIn) {
             // sort recent game logs by date
             $recentGames = $user->getGameLogs();

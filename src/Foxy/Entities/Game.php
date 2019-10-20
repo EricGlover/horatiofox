@@ -8,7 +8,7 @@ class Game
 {
     /** @var int */
     private $id;
-    /** @var string  */
+    /** @var string */
     private $title;
 
     public function __construct(string $title)
