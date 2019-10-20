@@ -222,10 +222,10 @@ export class Galaxy {
     getQuadrant(quadrantX, quadrantY) {
         // check bounds
         if (quadrantY < 0 || quadrantY > this.length - 1) {
-            throw new Error(`There is no quadrant ${quadrantX} - ${quadrantY}.`);
+            throw new Error(`There is no quadrant ${quadrantX + 1} - ${quadrantY + 1}.`);
         }
         if (quadrantX < 0 || quadrantX > this.width - 1) {
-            throw new Error(`There is no quadrant ${quadrantX} - ${quadrantY}.`);
+            throw new Error(`There is no quadrant ${quadrantX + 1} - ${quadrantY + 1}.`);
         }
         return this.quadrants[quadrantY][quadrantX];
     }

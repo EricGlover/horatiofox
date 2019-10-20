@@ -44,6 +44,7 @@ export function regexifier(...strings) {
 const INFO_COMMAND = "info";
 const ATTACK_COMMAND = "attack";
 const MOVE_COMMAND = "move";
+const INSTANT_SHIP_COMMAND = "instant ship command";
 
 // what to do for options
 // todo:: make command classes
@@ -58,6 +59,10 @@ class Command {
         this.options = {};
         this.info = "No info.";
         this.type = null;
+    }
+
+    isInstantShipCommand() {
+        return this.type === INSTANT_SHIP_COMMAND;
     }
 
     isInfoCommand() {
@@ -79,6 +84,62 @@ class Command {
 
     makeInfo() {
         // set mnemonic shortest abbrev full name text
+    }
+}
+
+export class WarpFactorCommand extends Command {
+    constructor(terminal, player) {
+        super();
+        this.terminal = terminal;
+        this.player = player;
+        this.abbreviation = "w";
+        this.name = "warp";
+        this.fullName = "Warp Factor";
+        this.regex = regexifier(this.abbreviation, this.name, this.fullName);
+        this.type = INSTANT_SHIP_COMMAND;
+        this.info = `
+  Mnemonic:  WARP
+  Shortest abbreviation:  W
+  Full command:  WARP <number>
+
+Your warp factor controls the speed of your starship.  The larger the
+warp factor, the faster you go and the more energy you use.
+
+Your minimum warp factor is 1.0 and your maximum warp factor is 10.0
+(which is 100 times as fast and uses 1000 times as much energy).  At
+speeds above warp 6 there is some danger of causing damage to your
+warp engines; this damage is larger at higher warp factors and also
+depends on how far you go at that warp factor.
+
+At exactly warp 10 there is some probability of entering a so-called
+"time warp" and being thrown forward or backward in time.  The farther
+you go at warp 10, the greater is the probability of entering the
+time warp.`
+    }
+
+    run(commandObj) {
+        let warpFactor = Number.parseFloat(commandObj.arguments[0]);
+        if(Number.isNaN(warpFactor)) {
+            this.terminal.printLine("Beg your pardon, Captain?");
+            return;
+        }
+        if(warpFactor < 1.0) {
+            this.terminal.printLine(`Helmsman Sulu- "We can't go below warp 1, Captain."`);
+        } else if (warpFactor <= 6.0) {
+            this.terminal.printLine(`Helmsman Sulu- "Warp factor ${warpFactor.toFixed(1)}, Captain."`);
+        } else if (warpFactor < 8.0) {
+            this.terminal.printLine(`Engineer Scott- "Aye, but our maximum safe speed is warp 6."`);
+        } else if (warpFactor >= 8.0 && warpFactor < 10.0) {
+            this.terminal.printLine(`Engineer Scott- "Aye, Captain, but our engines may not take it."`);
+        } else if (warpFactor === 10.0) {
+            this.terminal.printLine(`Engineer Scott- "Aye, Captain, we'll try it."`);
+        } else if (warpFactor > 10.0) {
+            this.terminal.printLine(`Helmsman Sulu- "Our top speed is warp 10, Captain."`);
+        } else {
+            this.terminal.printLine("Beg your pardon, Captain?");
+            return;
+        }
+        this.player.setWarpFactor(warpFactor);
     }
 }
 
@@ -905,7 +966,38 @@ retaliate.`;
     moveTo(sector) {
         // how do they do collisions ?
         // check path for objects
+        // calculate distance, energy required and time expended
+        let distance = Galaxy.calculateDistance(this.player.gameObject.sector, sector);
+        let energy = distance * Math.pow(this.player.warpFactor, 3);
+        if (this.player.shields.up) energy *= 2;
+
+        if(this.player.energy < energy) {
+            /** todo::
+             * Engineering to bridge--
+             We haven't the energy, but we could do it at warp 6,
+             if you'll lower the shields.
+             */
+            this.terminal.printLine('Engineering to bridge--');
+            this.terminal.printLine(`We haven't the energy for that.`);
+            return;
+        }
+
+        let timeRequired = distance / Math.pow(this.player.warpFactor, 2);
+        // if the move takes 80% or greater of the remaining time then warn them
+        let percentOfRemaining = 100 * timeRequired / this.game.timeRemaining;
+        if(percentOfRemaining > 80.0) {
+            // todo::
+            this.terminal.ask(`First Officer Spock- "Captain, I compute that such
+  a trip would require approximately ${percentOfRemaining.toFixed(2)}% of our
+  remaining time.  Are you sure this is wise?"`);
+            this.terminal.printLine();
+
+        }
+
+
         this.player.warpTo(sector);
+
+        this.game.elapseTime(timeRequired);
         // check bounds
         // compute deltaX and deltaY
         // if both === 0 do nothing
@@ -925,7 +1017,7 @@ retaliate.`;
             let destination = this.player.mover.calculateDestination(deltaQx, deltaQy, deltaSx, deltaSy);
             this.moveTo(destination);
         } catch (e) {
-            this.terminal.printLine(`Can't move outside the quadrant!`);
+            this.terminal.printLine(e.message);
             return;
         }
     }
@@ -937,7 +1029,7 @@ retaliate.`;
             let sector = this.galaxy.getSector(quadX, quadY, sectorX, sectorY);
             this.moveTo(sector);
         } catch (e) {
-            this.terminal.printLine(`There is no ${quadX} - ${quadY}, ${sectorX} - ${sectorY}.`)
+            this.terminal.printLine(e.message);
             return;
         }
     }
@@ -1076,7 +1168,7 @@ See REQUEST command for details.`;
      COMMAND> s
      */
     getStatusText() {
-        let date = `Stardate\t${this.game.starDate}`
+        let date = `Stardate\t${this.game.starDate.toFixed(1)}`
         let condition = `Condition\t${this.player.printCondition()}`;
 
         let playerQuad = this.player.gameObject.quadrant;
@@ -1084,12 +1176,12 @@ See REQUEST command for details.`;
         let hullIntegrity = `Hull Integrity\t${this.player.collider.health.toFixed(2)}`
         let position = `Position\t${playerQuad.x + 1} - ${playerQuad.y + 1}, ${playerSector.x + 1} - ${playerSector.y + 1}`;
         let lifeSupport = `Life Support\t${this.player.hasLifeSupport() ? 'ACTIVE' : 'FAILED'}`;
-        let warpFactor = `Warp Factor\t${this.player.warpFactor}`;
+        let warpFactor = `Warp Factor\t${this.player.warpFactor.toFixed(1)}`;
         let energy = `Energy\t\t${this.player.energy.toFixed(2)}`;
         let torpedoes = `Torpedoes\t${this.player.photons.getTorpedoCount()}`;
         let shields = `Shields\t\t${this.player.shields.printInfo()}`;
         let klingonsRemaining = `Klingons Left\t${this.galaxy.container.getCountOfGameObjects(AbstractKlingon)}`;
-        let timeLeft = `Time Left\t${this.game.daysRemaining}`;
+        let timeLeft = `Time Left\t${this.game.timeRemaining.toFixed(2)}`;
         return [
             date,
             condition,
@@ -1149,9 +1241,8 @@ the [STATUS] command.  [ITEM] specifies which information as follows:
         let request = commandObj.arguments[0];
         // ask
         if (!request) {
-            commandObj.ps = "Information desired? ";
-            commandObj.next = this.name;
-            return commandObj;
+            this.terminal.ask("Information desired? ");
+            return;
         }
 
         // otherwise

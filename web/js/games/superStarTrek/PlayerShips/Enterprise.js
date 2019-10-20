@@ -87,13 +87,32 @@ export default class Enterprise {
         this.mover.moveToSector(sector);
     }
 
+    setWarpFactor(warpFactor) {
+        if(typeof warpFactor !== "number" || Number.isNaN(warpFactor)) {
+            return;
+        } else if (warpFactor < 1.0 || warpFactor > 10.0) {
+            return;
+        }
+        this.warpFactor = warpFactor;
+    }
+
     warpTo(sector) {
         if (!sector instanceof Sector) {
             throw new Error("Can't move there");
         }
         if(this.docked) this.undock();
-        // calculate resources needed
+
+        // calculate distance, and energy required
+        let distance = Galaxy.calculateDistance(this.gameObject.sector, sector);
+        let energy = distance * Math.pow(this.warpFactor, 3);
+        if(this.shields.up) energy *= 2;
+
+        if(this.energy < energy) {
+            throw new Error("Not enough energy.");
+        }
+
         this.mover.moveToSector(sector);
+        this.useEnergy(energy);
     }
 
     hasLifeSupport() {

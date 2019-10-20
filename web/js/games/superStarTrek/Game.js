@@ -28,6 +28,7 @@ import {
 } from "./commands.js";
 
 import {DEBUG} from './superStarTrek.js';
+import {WarpFactorCommand} from "./commands";
 
 
 /** Game length options **/
@@ -105,8 +106,9 @@ export default class Game {
 
         // defaults for testing
         this.length = GAME_LENGTH_SHORT;
-        this.starDate = 'todo';
-        this.daysRemaining = this.length * 7;
+        this.initialStarDate = 100.0 * (31.0 * Math.random() + 20.0);
+        this.starDate = this.initialStarDate;
+        this.timeRemaining = 7;
         this.skill = SKILL_NOVICE;
         this.secretPassword = null;
 
@@ -120,6 +122,30 @@ export default class Game {
         this.initialSuperCommands = null;
         this.initialRomulans = null;
         this.fallenFoes = [];
+
+        this.federationPowerRemaining = null;
+    }
+
+    calculateKlingonStrength() {
+        let remainingKlingons = this.galaxy.container.getCountOfGameObjects(Klingon);
+        let remainingCommanders = this.galaxy.container.getCountOfGameObjects(KlingonCommander);
+        return remainingKlingons + (remainingCommanders * 4);
+    }
+
+    decrementFederationPower(timePassed) {
+        this.federationPowerRemaining -= timePassed * this.calculateKlingonStrength();
+    }
+
+    recalculateTimeRemaining() {
+        // resources is the way that federation power is tracked
+        // given the enemy strength federation power will be exhausted by the end of the remaining time
+        this.timeRemaining = this.federationPowerRemaining / this.calculateKlingonStrength();
+    }
+
+    elapseTime(days) {
+        this.starDate += days;
+        this.decrementFederationPower(days);
+        this.recalculateTimeRemaining();
     }
 
     calculateScore() {
@@ -196,6 +222,11 @@ export default class Game {
         /// make our moveable object (klingons, klingonCommanders, Romulans)
         this.makeEnemies();
 
+        // set time remaining, and federation power
+        //
+        this.timeRemaining = 7 * this.length;
+        this.federationPowerRemaining = this.calculateKlingonStrength() * this.timeRemaining;
+
         // technically this should be last so we can't have users trying to do stuff
         this.registerCommands();
         this.loop();
@@ -212,10 +243,13 @@ export default class Game {
 
         let baseStr = sbq.join("   ");
         // change terminal settings
-        let startText = `The Federation is being attacked by
+        let startText = `It is stardate ${this.starDate.toFixed(0)}. Federation is being attacked by
 a deadly Klingon invasion force. As captain of the United
 Starship U.S.S. Enterprise, it is your mission to seek out
 and destroy this invasion force of ${this.numberOfKlingons} klingons.
+
+The Klingons will overpower the Federation in ${this.timeRemaining} days, every Klingon you destroy will 
+weaken this invasion force and buy us more time.
 
 You will have ${starBases.length} supporting starbases.
 Starbase locations-   ${baseStr}
@@ -254,9 +288,10 @@ Good Luck!
             let inCombat = false;
             while(userTurn && !this.isVictory() && !this.isDefeat()) {
                 let {command, commandObj} = await this.getUserCommand();
+                // when does the command run ?
 
-                // info commands never consume a turn
-                if(command.isInfoCommand()) {
+                // info commands and instant ship commands (like scan or set warp) never consume a turn
+                if(command.isInfoCommand() || command.isInstantShipCommand()) {
                     continue;
                 }
                 inCombat = this.isInCombat();
@@ -352,6 +387,7 @@ Good Luck!
         this.commands.push(new PhotonsCommand(this, this.terminal, this.player));
         this.commands.push(new ReportCommand(this, this.terminal, this.galaxy, this.player));
         this.commands.push(new ScoreCommand(this, this.terminal, this.player));
+        this.commands.push(new WarpFactorCommand(this.terminal, this.player));
     }
 
     // register all our commands with our terminal,
@@ -364,6 +400,11 @@ Good Luck!
             this.terminal.$terminal.register("command", {
                 name: command.name,
                 method:  commandObj => {
+                    // if(this.terminal.questionMode) {
+                    //     this.terminal.questionMode = false;
+                    //     this.terminal.answer();
+                    // }
+
                     // get arguments
                     let input = this.terminal.$terminal.get_input();
                     let args = input.replace(command.regex, "");
@@ -371,8 +412,13 @@ Good Luck!
                     commandObj.input = input;
                     commandObj.argumentStr = args;
                     commandObj.arguments = args.split(/\s/).filter(str => str.length > 0);
+                    //todo:: change this a bit to support question mode
                     commandObj = this.runCommand(command.name, commandObj) || {};
                     commandObj.out = this.terminal.getOutput();
+                    if(this.terminal.questionMode) {
+                        commandObj.ps = this.terminal.question;
+                        commandObj.next = command.name;
+                    }
                     this.terminal.clear();
                     return commandObj;
                 },

@@ -3,6 +3,8 @@ class Terminal {
         this.$terminal = null;
         this._out = "";
         this.silent = true;
+        this.questionMode = false;
+        this.question = "";
     }
 
     echo(str) {
@@ -40,6 +42,14 @@ class Terminal {
         if(this.silent) return;
         this.$terminal.echo(this._out);
         this._out = "";
+    }
+
+    ask(question) {
+        this.questionMode = true;
+        this.question = question;
+    }
+    answer() {
+        this.questionResolution(this.$terminal.get_input());
     }
 
     /**
