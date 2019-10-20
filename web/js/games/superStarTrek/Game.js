@@ -278,6 +278,7 @@ Good Luck!
                         userTurn = false;
                     }
                 } else {    // if not in combat then keep going I guess ?
+                    hasMovedInCombat = false;
                     continue;
                 }
             }
