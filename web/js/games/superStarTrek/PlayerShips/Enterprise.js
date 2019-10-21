@@ -13,7 +13,7 @@ export default class Enterprise {
         this.energyCapacity = 3000.0;
         this.gameObject = new GameObject(this);
         this.mover = new Mover(this, this.gameObject);
-        this.maxHullIntegrity = 700;
+        this.maxHullIntegrity = 1500;
         this.collider = new Collider(this, this.gameObject, 80, 80, this.maxHullIntegrity);
         this.energy = this.energyCapacity;
         this.phasers = new Phasers(this);

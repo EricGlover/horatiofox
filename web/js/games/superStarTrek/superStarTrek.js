@@ -10,7 +10,7 @@ import Menu from "./Menu.js";
 import {terminal} from './Terminal.js';
 import Tests from './Tests.js';
 
-export const DEBUG = false;
+export const DEBUG = true;
 const RUN_TESTS = false;
 export const LAST_UPDATED_AT = "Oct 10 2019";
 

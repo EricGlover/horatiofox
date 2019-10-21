@@ -85,7 +85,9 @@ export class Shields extends Device {
             e = this.capacity - this.units;
         }
         this.units += e;
-        return e;
+        if(this.units === this.capacity) {
+            this.terminal.printLine("Shields at max.");
+        }
     }
 
     takeHit(amount) {
@@ -272,8 +274,6 @@ export class PhotonTorpedoLauncher extends Device {
         let deltaX = x - this.parent.gameObject.x;
         let deltaY = -1 * (y - this.parent.gameObject.y);
         let theta = Math.atan2(deltaY, deltaX);    // -PI , PI
-        // debugger;
-        console.log(deltaX, deltaY);
 
         //
         let moveGenerator = torpedo.mover.moveInDirection(theta, .5, Math.hypot(deltaX, deltaY));

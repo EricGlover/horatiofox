@@ -120,11 +120,11 @@ time warp.`
 
     run(commandObj) {
         let warpFactor = Number.parseFloat(commandObj.arguments[0]);
-        if(Number.isNaN(warpFactor)) {
+        if (Number.isNaN(warpFactor)) {
             this.terminal.printLine("Beg your pardon, Captain?");
             return;
         }
-        if(warpFactor < 1.0) {
+        if (warpFactor < 1.0) {
             this.terminal.printLine(`Helmsman Sulu- "We can't go below warp 1, Captain."`);
         } else if (warpFactor <= 6.0) {
             this.terminal.printLine(`Helmsman Sulu- "Warp factor ${warpFactor.toFixed(1)}, Captain."`);
@@ -178,7 +178,11 @@ general idea of how well you are performing.
         let romulanScore = killedRomulans * 20;
         score += kScore + cScore + scScore + romulanScore;
 
-        // let klingonsPerDate =
+        let timeElapsed = this.game.starDate - this.game.initialStarDate;
+        if (timeElapsed === 0) timeElapsed = 1;
+        let klingonsPerDate = killedKlingonsAll / timeElapsed;
+        let kPerDateScore = klingonsPerDate * 500;
+        score += kPerDateScore;
 
         let lineLength = 60;
         this.terminal.printLine('Your score --');
@@ -187,6 +191,7 @@ general idea of how well you are performing.
         this.terminal.printLine(`${killedKlingons} Klingon war birds destroyed`.padEnd(lineLength, ' ') + kScore);
         this.terminal.printLine(`${killedCommanders} Klingon Commander ships destroyed`.padEnd(lineLength, ' ') + cScore);
         this.terminal.printLine(`${killedSuperCommanders} Klingon Super Commander ships destroyed`.padEnd(lineLength) + scScore);
+        this.terminal.printLine(`${klingonsPerDate.toFixed(2)} Klingons per stardate`.padEnd(lineLength) + kPerDateScore);
         // victory adds 100 * skill
         if (this.game.isVictory()) {
             let v = this.game.skill * 100;
@@ -384,7 +389,6 @@ inclusive.
         // coordinate system changes incoming .....
         targets.forEach((target, i) => {
             this.terminal.echo(`\nTrack for torpedo number ${i + 1}:  `);
-            this.terminal.echo(`targeting ${target.x} - ${target.y}`)
             this.player.photons.fire(target.x, target.y)
         });
     }
@@ -616,7 +620,8 @@ export class ShieldsCommand extends Command {
   Shortest abbreviation:  SH
   Full commands:  SHIELDS UP
                   SHIELDS DOWN
-                  SHIELDS TRANSFER <amount of energy to transfer>
+                  SHIELDS CHARGE <amount of energy to put into the shields>
+                  SHIELDS DRAIN  <amount of energy to take from the shields>
 
 Your deflector shields are a defensive device to protect you from
 Klingon attacks (and nearby novas).  As the shields protect you, they
@@ -660,107 +665,91 @@ are up) and have essentially the same effect as phaser hits.`;
     getMode(arg) {
         let upOption = optionRegexifier("up", "u");
         let downOption = optionRegexifier("down", "d");
-        let transferOption = optionRegexifier("transfer", "t");
+        let drainOption = optionRegexifier("drain", "dr");
+        let chargeOption = optionRegexifier("charge", "c");
 
         return {
             up: upOption.test(arg),
             down: downOption.test(arg),
-            transfer: transferOption.test(arg)
+            drain: drainOption.test(arg),
+            charge: chargeOption.test(arg)
         };
     }
 
     run(commandObj) {
         // get mode : up/down or transfer
-        let {up, down, transfer} = this.getMode(commandObj.arguments[0]);
+        let {up, down, charge, drain} = this.getMode(commandObj.arguments[0]);
+
+        if(!up && !down && !charge && !drain) {
+            this.terminal.printLine("Beg pardon, Captain?");
+            this.terminal.printLine("Valid options are : 'up', 'down', 'charge', or 'drain'.");
+            return;
+        }
 
         if (up) {
             this.player.shieldsUp();
         } else if (down) {
             this.player.shieldsDown();
-        } else if (transfer) {
-            //todo::: this is all fucked up
-            if (!DEBUG) {
-                this.terminal.echo("Sorry not implemented yet.");
-                return;
-            }
-
+        } else if (charge || drain) {
+            let playerShields = this.player.shields;
             // get the amount to transfer
             let amount = commandObj.arguments[1];
             amount = Number.parseInt(amount);
             if (Number.isNaN(amount)) {
                 // parse error
-                this.terminal(`${amount} is an gibberish amount to transfer captain.`);
-            }
-            // check that you can do the transfer
-            if (this.player.shields.isDamaged()) {
-                this.terminal.echo("Shields damaged.");
-            }
-
-            let shipEnergy = this.player.energy - amount;
-            let shieldEnergy = this.player.shields.units + amount;
-
-            if (amount > 0) {
-                this.terminal.echo("Transferring energy to shields.\n");
-            } else if (amount < 0) {
-                this.terminal.echo("Draining shields.\n");
-            } else {
-                this.terminal.echo("Transferring nothing to or from shields. Good work captain.\n");
+                this.terminal.printLine(`${amount} is an gibberish amount to transfer captain.`);
+                return;
+            } else if (amount === 0) {
+                this.terminal.printLine("Beg pardon Captain?");
                 return;
             }
-            // check the ship side of the transfer
-            if (shipEnergy > this.player.energyCapacity) {
-                // only draw what we can hold
-                amount = this.player.energyCapacity - this.player.energy;
-                shieldEnergy = this.player.shields.units + amount;
-                this.terminal.echo("Ship energy maximized.\nExcess energy return to the shields.\n");
-            } else if (shipEnergy < 0) {
-                // we don't have that amount, transfer all that we have
-                amount = this.player.energy;
-                shieldEnergy = this.player.shields.units + amount;
-                this.terminal.echo(`Engineering to bridge--\nScott here. Power circuit problem, Captain.\nI can't drain the shields.`);
-            } else if (shipEnergy === 0) {
-                // is this a problem ?
-                this.terminal.echo("Ship energy down to 0!\n");
+            // check that you can do the transfer
+            if (playerShields.isDamaged()) {
+                this.terminal.echo("Shields damaged.");
+                return;
             }
+            if(charge) {
+                // need the energy
+                if (this.player.energy < amount) {
+                    this.terminal.printLine("Not enough energy, Captain.");
+                    return;
+                }
+                // ignore if shields at max
+                if (playerShields.units === playerShields.capacity) {
+                    this.terminal.printLine("Shields already at max, Captain.");
+                    return;
+                }
 
-            // check the shields side of the transfer
-            if (shieldEnergy > this.player.shields.capacity) {
-                // only transfer what we can hold
-                amount = this.player.shields.capacity - this.player.shields.units;
-                shipEnergy = this.player.energy - amount;
-                this.terminal.echo("Excess energy returned to ship energy.\n");
-            } else if (shieldEnergy < 0) {
-                // we can't drain that much, drain only what we have
-                amount = this.player.shields.units;
-                shipEnergy = this.player.energy - amount;
-                this.terminal.echo(`Engineering to bridge--\nScott here. Power circuit problem, Captain.\nI can't drain the shields.\n`);
-            } else if (shieldEnergy === 0) {
-                // this works
-                this.terminal.echo("Shields drained to 0, shields down.\n");
-            }
+                // don't overflow
+                let sh = playerShields.units + amount;
+                if (sh > playerShields.capacity) {
+                    amount = playerShields.capacity - playerShields.units;
+                }
 
-            // do transfer
-            // this.player.energy = shipEnergy;
-            // this.player.shields.energy = shieldEnergy;
-            this.player.shields.transferEnergy(amount);
-            this.player.energy -= amount;
+                // do the transfer
+                this.terminal.printLine("Charging shields.");
+                this.player.useEnergy(amount);
+                playerShields.charge(amount);
+            } else if (drain) {
+                // check shield energy
+                if(amount > playerShields.units) {
+                    this.terminal.printLine("Not enough energy in shields. Draining what we have.");
+                    amount = playerShields.units;
+                }
+                // check ship energy not already maxed out
+                if(this.player.energy === this.player.energyCapacity) {
+                    this.terminal.printLine("Ship energy already at max.");
+                    return;
+                }
+                // check that we don't exceed ship energy capacity
+                if(this.player.energy + amount > this.player.energyCapacity) {
+                    this.terminal.printLine("That would exceed our ship energy capacity. Setting ship energy to maximum.");
+                    amount = this.player.energyCapacity - this.player.energy;
+                }
 
-            //
-            if (this.player.shields.units === this.player.shields.capacity) {
-                this.terminal.echo("Shields maximized.\n");
+                playerShields.drain(amount);
+                this.player.addEnergy(amount);
             }
-            // todo:: add the responses from Scotty
-        } else if (!up && !down && !transfer) {
-            // arg not provided, ask them questions
-            // ask Do you wish to change shield energy?
-            // if no , ask
-            if (false) {
-                let t = this.player.shields.up ? "up" : "down";
-                let t2 = this.player.shields.up ? "down" : "up";
-                let q2 = `Shields are ${t}. Do you want them ${t2}?`;
-            }
-        } else {
-            // arg is provided but not recognized
         }
         return commandObj;
     }
@@ -965,7 +954,7 @@ command.  This enables you to move and hit them before they
 retaliate.`;
     }
 
-    *moveTo(sector) {
+    * moveTo(sector) {
         // how do they do collisions ?
         // check path for objects
         // calculate distance, energy required and time expended
@@ -973,7 +962,7 @@ retaliate.`;
         let energy = .1 * distance * Math.pow(this.player.warpFactor, 3);
         if (this.player.shields.up) energy *= 2;
 
-        if(this.player.energy < energy) {
+        if (this.player.energy < energy) {
             /** todo::
              * Engineering to bridge--
              We haven't the energy, but we could do it at warp 6,
@@ -987,13 +976,13 @@ retaliate.`;
         let timeRequired = distance / Math.pow(this.player.warpFactor, 2);
         // if the move takes 80% or greater of the remaining time then warn them
         let percentOfRemaining = 100 * timeRequired / this.game.timeRemaining;
-        if(percentOfRemaining > 80.0) {
+        if (percentOfRemaining > 80.0) {
             // todo::
             this.terminal.ask(`First Officer Spock- "Captain, I compute that such
   a trip would require approximately ${percentOfRemaining.toFixed(2)}% of our
   remaining time.  Are you sure this is wise?"`);
             let response = yield;
-            if(/(yes|y)/i.test(response)){
+            if (/(yes|y)/i.test(response)) {
                 this.terminal.printLine("To boldly go...");
             } else if (/(no|n)/i.test(response)) {
                 this.terminal.printLine("Cancelling move.");
@@ -1018,12 +1007,12 @@ retaliate.`;
     }
 
     // manual mode
-    *manual(deltaQx, deltaQy, deltaSx, deltaSy) {
+    * manual(deltaQx, deltaQy, deltaSx, deltaSy) {
         // calculate the destination
         try {
             let destination = this.player.mover.calculateDestination(deltaQx, deltaQy, deltaSx, deltaSy);
             let iter = this.moveTo(destination);
-            if(!iter.next().done) {
+            if (!iter.next().done) {
                 let response = yield;
                 iter.next(response);
             }
@@ -1034,12 +1023,12 @@ retaliate.`;
     }
 
     // automatic mode
-    *automatic(quadX, quadY, sectorX, sectorY) {
+    * automatic(quadX, quadY, sectorX, sectorY) {
         try {
             // get sector
             let sector = this.galaxy.getSector(quadX, quadY, sectorX, sectorY);
             let iter = this.moveTo(sector);
-            if(!iter.next().done) {
+            if (!iter.next().done) {
                 let response = yield;
                 iter.next(response);
             }
@@ -1049,7 +1038,7 @@ retaliate.`;
         }
     }
 
-    *run(commandObj) {
+    * run(commandObj) {
         // modes : manual and automatic
         let manual = true;
         let automatic = false;
@@ -1086,7 +1075,7 @@ retaliate.`;
             let deltaSy = Math.trunc((argY * 10) % 10);
             // todo:: check bounds
             let iter = this.manual(deltaQx, deltaQy, deltaSx, deltaSy);
-            if(!iter.next().done) {
+            if (!iter.next().done) {
                 let response = yield;
                 iter.next(response);
             }
@@ -1100,14 +1089,14 @@ retaliate.`;
             // to the 0 based coordinates
             if (args.length === 4) {
                 let iter = this.automatic(args[0] - 1, args[1] - 1, args[2] - 1, args[3] - 1);
-                if(!iter.next().done) {
+                if (!iter.next().done) {
                     let response = yield;
                     iter.next(response);
                 }
             } else if (args.length === 2) {
                 let quadrant = this.player.gameObject.quadrant;
                 let iter = this.automatic(quadrant.x, quadrant.y, args[0] - 1, args[1] - 1);
-                if(!iter.next().done) {
+                if (!iter.next().done) {
                     let response = yield;
                     iter.next(response);
                 }
@@ -1265,7 +1254,7 @@ the [STATUS] command.  [ITEM] specifies which information as follows:
  TIME LEFT             TIME                                TI`;
     }
 
-    *run(commandObj) {
+    * run(commandObj) {
         let request = commandObj.arguments[0];
         // ask
         if (!request) {

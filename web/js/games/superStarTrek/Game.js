@@ -157,6 +157,11 @@ export default class Game {
         let score = killedKlingons * 10 + killedCommanders * 50 + killedSuperCommanders * 200;
         score += killedRomulans * 20;
 
+        let timeElapsed = this.starDate - this.initialStarDate;
+        if(timeElapsed === 0) timeElapsed = 1;
+        let klingonsPerDate = killedKlingonsAll / timeElapsed;
+        score += klingonsPerDate * 500;
+
         // victory adds 100 * skill
         if(this.isVictory()) {
             score += this.skill * 100;
@@ -282,12 +287,16 @@ Good Luck!
             let inCombat = false;
             while(userTurn && !this.isVictory() && !this.isDefeat()) {
                 let {command, commandObj} = await this.terminal.runUserCommand();
+                debugger;
                 // when does the command run ?
 
                 // info commands and instant ship commands (like scan or set warp) never consume a turn
                 if(command.isInfoCommand() || command.isInstantShipCommand()) {
                     continue;
                 }
+                // update time remaining in case the balance of power has shifted
+                this.recalculateTimeRemaining();
+
                 inCombat = this.isInCombat();
                 // don't let the ai shoot us when we don't let them shoot us immediately
                 justArrivedIntoCombat = inCombat && !wasInCombat;
@@ -337,12 +346,19 @@ Good Luck!
         // show end game screen
         if(victory) {
             this.terminal.printLine("You win!");
+            this.terminal.printLine(`It is stardate ${this.starDate.toFixed(1)}.`);
             this.terminal.print();
         } else if (defeat) {
             this.terminal.printLine("You lose...");
+            this.terminal.printLine(`It is stardate ${this.starDate.toFixed(1)}.`);
             if(this.timeRemaining <= 0) {
                 this.terminal.printLine(`Your time has run out and the Federation has been conquered.
 With your starship confiscated by the Klingon High Command, you relocate to a mining facility and learn to love gagh.`);
+            } else if (this.player.isDead()) {
+                this.terminal.printLine(`The Enterprise has been destroyed in battle.`);
+                this.terminal.skipLine();
+                this.terminal.printLine(`Dulce et decorum est pro patria mori.\nThe Federation will be destroyed.`);
+                this.terminal.skipLine();
             }
             this.terminal.print();
         }

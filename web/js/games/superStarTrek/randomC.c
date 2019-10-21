@@ -2,6 +2,35 @@
 #define RAND_MAX 32767
 #endif
 
+/* a critical hit occured */
+	if (hit < (275.0-25.0*skill)*(1.0+0.5*Rand())) return;
+
+	ncrit = 1.0 + hit/(500.0+100.0*Rand());
+	proutn("***CRITICAL HIT--");
+	/* Select devices and cause damage */
+	for (l = 1; l <= ncrit; l++) {
+		do {
+			j = ndevice*Rand()+1.0;
+			/* Cheat to prevent shuttle damage unless on ship */
+		} while (damage[j] < 0.0 || (j == DSHUTTL && iscraft != 1) ||
+#ifdef CLOAKING
+				 (j == DCLOAK && ship != IHE) ||
+#endif
+				 j == DDRAY);
+		cdam[l] = j;
+		extradm = (hit*damfac)/(ncrit*(75.0+25.0*Rand()));
+		damage[j] += extradm;
+		if (l > 1) {
+			for (ll=2; ll<=l && j != cdam[ll-1]; ll++) ;
+			if (ll<=l) continue;
+			ktr += 1;
+			if (ktr==3) skip(1);
+			proutn(" and ");
+		}
+		proutn(device[j]);
+	}
+	prout(" damaged.");
+
 
 iscore = 10*d.killk + 50*d.killc + ithperd + iwon
 			 - 100*d.basekl - 100*klship - 45*nhelp -5*d.starkl - casual

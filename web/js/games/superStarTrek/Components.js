@@ -82,11 +82,31 @@ export class Collider {
         return false;
     }
 
+    isCriticalAmountOfDamage(damage) {
+        let skill = 1;
+        let amount = 275.0 - (25.0 * skill);
+        amount *= Math.random() * .5;
+        return damage > amount;
+    }
+
     takeHit(damage) {
         if (this._indestructible) {
             this.terminal.printLine(`Consumed by ${this.gameObject.name} at ${this.gameObject.getSectorLocation()}`)
             return;
         }
+
+        // is critcal ?
+        if(false && this.isCriticalAmountOfDamage(damage)) {
+            if(this.parent.devices) {
+                let devicesToDamage = 1 + (damage / (500 + 100 * Math.random()));
+                // get random device
+                let device;
+                // extradm = (hit*damfac)/(ncrit*(75.0+25.0*Rand()));
+
+            }
+        }
+
+
         this.health -= damage;
         this.terminal.printLine(`${damage.toFixed(2)} unit hit on ${this.gameObject.name} at ${this.gameObject.getSectorLocation()}`)
         if (this.health < 0) {
