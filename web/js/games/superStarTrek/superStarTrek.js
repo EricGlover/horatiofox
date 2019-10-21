@@ -12,7 +12,7 @@ import Tests from './Tests.js';
 
 export const DEBUG = false;
 const RUN_TESTS = false;
-export const LAST_UPDATED_AT = "Oct 10 2019";
+export const LAST_UPDATED_AT = "Oct 20 2019";
 
 $(document).ready(function () {
     let nav = new Navbar();
