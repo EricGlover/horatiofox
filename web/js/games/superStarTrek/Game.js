@@ -287,7 +287,6 @@ Good Luck!
             let inCombat = false;
             while(userTurn && !this.isVictory() && !this.isDefeat()) {
                 let {command, commandObj} = await this.terminal.runUserCommand();
-                debugger;
                 // when does the command run ?
 
                 // info commands and instant ship commands (like scan or set warp) never consume a turn
