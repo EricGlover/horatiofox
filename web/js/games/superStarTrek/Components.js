@@ -1,14 +1,24 @@
 // game objects and containers work together
 // is something that can contain game objects
 import {terminal} from "./Terminal.js";
+import {DEVICE_DAMAGE_ENABLED} from "./Game.js";
 
+let colliderMaxHitToDamageDevices = 275.0;
+let colliderMinHitToDamageDevices = 75.0;
+
+
+export class Component {
+    constructor(propName, parent) {
+        this.parent = parent;
+        this.parent[propName] = this;
+    }
+}
 
 // can collide into other colliders
 // width and height are in units 1/100 * sector width
-export class Collider {
+export class Collider extends Component {
     constructor(parent, gameObject, width = 0, length = 0, health = 1) {
-        this.parent = parent;
-        this.parent.collider = this;
+        super("collider", parent);
         this.health = health;
         this.terminal = terminal;
         this.width = width;
@@ -82,11 +92,9 @@ export class Collider {
         return false;
     }
 
-    isCriticalAmountOfDamage(damage) {
-        let skill = 1;
-        let amount = 275.0 - (25.0 * skill);
-        amount *= Math.random() * .5;
-        return damage > amount;
+    hitWillDamageDevices(damage) {
+        let threshold = Math.random() * (colliderMaxHitToDamageDevices - colliderMinHitToDamageDevices) + colliderMinHitToDamageDevices;
+        return damage > threshold;
     }
 
     takeHit(damage) {
@@ -96,13 +104,11 @@ export class Collider {
         }
 
         // is critcal ?
-        if(false && this.isCriticalAmountOfDamage(damage)) {
+        if(DEVICE_DAMAGE_ENABLED && this.hitWillDamageDevices(damage)) {
             if(this.parent.devices) {
-                let devicesToDamage = 1 + (damage / (500 + 100 * Math.random()));
-                // get random device
-                let device;
-                // extradm = (hit*damfac)/(ncrit*(75.0+25.0*Rand()));
-
+                // determine amount of damage (for moment just the original damage)
+                let deviceDamage = damage / (75.0 * (25 * Math.random()));
+                this.parent.devices.damageRandomDevices(deviceDamage);
             }
         }
 
@@ -120,9 +126,9 @@ export class Collider {
 }
 
 // things that can move
-export class Mover {
+export class Mover extends Component {
     constructor(parent, gameObject) {
-        this.parent = parent;
+        super("mover", parent);
         this.gameObject = gameObject;
     }
 
@@ -222,10 +228,9 @@ export class Mover {
 }
 
 // a thing that holds game objects
-export class GameObjectContainer {
+export class GameObjectContainer extends Component {
     constructor(parent) {
-        this.parent = parent;
-        this.parent.container = this;
+        super("container", parent);
         this.gameObjects = [];
     }
 
@@ -259,10 +264,9 @@ export class GameObjectContainer {
 
 // a game object is simply a thing with a position in
 // the game
-export class GameObject {
+export class GameObject  extends  Component {
     constructor(parent, takesWholeSector = false) {
-        this.parent = parent;
-        this.parent.gameObject = this;
+        super("gameObject", parent);
         this.galaxy = null;
         this.quadrant = null;
         this.sector = null;

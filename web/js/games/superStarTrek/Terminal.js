@@ -173,7 +173,7 @@ class Terminal {
                 return carry > d.length ? carry : d.length;
             }, 0);
             return l > l2 ? l : l2;
-        }, 0)
+        }, 0);
         if (columnWidth === null) {
             columnWidth = longest;
         }

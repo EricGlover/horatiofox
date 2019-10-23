@@ -1,7 +1,13 @@
 import {GameObject, Mover, Collider} from "../Components.js";
 import {AbstractEnemy} from "../Enemies/Enemies.js";
 import {Sector} from '../Galaxy.js';
-import {Phasers, Shields, PhotonTorpedoLauncher} from "../Devices.js";
+import {Device,
+    Phasers,
+    Shields,
+    PhotonTorpedoLauncher,
+    DeviceContainer,
+    PowerGrid
+} from "../Devices.js";
 
 const CONDITION_GREEN = 1;
 const CONDITION_YELLOW = 2;
@@ -10,22 +16,44 @@ const CONDITION_DOCKED = 4;
 
 export default class Enterprise {
     constructor(terminal) {
-        this.energyCapacity = 3000.0;
         this.gameObject = new GameObject(this);
         this.mover = new Mover(this, this.gameObject);
+        this.deviceContainer = new DeviceContainer(this);
+        this.powerGrid = new PowerGrid(3000.0, this);
+        this.energyCapacity = 3000.0;
+        this.energy = this.energyCapacity;
+
         this.maxHullIntegrity = 1500;
         this.collider = new Collider(this, this.gameObject, 80, 80, this.maxHullIntegrity);
-        this.energy = this.energyCapacity;
-        this.phasers = new Phasers(this);
+
         this.warpFactor = 5.0;
-        this.photons = new PhotonTorpedoLauncher(this, 10, 10);
-        this.shields = new Shields(this);
-        this.shields.raise();
+
         this.docked = false;
         this.dockedAt = null;
         this.name = "Enterprise";
         this.dead = false;
         this.terminal = terminal;
+
+        // devices
+        this.phasers = new Phasers(this, this.powerGrid);
+
+        this.photons = new PhotonTorpedoLauncher(this, 10, 10);
+        this.shields = new Shields(this, 2500, this.powerGrid);
+        this.shields.raise();
+
+        this.shortRangeSensors = new Device(this, "Short Range Sensors");
+        this.longRangeSensors = new Device(this, "Long Range Sensors");
+        this.lifeSupport = new Device(this, "Life Support");
+        this.warpEngines = new Device(this, "Warp Engines");
+        this.impulseEngines = new Device(this, "Impulse Engines");
+        this.subspaceRadio = new Device(this, "Subspace Radio");
+        this.shuttleCraft = new Device(this, "Shuttle Craft");
+        this.computer = new Device(this, "Computer");
+        this.transporter = new Device(this, "Transporter");
+        this.shieldControl = new Device(this, "Shield Control");
+        this.transporter = new Device(this, "Transporter");
+        this.probesLauncher = new Device(this, "Probe Launcher");
+        window.e = this;
     }
 
     isDead() {
@@ -38,22 +66,13 @@ export default class Enterprise {
         this.gameObject.removeSelf();
     }
 
-    firePhasersMultiTarget(targets, leaveShieldsDown = false) {
-        // fast shield control ?
-        if (this.shields.up) {
-            // do fast shield control
-            // lower shields
-            if (!leaveShieldsDown) {
-                // raise shields
-            }
-        }
+    firePhasersMultiTarget(targets) {
         let totalToFire = targets.reduce((carry, entry) => carry + entry.amount, 0);
         if (totalToFire > this.energy) {
-            // no
-            debugger;
+            throw new Error("Not enough energy.");
         }
         // expend energy
-        this.useEnergy(totalToFire);
+        this.powerGrid.useEnergy(totalToFire);
         targets.forEach(entry => {
             this.phasers.fire(entry.amount, entry.enemy)
         });
@@ -69,7 +88,7 @@ export default class Enterprise {
         if (this.docked) {
             return;
         }
-        this.energy = this.energyCapacity;
+        this.powerGrid.recharge();
         this.photons.addTorpedoes(this.photons._capacity - this.photons.getTorpedoCount());
         this.shields.recharge();
         this.repairHull();
@@ -107,17 +126,12 @@ export default class Enterprise {
         let energy = .1 * distance * Math.pow(this.warpFactor, 3);
         if(this.shields.up) energy *= 2;
         console.log(energy);
-        if(this.energy < energy) {
+        if(this.powerGrid.energy < energy) {
             throw new Error("Not enough energy.");
         }
 
         this.mover.moveToSector(sector);
-        this.useEnergy(energy);
-    }
-
-    hasLifeSupport() {
-        // TODO::
-        return true;
+        this.powerGrid.useEnergy(energy);
     }
 
     getCondition() {
@@ -126,29 +140,15 @@ export default class Enterprise {
             return CONDITION_DOCKED;
         } else if (enemies > 0) {
             return CONDITION_RED;
-        } else if (this.energy < 1000) {
+        } else if (this.powerGrid.energy < 1000) {
             return CONDITION_YELLOW;
         } else {
             return CONDITION_GREEN;
         }
     }
 
-    useEnergy(e) {
-        if (this.energy - e <= 0) {
-            throw new Error("Not enough energy!");
-        }
-        this.energy -= e;
-    }
-
-    addEnergy(e) {
-        if (this.energy + e > this.energyCapacity) {
-            throw new Error("Too much energy.");
-        }
-        this.energy += e;
-    }
-
     shieldsUp() {
-        this.useEnergy(50);
+        this.powerGrid.useEnergy(50);
         this.shields.raise();
     }
 

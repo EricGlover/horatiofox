@@ -1,27 +1,159 @@
 import {terminal} from './Terminal.js';
-import {GameObject, Mover, Collider} from "./Components.js";
+import {Component, GameObject, Mover, Collider} from "./Components.js";
 
-class Device {
-    constructor() {
-        this._damaged = false;    // apparently this is should be an int not a bool so you can do repairs
+export class Device extends Component {
+    constructor(parent, name, propName) {
+        super(propName, parent);
+        this.parent = parent;
+        this.name = name;
+
+        this._chanceOfBeingDamaged = .5;
+
+        if(!this.parent.deviceContainer) {
+            this.parent.deviceContainer = new DeviceContainer(this.parent);
+        }
+        this.parent.deviceContainer.addDevices(this);
+
+        this._damage = 0;
+    }
+    get damage() {
+        return this._damage;
+    }
+    isOk() {
+        return this._damage === 0;
+    }
+    isDamaged() {
+        return this._damage > 0;
     }
 
-    isDamaged() {
-        return this._damaged;
+    takeDamage(damage) {
+        this._damage += damage;
+    }
+
+    repair(amount) {
+        /// don't go negative
+        this._damage -= amount;
+    }
+
+    // roll the dice to see if it becomes damaged
+    hitDoesDamage() {
+        return Math.random() < this._chanceOfBeingDamaged;
+    }
+
+    timeToRepairInFlight() {
+        return this._damage * 4;
+    }
+
+    timeToRepairAtDock() {
+        return this._damage;
+    }
+
+    // timeToRepair()
+}
+
+
+/**
+ * Has max, has min 0, can be damaged
+ */
+export class PowerGrid extends Device {
+    constructor(capacity, parent) {
+        super(parent, "Power Circuits", "powerGrid");
+        this.capacity = capacity;
+        this._energy = capacity;
+        this.chanceOfBeingDamaged = .12;
+    }
+    get energy(){
+        return this._energy;
+    }
+    atMax() {
+        return this._energy === this.capacity;
+    }
+    recharge() {
+        this._energy = this.capacity;
+    }
+    useEnergy(e) {
+        if (this._energy - e <= 0) {
+            throw new Error("Not enough energy!");
+        }
+        this._energy -= e;
+    }
+    addEnergy(e) {
+        if (this._energy + e > this.capacity) {
+            throw new Error("Too much energy.");
+        }
+        this._energy += e;
     }
 }
 
-export class DeviceDamagedError extends Error {
+export class DeviceContainer {
+    constructor(parent) {
+        this.parent = parent;
+        this.parent.deviceContainer = this;
+        this.devices = [];
+    }
+
+    addDevices(...devices) {
+        this.devices.push(...devices);
+    }
+
+    getRandomDevice() {
+        let idx = Math.trunc(this.devices.length * Math.random());
+        return this.devices[idx];
+    }
+
+    damageRandomDevices(damage) {
+        let minDamage = Math.max(damage / 10, 2);
+        let originalDamage = damage;
+        // distribute damage amongst devices
+        while(damage > 0) {
+            // take a portion of this (make this better latter)
+            let portion = Math.max(originalDamage * Math.random(), minDamage);
+            let device;
+            do {
+                device = this.getRandomDevice();
+            } while(device.hitDoesDamage());
+
+            device.takeDamage(portion);
+            damage -= portion;
+        }
+    }
+}
+
+// todo:::
+export class WarpDrive extends Device {
+    constructor(parent, powerGrid) {
+        super(parent, "warp drive", "warp");
+        this.powerGrid = powerGrid;
+        this._warpFactor = 5.0;
+    }
+    get warpFactor() {
+        return this._warpFactor;
+    }
+    set warpFactor(n) {
+        if(typeof n !== "number" || Number.isNaN(n)) {
+            return;
+        } else if (n < 1.0 || n > 10.0) {
+            return;
+        }
+        this._warpFactor = n;
+    }
+    // moveTo(){
+    //
+    // }
+}
+export class ImpulseEngines extends Device {
+    constructor(parent, powerGrid) {
+        super(parent, "impulse engines", "impulse");
+        this.powerGrid = powerGrid;
+    }
 }
 
 export class Shields extends Device {
-    constructor(parent) {
-        super();
-        this.parent = parent;
-        this.shields = this.parent;
-        this.capacity = 2500;
+    constructor(parent, capacity) {
+        super(parent, "Shields", "shields");
+        this.capacity = capacity;
         this.up = false;
-        this.units = 2500;
+        this.units = this.capacity;
         this.terminal = terminal;
     }
 
@@ -56,7 +188,7 @@ export class Shields extends Device {
     // transfer energy to the shields
     transferEnergy(e) {
         if (this.isDamaged()) {
-            throw new DeviceDamagedError(`Can't transfer energy because shields are damaged.`);
+            throw new Error(`Can't transfer energy because shields are damaged.`);
         }
         if (e > 0) {
             return this.charge(e);
@@ -85,7 +217,7 @@ export class Shields extends Device {
             e = this.capacity - this.units;
         }
         this.units += e;
-        if(this.units === this.capacity) {
+        if (this.units === this.capacity) {
             this.terminal.printLine("Shields at max.");
         }
     }
@@ -107,13 +239,12 @@ export class Shields extends Device {
 }
 
 export class Phasers extends Device {
-    constructor(parent) {
-        super();
-        this.parent = parent;
+    constructor(parent, energySystem) {
+        super(parent, "Phasers", "phasers");
         if (!this.parent.energy) {
             throw new Error('Phaser parent must have energy');
         }
-        this.parent.phasers = this;
+        this.energySystem = energySystem;
         this.overheated = false;
         this.amountRecentlyFired = 0;
         this.overheatThreshold = 1500;
@@ -219,9 +350,7 @@ class Torpedo {
 
 export class PhotonTorpedoLauncher extends Device {
     constructor(parent, count = 0, capacity = 0) {
-        super();
-        this.parent = parent;
-        this.parent.photons = this;
+        super(parent, "Photon Torpedo Launcher", "photons");
         this.terminal = terminal;
         this._capacity = capacity;
         this._torpedoes = count;

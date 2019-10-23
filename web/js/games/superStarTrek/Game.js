@@ -28,8 +28,7 @@ import {
 } from "./commands.js";
 
 import {DEBUG} from './superStarTrek.js';
-import {WarpFactorCommand} from "./commands";
-
+import {DamageReportCommand, WarpFactorCommand} from "./commands";
 
 /** Game length options **/
 export const GAME_LENGTH_SHORT = 1;
@@ -48,6 +47,7 @@ export const GAME_MODE_REGULAR = 1;
 export const GAME_MODE_TOURNAMENT = 2;
 export const GAME_MODE_FROZEN = 3;
 
+export const DEVICE_DAMAGE_ENABLED = true;
 
 /**
  *
@@ -98,6 +98,7 @@ export default class Game {
             klingon = new Klingon(this.galaxy, this.player, this);
             klingon.gameObject.placeIn(this.galaxy, quad, sector);
 
+            this.player.deviceContainer.damageRandomDevices(10);
         } else {
             let quad = this.galaxy.getRandomQuadrant();
             let sector = quad.getRandomSector();
@@ -124,6 +125,34 @@ export default class Game {
         this.fallenFoes = [];
 
         this.federationPowerRemaining = null;
+    }
+
+    // set all the difficulty related game variables
+    setDifficulty(skill) {
+        switch(skill) {
+            case SKILL_NOVICE:
+                //
+                break;
+            case SKILL_FAIR:
+                ///
+                break;
+            case SKILL_GOOD:
+                //
+                break;
+            case SKILL_EXPERT:
+                //
+                break;
+            case SKILL_EMERITUS:
+                ///
+                break;
+            default:
+                console.error("invalid skill setting.", skill);
+                return;
+        }
+        this.skill = skill;
+        /**
+         *
+         */
     }
 
     calculateKlingonStrength() {
@@ -403,6 +432,7 @@ With your starship confiscated by the Klingon High Command, you relocate to a mi
         this.commands.push(new ReportCommand(this, this.terminal, this.galaxy, this.player));
         this.commands.push(new ScoreCommand(this, this.terminal, this.player));
         this.commands.push(new WarpFactorCommand(this.terminal, this.player));
+        this.commands.push(new DamageReportCommand(this, this.terminal, this.player));
     }
 
     // register all our commands with our terminal,

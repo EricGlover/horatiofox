@@ -132,7 +132,7 @@ export default class Menu {
     finish() {
         this.terminal.$terminal.change_settings({ps: this.startGamePs});
         // give the game our settings
-        this.game.skill = this.difficulty;
+        this.game.setDifficulty(this.difficulty);
         this.game.length = this.length;
         this.game.secretPassword = this.secretPassword;
 

@@ -144,6 +144,56 @@ time warp.`
     }
 }
 
+
+export class DamageReportCommand extends Command {
+    constructor(game, terminal, player) {
+        super();
+        this.game = game;
+        this.terminal = terminal;
+        this.player = player;
+        this.abbreviation = "da";
+        this.name = "damages";
+        this.fullName = "damage report";
+        this.regex = regexifier(this.abbreviation, this.name, this.fullName);
+        this.type = INFO_COMMAND;
+        this.info = `
+  Mnemonic:  DAMAGES
+  Shortest abbreviation:  DA
+
+At any time you may ask for a damage report to find out what devices
+are damaged and how long it will take to repair them.  Naturally,
+repairs proceed faster at a starbase.
+
+If you suffer damages while moving, it is possible that a subsequent
+damage report will not show any damage.  This happens if the time
+spent on the move exceeds the repair time, since in this case the
+damaged devices were fixed en route.
+
+Damage reports are free.  They use no energy or time, and can be done
+safely even in the midst of battle.`;
+    }
+
+    run(commandObj) {
+        // in flight versuses docked repair times ?
+        // roughly 3.5 ?
+        // sort this by damage desc // todo::
+        let report = [
+            ["DEVICE", "", "-REPAIR TIMES-"],
+            ["", "IN FLIGHT", "DOCKED"],
+            ...this.player.deviceContainer.devices.map(device => {
+                return [
+                    device.name,
+                    device.timeToRepairInFlight().toFixed(2),
+                    device.timeToRepairAtDock().toFixed(2)
+                ]
+            })
+        ];
+        this.terminal.skipLine(1);
+        this.terminal.printLine(this.terminal.printGrid(this.terminal.formatGrid(report)));
+        this.terminal.skipLine(1);
+    }
+}
+
 export class ScoreCommand extends Command {
     constructor(game, terminal, player) {
         super();
@@ -478,6 +528,10 @@ Phasers have no effect on starbases (which are shielded) or on stars.`;
         }
     }
 
+    hasNoOption(args) {
+        return args.some(arg => /no/i.test(arg));
+    }
+
     run(commandObj) {
         // find enemies to fire upon, check that we can fire on something
         let quadrant = this.player.gameObject.quadrant;
@@ -490,6 +544,7 @@ Phasers have no effect on starbases (which are shielded) or on stars.`;
 
         // figure out the mode
         let {auto, manual} = this.getMode(commandObj.arguments[0]);
+        let noOption = this.hasNoOption(commandObj.arguments);
 
         // automatic is assumed
         let amounts = [];
@@ -512,8 +567,8 @@ Phasers have no effect on starbases (which are shielded) or on stars.`;
             } else if (amount <= 0) {
                 this.terminal.printLine(`Can't fire ${amount}, specify an amount greater than 0.`);
                 return;
-            } else if (amount > this.player.energy) {
-                this.terminal.printLine(`Units available = ${this.player.energy}.`);
+            } else if (amount > this.player.powerGrid.energy) {
+                this.terminal.printLine(`Units available = ${this.player.powerGrid.energy}.`);
                 return;
             }
             // sort entries by distance
@@ -546,11 +601,27 @@ Phasers have no effect on starbases (which are shielded) or on stars.`;
                     break;
                 }
             }
-            this.player.firePhasersMultiTarget(toFire, false);
+            // fast shield control
+            if (this.player.shields.up) {
+                this.terminal.printLine(`Weapons Officer Sulu-  "High-speed shield control enabled, sir."`);
+                // do fast shield control
+                this.player.shields.shieldsDown();
+                // lower shields
+                if (noOption) {
+                    // leave shields down
+                    this.player.powerGrid.useEnergy(200);
+                } else {
+                    this.player.shieldsUp();    // costs 50
+                    this.player.powerGrid.useEnergy(150);
+                }
+            }
+
+            this.player.firePhasersMultiTarget(toFire);
+
+            // fire excess energy into space
             if (amountToFire > 0) {
-                // fire excess energy into space
                 this.terminal.echo(`Firing ${amountToFire.toFixed(2)} excess units into space.`);
-                this.player.useEnergy(amountToFire);
+                this.player.powerGrid.useEnergy(amountToFire);
             }
             //
         } else if (manual) {
@@ -568,8 +639,8 @@ Phasers have no effect on starbases (which are shielded) or on stars.`;
 
             // check that we have that much energy to fire
             let total = toFire.reduce((carry, n) => carry + n, 0);
-            if (total > this.player.energy) {
-                this.terminal.printLine(`Units available = ${this.player.energy}.`);
+            if (total > this.player.powerGrid.energy) {
+                this.terminal.printLine(`Units available = ${this.player.powerGrid.energy}.`);
                 return;
             }
 
@@ -596,6 +667,21 @@ Phasers have no effect on starbases (which are shielded) or on stars.`;
                 let enemyEntry = enemyArr[i];
                 enemyEntry.amount = toFire[i];
                 targetArray.push(enemyEntry);
+            }
+
+            // fast shield control
+            if (this.player.shields.up) {
+                this.terminal.printLine(`Weapons Officer Sulu-  "High-speed shield control enabled, sir."`);
+                // do fast shield control
+                this.player.shields.shieldsDown();
+                // lower shields
+                if (noOption) {
+                    // leave shields down
+                    this.player.powerGrid.useEnergy(200);
+                } else {
+                    this.player.shieldsUp();    // costs 50
+                    this.player.powerGrid.useEnergy(150);
+                }
             }
 
             // have our player fire away
@@ -677,7 +763,7 @@ are up) and have essentially the same effect as phaser hits.`;
     }
 
     run(commandObj) {
-        // get mode : up/down or transfer
+        // get mode : up/down or charge/drain
         let {up, down, charge, drain} = this.getMode(commandObj.arguments[0]);
 
         if(!up && !down && !charge && !drain) {
@@ -692,6 +778,7 @@ are up) and have essentially the same effect as phaser hits.`;
             this.player.shieldsDown();
         } else if (charge || drain) {
             let playerShields = this.player.shields;
+            let playerPowerGrid = this.player.powerGrid;
             // get the amount to transfer
             let amount = commandObj.arguments[1];
             amount = Number.parseInt(amount);
@@ -710,7 +797,7 @@ are up) and have essentially the same effect as phaser hits.`;
             }
             if(charge) {
                 // need the energy
-                if (this.player.energy < amount) {
+                if (playerPowerGrid.energy < amount) {
                     this.terminal.printLine("Not enough energy, Captain.");
                     return;
                 }
@@ -728,7 +815,7 @@ are up) and have essentially the same effect as phaser hits.`;
 
                 // do the transfer
                 this.terminal.printLine("Charging shields.");
-                this.player.useEnergy(amount);
+                playerPowerGrid.useEnergy(amount);
                 playerShields.charge(amount);
             } else if (drain) {
                 // check shield energy
@@ -737,18 +824,18 @@ are up) and have essentially the same effect as phaser hits.`;
                     amount = playerShields.units;
                 }
                 // check ship energy not already maxed out
-                if(this.player.energy === this.player.energyCapacity) {
+                if(playerPowerGrid.atMax()) {
                     this.terminal.printLine("Ship energy already at max.");
                     return;
                 }
                 // check that we don't exceed ship energy capacity
-                if(this.player.energy + amount > this.player.energyCapacity) {
+                if(playerPowerGrid.energy + amount > playerPowerGrid.capacity) {
                     this.terminal.printLine("That would exceed our ship energy capacity. Setting ship energy to maximum.");
-                    amount = this.player.energyCapacity - this.player.energy;
+                    amount = playerPowerGrid.capacity - playerPowerGrid.energy;
                 }
 
                 playerShields.drain(amount);
-                this.player.addEnergy(amount);
+                playerPowerGrid.addEnergy(amount);
             }
         }
         return commandObj;
@@ -962,7 +1049,7 @@ retaliate.`;
         let energy = .1 * distance * Math.pow(this.player.warpFactor, 3);
         if (this.player.shields.up) energy *= 2;
 
-        if (this.player.energy < energy) {
+        if (this.player.powerGrid.energy < energy) {
             /** todo::
              * Engineering to bridge--
              We haven't the energy, but we could do it at warp 6,
@@ -1191,9 +1278,9 @@ See REQUEST command for details.`;
         let playerSector = this.player.gameObject.sector;
         let hullIntegrity = `Hull Integrity\t${this.player.collider.health.toFixed(2)}`
         let position = `Position\t${playerQuad.x + 1} - ${playerQuad.y + 1}, ${playerSector.x + 1} - ${playerSector.y + 1}`;
-        let lifeSupport = `Life Support\t${this.player.hasLifeSupport() ? 'ACTIVE' : 'FAILED'}`;
+        let lifeSupport = `Life Support\t${this.player.lifeSupport.isOk() ? 'ACTIVE' : 'FAILED'}`;
         let warpFactor = `Warp Factor\t${this.player.warpFactor.toFixed(1)}`;
-        let energy = `Energy\t\t${this.player.energy.toFixed(2)}`;
+        let energy = `Energy\t\t${this.player.powerGrid.energy.toFixed(2)}`;
         let torpedoes = `Torpedoes\t${this.player.photons.getTorpedoCount()}`;
         let shields = `Shields\t\t${this.player.shields.printInfo()}`;
         let klingonsRemaining = `Klingons Left\t${this.galaxy.container.getCountOfGameObjects(AbstractKlingon)}`;
