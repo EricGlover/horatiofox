@@ -21,11 +21,7 @@ export default class Enterprise {
         this.mover = new Mover(this, this.gameObject);
         this.deviceContainer = new DeviceContainer(this);
         this.powerGrid = new PowerGrid(3000.0, this);
-        this.energyCapacity = 3000.0;
-        this.energy = this.energyCapacity;
-
-        this.maxHullIntegrity = 1500;
-        this.collider = new Collider(this, this.gameObject, 80, 80, this.maxHullIntegrity);
+        this.collider = new Collider(this, this.gameObject, 80, 80, 1500);
 
         this.warpFactor = 5.0;
 
@@ -40,7 +36,6 @@ export default class Enterprise {
 
         this.photons = new PhotonTorpedoLauncher(this, 10, 10);
         this.shields = new Shields(this, 2500, this.powerGrid);
-        this.shields.raise();
 
         this.shortRangeSensors = new Device(this, "Short Range Sensors");
         // this.longRangeSensors = new Device(this, "Long Range Sensors");
@@ -69,7 +64,7 @@ export default class Enterprise {
 
     firePhasersMultiTarget(targets) {
         let totalToFire = targets.reduce((carry, entry) => carry + entry.amount, 0);
-        if (totalToFire > this.energy) {
+        if (totalToFire > this.powerGrid.energy) {
             throw new Error("Not enough energy.");
         }
         // expend energy
@@ -82,7 +77,7 @@ export default class Enterprise {
     }
 
     repairHull() {
-        this.collider.health = this.maxHullIntegrity;
+        this.collider.repair();
     }
 
     dock(starbase) {

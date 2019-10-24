@@ -44,6 +44,7 @@ export function regexifier(...strings) {
 const INFO_COMMAND = "info";
 const ATTACK_COMMAND = "attack";
 const MOVE_COMMAND = "move";
+const TIME_EXPENDING_SHIP_COMMAND = "not instant ship command";
 const INSTANT_SHIP_COMMAND = "instant ship command";
 
 // what to do for options
@@ -118,6 +119,22 @@ class Command {
 
     makeInfo() {
         // set mnemonic shortest abbrev full name text
+    }
+}
+
+export class RestCommand extends Command {
+    constructor(game, terminal) {
+        super();
+        this.game = game;
+        this.terminal = terminal;
+        this.name = "rest";
+        this.regex = regexifier(this.name);
+        this.type = TIME_EXPENDING_SHIP_COMMAND;
+        this.info = ``
+    }
+    run(commandObj) {
+        let days = Number.parseFloat(commandObj.arguments[0]);
+        this.game.clock.elapseTime(days);
     }
 }
 
@@ -489,8 +506,9 @@ inclusive.
         }
 
         // not enough torpedoes
-        if (number > this.player.photons.getTorpedoCount()) {
-            this.terminal.echo(`You only have ${number} torpedoes.`);
+        let torpedoCount = this.player.photons.getTorpedoCount();
+        if (number > torpedoCount) {
+            this.terminal.echo(`You only have ${torpedoCount} torpedoes.`);
             return;
         }
 
@@ -622,6 +640,9 @@ Phasers have no effect on starbases (which are shielded) or on stars.`;
             amounts = commandObj.arguments.slice(1);  // ignore mode option specified in args
         }
 
+        let shieldControl = 200;
+        // if(no) shieldControl = 150;
+
         // strip out the options
         if (auto) {
             // in automatic mode the ship automatically fires kill shots
@@ -634,7 +655,7 @@ Phasers have no effect on starbases (which are shielded) or on stars.`;
             } else if (amount <= 0) {
                 this.terminal.printLine(`Can't fire ${amount}, specify an amount greater than 0.`);
                 return;
-            } else if (amount > this.player.powerGrid.energy) {
+            } else if (amount + shieldControl > this.player.powerGrid.energy) {
                 this.terminal.printLine(`Units available = ${this.player.powerGrid.energy}.`);
                 return;
             }
@@ -706,7 +727,7 @@ Phasers have no effect on starbases (which are shielded) or on stars.`;
 
             // check that we have that much energy to fire
             let total = toFire.reduce((carry, n) => carry + n, 0);
-            if (total > this.player.powerGrid.energy) {
+            if (total + shieldControl > this.player.powerGrid.energy) {
                 this.terminal.printLine(`Units available = ${this.player.powerGrid.energy}.`);
                 return;
             }
@@ -1343,16 +1364,20 @@ See REQUEST command for details.`;
 
         let playerQuad = this.player.gameObject.quadrant;
         let playerSector = this.player.gameObject.sector;
-        let hullIntegrity = `Hull Integrity\t${this.player.collider.health.toFixed(2)}`
+        let collider = this.player.collider;
+        let percent = collider.health * 100/ collider.maxHealth;
+        let hullIntegrity = `Hull Integrity\t${collider.health.toFixed(2)}, ${percent.toFixed(1)}%`;
         let position = `Position\t${playerQuad.x + 1} - ${playerQuad.y + 1}, ${playerSector.x + 1} - ${playerSector.y + 1}`;
         let lifeSupport = `Life Support NA`;
         if(this.player.lifeSupport.isOk()) {
              lifeSupport = `Life Support\tACTIVE`;
         } else {
-             lifeSupport = `Life Support\tDAMAGED, reserves = ${this.player.lifeSupport.reserves.toFixed(2)}`;
+             lifeSupport = `Life Support\tDAMAGED, reserves = ${this.player.lifeSupport.reserves.toFixed(1)}`;
         }
         let warpFactor = `Warp Factor\t${this.player.warpFactor.toFixed(1)}`;
-        let energy = `Energy\t\t${this.player.powerGrid.energy.toFixed(2)}`;
+        let grid = this.player.powerGrid;
+        let gridPercent = grid.energy * 100 / grid.capacity;
+        let energy = `Energy\t\t${grid.energy.toFixed(2)}, ${gridPercent.toFixed(1)}%`;
         let torpedoes = `Torpedoes\t${this.player.photons.getTorpedoCount()}`;
         let shields = `Shields\t\t${this.player.shields.printInfo()}`;
         let klingonsRemaining = `Klingons Left\t${this.galaxy.container.getCountOfGameObjects(AbstractKlingon)}`;

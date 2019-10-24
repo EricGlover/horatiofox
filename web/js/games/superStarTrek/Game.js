@@ -30,7 +30,7 @@ import {
 import {DEBUG} from './superStarTrek.js';
 import mitt from 'mitt';
 
-import {DamageReportCommand, WarpFactorCommand} from "./commands";
+import {DamageReportCommand, RestCommand, WarpFactorCommand} from "./commands";
 
 /** Game length options **/
 export const GAME_LENGTH_SHORT = 1;
@@ -98,7 +98,7 @@ export default class Game {
         this.commands = [];
 
         // defaults for testing
-        this.length = GAME_LENGTH_SHORT;
+        this.length = GAME_LENGTH_LONG;
         this.clock = clock;
         this.clock.init(100.0 * (31.0 * Math.random() + 20.0));
         this.onElapseTime = this.onElapseTime.bind(this);
@@ -153,6 +153,7 @@ export default class Game {
             let sector = quad.getRandomSector();
             this.player.gameObject.placeIn(this.galaxy, quad, sector);
         }
+        this.setDifficulty(this.skill);
 
 
 
@@ -246,7 +247,8 @@ export default class Game {
     calculateKlingonStrength() {
         let remainingKlingons = this.galaxy.container.getCountOfGameObjects(Klingon);
         let remainingCommanders = this.galaxy.container.getCountOfGameObjects(KlingonCommander);
-        return remainingKlingons + (remainingCommanders * 4);
+        let remainingSuperCommanders = this.galaxy.container.getCountOfGameObjects(KlingonSuperCommander);
+        return remainingKlingons + (remainingCommanders * 4) + (remainingSuperCommanders * 10);
     }
 
     decrementFederationPower(timePassed) {
@@ -520,6 +522,7 @@ With your starship confiscated by the Klingon High Command, you relocate to a mi
         this.commands.push(new ScoreCommand(this, this.terminal, this.player));
         this.commands.push(new WarpFactorCommand(this.terminal, this.player));
         this.commands.push(new DamageReportCommand(this, this.terminal, this.player));
+        this.commands.push(new RestCommand(this, this.terminal));
     }
 
     // register all our commands with our terminal,
@@ -681,9 +684,19 @@ With your starship confiscated by the Klingon High Command, you relocate to a mi
         // place in quadrant without enemies or the player
         for (let i = 0; i < n; i++) {
             let quadrant;
-            do {
-                quadrant = this.galaxy.getRandomQuadrant();
-            } while (quadrant.container.getCountOfGameObjects(AbstractKlingon) > 0 || this.player.gameObject.quadrant === quadrant);
+            if(this.skill >= SKILL_GOOD) {
+                do {
+                    quadrant = this.galaxy.getRandomQuadrant();
+                } while (quadrant.container.getCountOfGameObjects(AbstractKlingon) === 0 || this.player.gameObject.quadrant === quadrant);
+            } else if(this.skill >= SKILL_FAIR) {
+                do {
+                    quadrant = this.galaxy.getRandomQuadrant();
+                } while (this.player.gameObject.quadrant === quadrant);
+            } else {
+                do {
+                    quadrant = this.galaxy.getRandomQuadrant();
+                } while (quadrant.container.getCountOfGameObjects(AbstractKlingon) > 0 || this.player.gameObject.quadrant === quadrant);
+            }
             console.log("placing super commander");
             let sector = quadrant.getRandomEmptySector();
             this.shipBuilder.makeKlingonSuperCommander(this.galaxy, this.player, this, quadrant, sector);
@@ -694,9 +707,20 @@ With your starship confiscated by the Klingon High Command, you relocate to a mi
         // place in quadrant without enemies
         for (let i = 0; i < n; i++) {
             let quadrant;
-            do {
-                quadrant = this.galaxy.getRandomQuadrant();
-            } while (quadrant.container.getCountOfGameObjects(AbstractKlingon) > 0 || this.player.gameObject.quadrant === quadrant);
+            if(this.skill >= SKILL_GOOD) {
+                do {
+                    quadrant = this.galaxy.getRandomQuadrant();
+                } while (quadrant.container.getCountOfGameObjects(AbstractKlingon) === 0 || this.player.gameObject.quadrant === quadrant);
+            } else if(this.skill >= SKILL_FAIR) {
+                do {
+                    quadrant = this.galaxy.getRandomQuadrant();
+                } while (this.player.gameObject.quadrant === quadrant);
+            } else {
+                do {
+                    quadrant = this.galaxy.getRandomQuadrant();
+                } while (quadrant.container.getCountOfGameObjects(AbstractKlingon) > 0 || this.player.gameObject.quadrant === quadrant);
+            }
+
             console.log("placing commander");
             let sector = quadrant.getRandomEmptySector();
             this.shipBuilder.makeKlingonCommander(this.galaxy, this.player, this, quadrant, sector);

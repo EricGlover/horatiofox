@@ -16,7 +16,7 @@ export default class AI extends Component {
         // move
 
         // if power below 20% then move to ram
-        if(this.parent.powerGrid.getPercent() <= .2) {
+        if(false && this.parent.powerGrid.getPercent() <= .2) {
             console.error("RAMMING PLAYER NOW");
         }
         // fire phasers

@@ -1,8 +1,9 @@
 import {terminal} from './Terminal.js';
 import {Component, GameObject, Mover, Collider} from "./Components.js";
+import {clock} from "./Game.js";
 
 export class Device extends Component {
-    constructor(parent, name, propName, chanceOfBeginDamaged = .5) {
+    constructor(parent, name, propName, chanceOfBeginDamaged = .65) {
         super(propName, parent);
         this.parent = parent;
         this.name = name;
@@ -41,8 +42,13 @@ export class Device extends Component {
     }
 
     repair(amount) {
-        /// don't go negative
+        if(this._damage === 0) return;
         this._damage -= amount;
+        if(this._damage === 0) {
+            terminal.printLine(`${this.parent.name}'s ${this.name} have been repaired.`);
+        }
+        /// don't go negative
+        this._damage = Math.max(this._damage, 0);
     }
 
     randomlyDamage() {
@@ -55,7 +61,7 @@ export class Device extends Component {
     }
 
     timeToRepairInFlight() {
-        return this._damage * 4;
+        return this._damage * 3.5;
     }
 
     timeToRepairAtDock() {
@@ -112,6 +118,15 @@ export class DeviceContainer {
         this.parent = parent;
         this.parent.deviceContainer = this;
         this.devices = [];
+        this.onTimeElapse = this.onTimeElapse.bind(this);
+        clock.register(this.onTimeElapse)
+    }
+
+    onTimeElapse(days) {
+        // spread repairs across damaged devices evenly
+        let damagedDevices = this.devices.filter(d => d.isDamaged());
+        let r = days / damagedDevices.length;
+        damagedDevices.forEach(d => d.repair(r));
     }
 
     addDevices(...devices) {

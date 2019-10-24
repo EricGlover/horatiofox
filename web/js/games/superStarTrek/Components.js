@@ -20,11 +20,16 @@ export class Collider extends Component {
     constructor(parent, gameObject, width = 0, length = 0, health = 1) {
         super("collider", parent);
         this.health = health;
+        this.maxHealth = this.health;
         this.terminal = terminal;
         this.width = width;
         this.length = length;
         this.gameObject = gameObject;
         this._indestructible = false;
+    }
+
+    repair() {
+        this.health = this.maxHealth;
     }
 
     makeIndestructible() {
@@ -117,7 +122,7 @@ export class Collider extends Component {
             }
         }
 
-        if (this.health < 0) {
+        if (this.health <= 0) {
             if (this.parent.die) {
                 this.parent.die();
             } else {
