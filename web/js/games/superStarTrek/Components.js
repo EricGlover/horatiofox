@@ -4,7 +4,7 @@ import {terminal} from "./Terminal.js";
 import {DEVICE_DAMAGE_ENABLED} from "./Game.js";
 
 let colliderMaxHitToDamageDevices = 275.0;
-let colliderMinHitToDamageDevices = 75.0;
+let colliderMinHitToDamageDevices = 20.0;
 
 
 export class Component {
@@ -92,8 +92,10 @@ export class Collider extends Component {
         return false;
     }
 
+    //
     hitWillDamageDevices(damage) {
         let threshold = Math.random() * (colliderMaxHitToDamageDevices - colliderMinHitToDamageDevices) + colliderMinHitToDamageDevices;
+        console.log('device damage threshold = ', threshold);
         return damage > threshold;
     }
 
@@ -103,18 +105,18 @@ export class Collider extends Component {
             return;
         }
 
-        // is critcal ?
+        this.health -= damage;
+        this.terminal.printLine(`${damage.toFixed(2)} unit hit on ${this.gameObject.name} at ${this.gameObject.getSectorLocation()}`)
+
+        // damage devices
         if(DEVICE_DAMAGE_ENABLED && this.hitWillDamageDevices(damage)) {
-            if(this.parent.devices) {
+            if(this.parent.deviceContainer) {
                 // determine amount of damage (for moment just the original damage)
                 let deviceDamage = damage / (75.0 * (25 * Math.random()));
-                this.parent.devices.damageRandomDevices(deviceDamage);
+                this.parent.deviceContainer.damageRandomDevices(deviceDamage);
             }
         }
 
-
-        this.health -= damage;
-        this.terminal.printLine(`${damage.toFixed(2)} unit hit on ${this.gameObject.name} at ${this.gameObject.getSectorLocation()}`)
         if (this.health < 0) {
             if (this.parent.die) {
                 this.parent.die();

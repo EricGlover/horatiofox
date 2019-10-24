@@ -4,6 +4,7 @@ import {Sector} from '../Galaxy.js';
 import {Device,
     Phasers,
     Shields,
+    LifeSupport,
     PhotonTorpedoLauncher,
     DeviceContainer,
     PowerGrid
@@ -15,7 +16,7 @@ const CONDITION_RED = 3;
 const CONDITION_DOCKED = 4;
 
 export default class Enterprise {
-    constructor(terminal) {
+    constructor(terminal, clock) {
         this.gameObject = new GameObject(this);
         this.mover = new Mover(this, this.gameObject);
         this.deviceContainer = new DeviceContainer(this);
@@ -42,25 +43,25 @@ export default class Enterprise {
         this.shields.raise();
 
         this.shortRangeSensors = new Device(this, "Short Range Sensors");
-        this.longRangeSensors = new Device(this, "Long Range Sensors");
-        this.lifeSupport = new Device(this, "Life Support");
+        // this.longRangeSensors = new Device(this, "Long Range Sensors");
+        this.lifeSupport = new LifeSupport(this, 4.0, clock);
         this.warpEngines = new Device(this, "Warp Engines");
-        this.impulseEngines = new Device(this, "Impulse Engines");
-        this.subspaceRadio = new Device(this, "Subspace Radio");
-        this.shuttleCraft = new Device(this, "Shuttle Craft");
-        this.computer = new Device(this, "Computer");
-        this.transporter = new Device(this, "Transporter");
-        this.shieldControl = new Device(this, "Shield Control");
-        this.transporter = new Device(this, "Transporter");
-        this.probesLauncher = new Device(this, "Probe Launcher");
+        // this.impulseEngines = new Device(this, "Impulse Engines");
+        // this.subspaceRadio = new Device(this, "Subspace Radio");
+        // this.shuttleCraft = new Device(this, "Shuttle Craft");
+        // this.computer = new Device(this, "Computer");
+        // this.transporter = new Device(this, "Transporter");
+        // this.shieldControl = new Device(this, "Shield Control");
+        // this.probesLauncher = new Device(this, "Probe Launcher");
         window.e = this;
     }
 
     isDead() {
-        return this.dead;
+        return this.lifeSupport.reserves <= 0 || this.dead;
     }
 
     die() {
+        this.lifeSupport.kill();
         this.terminal.echo("Enterprise destroyed!!!!\n");
         this.dead = true;
         this.gameObject.removeSelf();

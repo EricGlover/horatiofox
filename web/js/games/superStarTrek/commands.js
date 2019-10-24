@@ -177,7 +177,6 @@ time warp.`
     }
 }
 
-
 export class DamageReportCommand extends Command {
     constructor(game, terminal, player) {
         super();
@@ -235,6 +234,12 @@ safely even in the midst of battle.`;
             sortedDevices = sortedDevices.filter(d => d.damage > 0);
         }
 
+        if(sortedDevices.length === 0) {
+            this.terminal.skipLine(1);
+            this.terminal.printLine("All systems operational.");
+            this.terminal.skipLine(1);
+        }
+
         let report = [
             ["DEVICE", "", "-REPAIR TIMES-"],
             ["", "IN FLIGHT", "DOCKED"],
@@ -286,7 +291,7 @@ general idea of how well you are performing.
         let romulanScore = killedRomulans * 20;
         score += kScore + cScore + scScore + romulanScore;
 
-        let timeElapsed = this.game.starDate - this.game.initialStarDate;
+        let timeElapsed = this.game.clock.getElapsedTime();
         if (timeElapsed === 0) timeElapsed = 1;
         let klingonsPerDate = killedKlingonsAll / timeElapsed;
         let kPerDateScore = klingonsPerDate * 500;
@@ -299,7 +304,7 @@ general idea of how well you are performing.
         this.terminal.printLine(`${killedKlingons} Klingon war birds destroyed`.padEnd(lineLength, ' ') + kScore);
         this.terminal.printLine(`${killedCommanders} Klingon Commander ships destroyed`.padEnd(lineLength, ' ') + cScore);
         this.terminal.printLine(`${killedSuperCommanders} Klingon Super Commander ships destroyed`.padEnd(lineLength) + scScore);
-        this.terminal.printLine(`${klingonsPerDate.toFixed(2)} Klingons per stardate`.padEnd(lineLength) + kPerDateScore);
+        this.terminal.printLine(`${klingonsPerDate.toFixed(2)} Klingons per stardate`.padEnd(lineLength) + kPerDateScore.toFixed(2));
         // victory adds 100 * skill
         if (this.game.isVictory()) {
             let v = this.game.skill * 100;
@@ -1142,7 +1147,7 @@ retaliate.`;
 
         this.player.warpTo(sector);
 
-        this.game.elapseTime(timeRequired);
+        this.game.clock.elapseTime(timeRequired);
         // check bounds
         // compute deltaX and deltaY
         // if both === 0 do nothing
@@ -1333,14 +1338,19 @@ See REQUEST command for details.`;
      COMMAND> s
      */
     getStatusText() {
-        let date = `Stardate\t${this.game.starDate.toFixed(1)}`
+        let date = `Stardate\t${this.game.clock.starDate.toFixed(1)}`
         let condition = `Condition\t${this.player.printCondition()}`;
 
         let playerQuad = this.player.gameObject.quadrant;
         let playerSector = this.player.gameObject.sector;
         let hullIntegrity = `Hull Integrity\t${this.player.collider.health.toFixed(2)}`
         let position = `Position\t${playerQuad.x + 1} - ${playerQuad.y + 1}, ${playerSector.x + 1} - ${playerSector.y + 1}`;
-        let lifeSupport = `Life Support\t${this.player.lifeSupport.isOk() ? 'ACTIVE' : 'FAILED'}`;
+        let lifeSupport = `Life Support NA`;
+        if(this.player.lifeSupport.isOk()) {
+             lifeSupport = `Life Support\tACTIVE`;
+        } else {
+             lifeSupport = `Life Support\tDAMAGED, reserves = ${this.player.lifeSupport.reserves.toFixed(2)}`;
+        }
         let warpFactor = `Warp Factor\t${this.player.warpFactor.toFixed(1)}`;
         let energy = `Energy\t\t${this.player.powerGrid.energy.toFixed(2)}`;
         let torpedoes = `Torpedoes\t${this.player.photons.getTorpedoCount()}`;

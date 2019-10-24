@@ -2,12 +2,12 @@ import {terminal} from './Terminal.js';
 import {Component, GameObject, Mover, Collider} from "./Components.js";
 
 export class Device extends Component {
-    constructor(parent, name, propName) {
+    constructor(parent, name, propName, chanceOfBeginDamaged = .5) {
         super(propName, parent);
         this.parent = parent;
         this.name = name;
 
-        this._chanceOfBeingDamaged = .5;
+        this._chanceOfBeingDamaged = chanceOfBeginDamaged;
 
         if(!this.parent.deviceContainer) {
             this.parent.deviceContainer = new DeviceContainer(this.parent);
@@ -19,6 +19,13 @@ export class Device extends Component {
     get damage() {
         return this._damage;
     }
+
+    checkDamage() {
+        if(this.isDamaged()) {
+            throw new Error(`${this.name} is damaged!`);
+        }
+    }
+
     isOk() {
         return this._damage === 0;
     }
@@ -27,13 +34,19 @@ export class Device extends Component {
     }
 
     takeDamage(damage) {
+        if(this._damage === 0) {
+            terminal.printLine(`***${this.parent.name}'s ${this.name} has been damaged.`);
+        }
         this._damage += damage;
-        terminal.printLine(`damage to ${this.name}`);
     }
 
     repair(amount) {
         /// don't go negative
         this._damage -= amount;
+    }
+
+    randomlyDamage() {
+        this.takeDamage(Math.random() * 5);
     }
 
     // roll the dice to see if it becomes damaged
@@ -51,20 +64,25 @@ export class Device extends Component {
 
     // timeToRepair()
 }
-
-
 /**
  * Has max, has min 0, can be damaged
  */
 export class PowerGrid extends Device {
     constructor(capacity, parent) {
-        super(parent, "Power Circuits", "powerGrid");
+        super(parent, "Power Circuits", "powerGrid", .12);
         this.capacity = capacity;
         this._energy = capacity;
-        this.chanceOfBeingDamaged = .12;
     }
     get energy(){
         return this._energy;
+    }
+    set energy(e) {
+        e = Math.min(e, this.capacity);
+        e = Math.max(e, 0);
+        this._energy = e;
+    }
+    getPercent() {
+        return this._energy / this.capacity;
     }
     atMax() {
         return this._energy === this.capacity;
@@ -73,12 +91,15 @@ export class PowerGrid extends Device {
         this._energy = this.capacity;
     }
     useEnergy(e) {
-        if (this._energy - e <= 0) {
+        this.checkDamage();
+        if (this._energy - e < -0.01) {
+            debugger;
             throw new Error("Not enough energy!");
         }
         this._energy -= e;
     }
     addEnergy(e) {
+        this.checkDamage();
         if (this._energy + e > this.capacity) {
             throw new Error("Too much energy.");
         }
@@ -131,6 +152,7 @@ export class WarpDrive extends Device {
         return this._warpFactor;
     }
     set warpFactor(n) {
+        this.checkDamage();
         if(typeof n !== "number" || Number.isNaN(n)) {
             return;
         } else if (n < 1.0 || n > 10.0) {
@@ -150,6 +172,44 @@ export class ImpulseEngines extends Device {
     }
 }
 
+export class LifeSupport extends Device {
+    constructor(parent, reserves, clock) {
+        super(parent, "Life Support", "lifeSupport");
+        this.maxReserves = reserves;
+        this.reserves = reserves;
+        this.onTimeElapsed = this.onTimeElapsed.bind(this);
+        this.clock = clock;
+        this.clock.register(this.onTimeElapsed);
+        this.terminal = terminal;
+    }
+
+    kill() {
+        this.clock.unregister(this.onTimeElapsed);
+    }
+
+    atMax() {
+        return this.reserves === this.maxReserves;
+    }
+
+    recharge() {
+        this.checkDamage();
+        this.reserves = this.maxReserves;
+    }
+
+    onTimeElapsed(days) {
+        if(this.isDamaged()) {
+            this.reserves -= days;
+            this.reserves = Math.max(this.reserves, 0);
+            if(this.reserves === 0) {
+                if(this.parent.die) this.parent.die();
+                this.terminal.printLine(`${this.parent.name}'s crew suffocates.`);
+            }
+        } else if (!this.isDamaged() && !this.atMax()) {
+            this.recharge();
+        }
+    }
+}
+
 export class Shields extends Device {
     constructor(parent, capacity) {
         super(parent, "Shields", "shields");
@@ -164,10 +224,12 @@ export class Shields extends Device {
     }
 
     recharge() {
+        this.checkDamage();
         this.units = this.capacity;
     }
 
     lower() {
+        this.checkDamage();
         if (!this.up) {
             this.terminal.printLine("Shields already down.");
             return;
@@ -177,30 +239,22 @@ export class Shields extends Device {
     }
 
     raise() {
+        this.checkDamage();
         if (this.up) {
             this.terminal.printLine("Shields already up.");
+            return;
+        }
+        if(this.isDamaged()) {
+            this.terminal.printLine("Shields are damaged.");
             return;
         }
         this.up = true;
         this.terminal.printLine("Shields raised.");
     }
 
-    // returns amount exchanged
-    // throws error when not enough energy, or damaged
-    // transfer energy to the shields
-    transferEnergy(e) {
-        if (this.isDamaged()) {
-            throw new Error(`Can't transfer energy because shields are damaged.`);
-        }
-        if (e > 0) {
-            return this.charge(e);
-        } else if (e < 0) {
-            return this.drain(e);
-        }
-    }
-
     // returns amount drained
     drain(e) {
+        this.checkDamage();
         if (this.units - e < 0) {
             throw new Error("Not enough energy");
         }
@@ -214,6 +268,7 @@ export class Shields extends Device {
 
     // returns amount charged
     charge(e) {
+        this.checkDamage();
         // don't exceed capacity
         if (this.units + e > this.capacity) {
             e = this.capacity - this.units;
@@ -243,8 +298,8 @@ export class Shields extends Device {
 export class Phasers extends Device {
     constructor(parent, energySystem) {
         super(parent, "Phasers", "phasers");
-        if (!this.parent.energy) {
-            throw new Error('Phaser parent must have energy');
+        if (!energySystem) {
+            throw new Error('Phaser must have energy');
         }
         this.energySystem = energySystem;
         this.overheated = false;
@@ -282,9 +337,13 @@ export class Phasers extends Device {
                 damage[DPHASER] = damfac*(1.0 + Rand()) * (1.0+chekbrn);
             }**/
             let diff = this.amountRecentlyFired - this.overheatThreshold;
-            if (Math.random() <= diff * .00038) {
+            // if (Math.random() <= diff * .00038) {
+            //     this.terminal.printLine(`Phasers overheated!`);
+            //     this._damaged = true;
+            // }
+            if (Math.random() <= diff * .0038) {
                 this.terminal.printLine(`Phasers overheated!`);
-                this._damaged = true;
+                this.randomlyDamage();
             }
         }
     }
@@ -304,6 +363,7 @@ export class Phasers extends Device {
             return;
         }
         // device can't be damaged
+        this.checkDamage();
         if (this.isDamaged()) {
             this.terminal.printLine('Phaser control damaged.');
             return;
@@ -359,6 +419,7 @@ export class PhotonTorpedoLauncher extends Device {
     }
 
     addTorpedoes(n) {
+        this.checkDamage();
         if (n <= 0) {
             return;
         } else if (this._torpedoes + n > this._capacity) {
@@ -378,6 +439,7 @@ export class PhotonTorpedoLauncher extends Device {
 
     // fire at sector x y , can be floats or ints
     fire(sectorX, sectorY) {
+        this.checkDamage();
         if (this.isDamaged()) {
             this.terminal.echo("Photon torpedoes are damaged and can't fire.");
             return;
