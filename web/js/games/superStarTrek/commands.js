@@ -56,12 +56,45 @@ class Command {
         this.regex = null;
         this.fullName = null;
         this.deviceUsed = "";
-        this.options = {};
         this.info = "No info.";
         this.type = null;
         this.canAskQuestions = false;
+        this.options = {};
+        this.modes = {};
     }
 
+    // makes an option for you
+    addOption(name, ...matchingStrs) {
+        this.options[name] = optionRegexifier(...matchingStrs);
+    }
+
+    // makes a mode for you
+    addMode(name, ...matchingStrs) {
+        this.modes[name] = optionRegexifier(...matchingStrs);
+    }
+
+    // one of the arguments given matches some option regex then option
+    // is true
+    // returns map of options {optionName => found, ...}
+    getOption(args) {
+        let matched = {};
+        Object.keys(this.options).forEach(prop => {
+            matched[prop] = args.some(str => this.options[prop].test(str))
+        });
+        return matched;
+    }
+
+    // the first argument given matches a mode regex then mode is true
+    // returns map of modes {modeName => found, ...}
+    getMode(args) {
+        let matched = {};
+        Object.keys(this.modes).forEach(prop => {
+            matched[prop] = this.modes[prop].test(args[0])
+        });
+        return matched;
+    }
+
+    /** Command Type functions **/
     isInstantShipCommand() {
         return this.type === INSTANT_SHIP_COMMAND;
     }
@@ -154,12 +187,25 @@ export class DamageReportCommand extends Command {
         this.abbreviation = "da";
         this.name = "damages";
         this.fullName = "damage report";
-        this.regex = regexifier(this.abbreviation, this.name, this.fullName);
+        this.regex = regexifier(this.abbreviation, this.name, "damage", this.fullName);
         this.type = INFO_COMMAND;
+        this.addOption("alpha", "a", "alpha", "alphabetically");
+        this.addOption("all", "all");
         this.info = `
   Mnemonic:  DAMAGES
-  Shortest abbreviation:  DA
-
+  Shortest abbreviation:  DA 
+  Syntax: [command] [options]
+  Options: all, alpha 
+  
+    example usage : 
+    COMMAND> damage alpha    
+    - sorted by alphabetically by device name
+    COMMAND> da
+    - sorted by time 
+    COMMAND> da all
+    - show all devices, sort by default (damage descending)
+    
+========    DETAILS =========    
 At any time you may ask for a damage report to find out what devices
 are damaged and how long it will take to repair them.  Naturally,
 repairs proceed faster at a starbase.
@@ -174,22 +220,34 @@ safely even in the midst of battle.`;
     }
 
     run(commandObj) {
-        // in flight versuses docked repair times ?
-        // roughly 3.5 ?
-        // sort this by damage desc // todo::
+        // get sort option if any
+        let {alpha, all} = this.getOption(commandObj.arguments);
+
+        let sortedDevices = this.player.deviceContainer.devices.slice();
+        if(alpha) { // sort alphabetically
+            sortedDevices.sort((a, b) => a.name.localeCompare(b.name));
+        } else {    // sort by damage
+            sortedDevices.sort((a, b) => b.damage - a.damage);
+        }
+
+        // filter out non-damaged devices
+        if(!all) {
+            sortedDevices = sortedDevices.filter(d => d.damage > 0);
+        }
+
         let report = [
             ["DEVICE", "", "-REPAIR TIMES-"],
             ["", "IN FLIGHT", "DOCKED"],
-            ...this.player.deviceContainer.devices.map(device => {
+            ...sortedDevices.map(d => {
                 return [
-                    device.name,
-                    device.timeToRepairInFlight().toFixed(2),
-                    device.timeToRepairAtDock().toFixed(2)
+                    d.name,
+                    d.timeToRepairInFlight().toFixed(2),
+                    d.timeToRepairAtDock().toFixed(2)
                 ]
             })
         ];
         this.terminal.skipLine(1);
-        this.terminal.printLine(this.terminal.printGrid(this.terminal.formatGrid(report)));
+        this.terminal.printLine(this.terminal.printGrid(this.terminal.formatGrid(report), "", ""));
         this.terminal.skipLine(1);
     }
 }
@@ -456,6 +514,9 @@ export class PhasersCommand extends Command {
         this.fullName = "phasers";
         this.regex = regexifier(this.name, this.abbreviation, this.fullName);
         this.type = ATTACK_COMMAND;
+        this.addOption("no", "n", "no");
+        this.addMode("auto", "a", "auto", "automatic");
+        this.addMode("manual", "m", "man", "manual");
         this.info = `
   Mnemonic:  PHASERS
   Shortest abbreviation:  P
@@ -519,18 +580,18 @@ specifying the <no> option, shields are not raised after firing.
 Phasers have no effect on starbases (which are shielded) or on stars.`;
     }
 
-    getMode(arg) {
-        let autoOption = optionRegexifier("automatic", "auto", "a");
-        let manualOption = optionRegexifier("manual", "man", "m");
-        return {
-            auto: autoOption.test(arg),
-            manual: manualOption.test(arg)
-        }
-    }
+    // getMode(arg) {
+    //     let autoOption = optionRegexifier("automatic", "auto", "a");
+    //     let manualOption = optionRegexifier("manual", "man", "m");
+    //     return {
+    //         auto: autoOption.test(arg),
+    //         manual: manualOption.test(arg)
+    //     }
+    // }
 
-    hasNoOption(args) {
-        return args.some(arg => /no/i.test(arg));
-    }
+    // hasNoOption(args) {
+    //     return args.some(arg => /no/i.test(arg));
+    // }
 
     run(commandObj) {
         // find enemies to fire upon, check that we can fire on something
@@ -543,8 +604,9 @@ Phasers have no effect on starbases (which are shielded) or on stars.`;
         }
 
         // figure out the mode
-        let {auto, manual} = this.getMode(commandObj.arguments[0]);
-        let noOption = this.hasNoOption(commandObj.arguments);
+        let {auto, manual} = this.getMode(commandObj.arguments);
+        let {no} = this.getOption(commandObj.arguments);
+        let noOption = no;
 
         // automatic is assumed
         let amounts = [];
@@ -605,13 +667,13 @@ Phasers have no effect on starbases (which are shielded) or on stars.`;
             if (this.player.shields.up) {
                 this.terminal.printLine(`Weapons Officer Sulu-  "High-speed shield control enabled, sir."`);
                 // do fast shield control
-                this.player.shields.shieldsDown();
+                this.player.shields.lower();
                 // lower shields
                 if (noOption) {
                     // leave shields down
                     this.player.powerGrid.useEnergy(200);
                 } else {
-                    this.player.shieldsUp();    // costs 50
+                    this.player.shields.raise();    // costs 50
                     this.player.powerGrid.useEnergy(150);
                 }
             }
@@ -939,9 +1001,9 @@ providing the file is in the current directory.`;
         }
 
         // get the relevant command by name
-        let command = this.game.commands.find(c => c.name === arg);
+        let command = this.game.commands.find(c => c.regex.test(arg));
         if (command) {
-            this.terminal.echo(`Spock- "Captain, I've found the following information:"\n\n`);
+            this.terminal.echo(`Spock- "Captain, I've found the following information:"\n`);
             // todo:: implement the page scrolling stuff
             this.terminal.echo(command.info);
         } else {

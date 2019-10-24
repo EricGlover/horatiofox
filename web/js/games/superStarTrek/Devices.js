@@ -28,6 +28,7 @@ export class Device extends Component {
 
     takeDamage(damage) {
         this._damage += damage;
+        terminal.printLine(`damage to ${this.name}`);
     }
 
     repair(amount) {
@@ -141,6 +142,7 @@ export class WarpDrive extends Device {
     //
     // }
 }
+
 export class ImpulseEngines extends Device {
     constructor(parent, powerGrid) {
         super(parent, "impulse engines", "impulse");
