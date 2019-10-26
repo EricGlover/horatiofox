@@ -40,15 +40,8 @@ $(document).ready(function () {
         }
     };
 
-    terminal.$terminal = $("#terminal").Ptty({
-        ps: DEBUG ? "COMMAND>" : "",
-        autocomplete: true,
-        i18n: {
-            welcome: "-SUPER- STAR TREK\n\n",
-            error_not_found: "Command not recognized, try 'help'.",
-            error_bad_methdo: "Command malformed. Try 'help'."
-        }
-    });
+    terminal.init($("#terminal"));
+
     // test some things
     if (RUN_TESTS) {
         let tester = new Tests();
@@ -62,6 +55,7 @@ $(document).ready(function () {
     terminal.silent = false;
 
     if (DEBUG) { // SKIP the menu
+        terminal.setPrompt("COMMAND>");
         game.start();
         window.game = game;
         window.terminal = terminal;

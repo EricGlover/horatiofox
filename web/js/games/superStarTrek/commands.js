@@ -19,7 +19,6 @@ import Star from "./Objects/Star.js";
 import Enterprise from "./PlayerShips/Enterprise.js";
 import Planet from "./Objects/Planet.js";
 import BlackHole from "./Objects/BlackHole.js";
-import {DEBUG} from "./superStarTrek.js";
 
 // same thing as the regexifier but with the end of line character added
 // so that you when we break apart the command by \s it identifies it correctly
@@ -59,7 +58,6 @@ class Command {
         this.deviceUsed = "";
         this.info = "No info.";
         this.type = null;
-        this.canAskQuestions = false;
         this.options = {};
         this.modes = {};
     }
@@ -112,11 +110,6 @@ class Command {
         return this.type === MOVE_COMMAND;
     }
 
-    run(commandObj) {
-        commandObj.out = "Not implemented.";
-        return commandObj;
-    }
-
     makeInfo() {
         // set mnemonic shortest abbrev full name text
     }
@@ -132,8 +125,9 @@ export class RestCommand extends Command {
         this.type = TIME_EXPENDING_SHIP_COMMAND;
         this.info = ``
     }
-    run(commandObj) {
-        let days = Number.parseFloat(commandObj.arguments[0]);
+
+    run() {
+        let days = Number.parseFloat(this.terminal.getArguments());
         this.game.clock.elapseTime(days);
     }
 }
@@ -168,8 +162,8 @@ you go at warp 10, the greater is the probability of entering the
 time warp.`
     }
 
-    run(commandObj) {
-        let warpFactor = Number.parseFloat(commandObj.arguments[0]);
+    run() {
+        let warpFactor = Number.parseFloat(this.terminal.getArguments()[0]);
         if (Number.isNaN(warpFactor)) {
             this.terminal.printLine("Beg your pardon, Captain?");
             return;
@@ -235,23 +229,23 @@ Damage reports are free.  They use no energy or time, and can be done
 safely even in the midst of battle.`;
     }
 
-    run(commandObj) {
+    run() {
         // get sort option if any
-        let {alpha, all} = this.getOption(commandObj.arguments);
+        let {alpha, all} = this.getOption(this.terminal.getArguments());
 
         let sortedDevices = this.player.deviceContainer.devices.slice();
-        if(alpha) { // sort alphabetically
+        if (alpha) { // sort alphabetically
             sortedDevices.sort((a, b) => a.name.localeCompare(b.name));
         } else {    // sort by damage
             sortedDevices.sort((a, b) => b.damage - a.damage);
         }
 
         // filter out non-damaged devices
-        if(!all) {
+        if (!all) {
             sortedDevices = sortedDevices.filter(d => d.damage > 0);
         }
 
-        if(sortedDevices.length === 0) {
+        if (sortedDevices.length === 0) {
             this.terminal.skipLine(1);
             this.terminal.printLine("All systems operational.");
             this.terminal.skipLine(1);
@@ -295,7 +289,7 @@ general idea of how well you are performing.
         `
     }
 
-    run(commandObj) {
+    run() {
         let score = 0;
         let killedKlingonsAll = this.game.getNumberOfTypeKilled(AbstractKlingon);
         let killedKlingons = this.game.getNumberOfTypeKilled(Klingon);
@@ -375,7 +369,7 @@ This same information is automatically given to you when you start to
 play a frozen game.`
     }
 
-    run(commandObj) {
+    run() {
         this.terminal.printLine(`You are now playing a ${this.game.getGameLengthStr()} ${this.game.getDifficultyStr()} game.`);
         let killedKlingonsAll = this.game.getNumberOfTypeKilled(AbstractKlingon);
         let killedKlingons = this.game.getNumberOfTypeKilled(Klingon);
@@ -463,14 +457,14 @@ inclusive.
 `;
     }
 
-    run(commandObj) {
+    run() {
         // torpedo launcher is damaged
         if (this.player.photons.isDamaged()) {
             this.terminal.echo(`Torpedo launcher is damaged.`);
             return;
         }
 
-        let args = commandObj.arguments;
+        let args = this.terminal.getArguments();
         let number = args.shift();
         let targets = [];
         for (let i = 0; i < args.length; i += 2) {
@@ -603,20 +597,7 @@ specifying the <no> option, shields are not raised after firing.
 Phasers have no effect on starbases (which are shielded) or on stars.`;
     }
 
-    // getMode(arg) {
-    //     let autoOption = optionRegexifier("automatic", "auto", "a");
-    //     let manualOption = optionRegexifier("manual", "man", "m");
-    //     return {
-    //         auto: autoOption.test(arg),
-    //         manual: manualOption.test(arg)
-    //     }
-    // }
-
-    // hasNoOption(args) {
-    //     return args.some(arg => /no/i.test(arg));
-    // }
-
-    run(commandObj) {
+    run() {
         // find enemies to fire upon, check that we can fire on something
         let quadrant = this.player.gameObject.quadrant;
         let playerSector = this.player.gameObject.sector;
@@ -627,17 +608,18 @@ Phasers have no effect on starbases (which are shielded) or on stars.`;
         }
 
         // figure out the mode
-        let {auto, manual} = this.getMode(commandObj.arguments);
-        let {no} = this.getOption(commandObj.arguments);
+        let args = this.terminal.getArguments();
+        let {auto, manual} = this.getMode(args);
+        let {no} = this.getOption(args);
         let noOption = no;
 
         // automatic is assumed
         let amounts = [];
         if (!auto && !manual) {
             auto = true;
-            amounts = commandObj.arguments.slice(0);  // no mode option specified in args
+            amounts = args.slice(0);  // no mode option specified in args
         } else {
-            amounts = commandObj.arguments.slice(1);  // ignore mode option specified in args
+            amounts = args.slice(1);  // ignore mode option specified in args
         }
 
         let shieldControl = 200;
@@ -775,7 +757,6 @@ Phasers have no effect on starbases (which are shielded) or on stars.`;
             // have our player fire away
             this.player.firePhasersMultiTarget(targetArray, false);
         }
-        return commandObj;
     }
 }
 
@@ -850,11 +831,11 @@ are up) and have essentially the same effect as phaser hits.`;
         };
     }
 
-    run(commandObj) {
+    run() {
         // get mode : up/down or charge/drain
-        let {up, down, charge, drain} = this.getMode(commandObj.arguments[0]);
+        let {up, down, charge, drain} = this.getMode(this.terminal.getArguments()[0]);
 
-        if(!up && !down && !charge && !drain) {
+        if (!up && !down && !charge && !drain) {
             this.terminal.printLine("Beg pardon, Captain?");
             this.terminal.printLine("Valid options are : 'up', 'down', 'charge', or 'drain'.");
             return;
@@ -868,7 +849,7 @@ are up) and have essentially the same effect as phaser hits.`;
             let playerShields = this.player.shields;
             let playerPowerGrid = this.player.powerGrid;
             // get the amount to transfer
-            let amount = commandObj.arguments[1];
+            let amount = this.terminal.getArguments()[1];
             amount = Number.parseInt(amount);
             if (Number.isNaN(amount)) {
                 // parse error
@@ -883,7 +864,7 @@ are up) and have essentially the same effect as phaser hits.`;
                 this.terminal.echo("Shields damaged.");
                 return;
             }
-            if(charge) {
+            if (charge) {
                 // need the energy
                 if (playerPowerGrid.energy < amount) {
                     this.terminal.printLine("Not enough energy, Captain.");
@@ -907,17 +888,17 @@ are up) and have essentially the same effect as phaser hits.`;
                 playerShields.charge(amount);
             } else if (drain) {
                 // check shield energy
-                if(amount > playerShields.units) {
+                if (amount > playerShields.units) {
                     this.terminal.printLine("Not enough energy in shields. Draining what we have.");
                     amount = playerShields.units;
                 }
                 // check ship energy not already maxed out
-                if(playerPowerGrid.atMax()) {
+                if (playerPowerGrid.atMax()) {
                     this.terminal.printLine("Ship energy already at max.");
                     return;
                 }
                 // check that we don't exceed ship energy capacity
-                if(playerPowerGrid.energy + amount > playerPowerGrid.capacity) {
+                if (playerPowerGrid.energy + amount > playerPowerGrid.capacity) {
                     this.terminal.printLine("That would exceed our ship energy capacity. Setting ship energy to maximum.");
                     amount = playerPowerGrid.capacity - playerPowerGrid.energy;
                 }
@@ -926,7 +907,6 @@ are up) and have essentially the same effect as phaser hits.`;
                 playerPowerGrid.addEnergy(amount);
             }
         }
-        return commandObj;
     }
 }
 
@@ -991,10 +971,9 @@ Phaser fire diminishes to about 60 percent at 5 sectors.  Up to 1500
         return this.terminal.printGrid(formatted, "   ");
     }
 
-    run(commandObj) {
+    run() {
         this.terminal.newLine();
         this.terminal.echo(this.printCommands());
-        return commandObj;
     }
 }
 
@@ -1016,14 +995,14 @@ This command reads the appropriate section from the SST.DOC file,
 providing the file is in the current directory.`;
     }
 
-    run(commandObj) {
+    async run() {
         this.terminal.newLine();
-        let arg = commandObj.arguments[0];
+        let arg = this.terminal.getArguments()[0];
         // prompt
         if (!arg) {
-            commandObj.ps = "Help on what command?";
-            commandObj.next = this.name;
-            return commandObj;
+          do {
+              arg = await this.terminal.ask("Help on what command?");
+          } while(!arg);
         }
 
         // get the relevant command by name
@@ -1039,7 +1018,6 @@ providing the file is in the current directory.`;
 
         }
         this.terminal.newLine();
-        return commandObj;
     }
 }
 
@@ -1055,7 +1033,6 @@ export class MoveCommand extends Command {
         this.regex = regexifier("m", "move");
         this.fullName = "move under warp drive";
         this.type = MOVE_COMMAND;
-        this.canAskQuestions = true;
         this.info = `  Mnemonic:  MOVE
   Shortest abbreviation:  M
   Full command:  MOVE MANUAL [displacement]
@@ -1129,7 +1106,7 @@ command.  This enables you to move and hit them before they
 retaliate.`;
     }
 
-    * moveTo(sector) {
+    async moveTo(sector) {
         // how do they do collisions ?
         // check path for objects
         // calculate distance, energy required and time expended
@@ -1151,15 +1128,22 @@ retaliate.`;
         let timeRequired = distance / Math.pow(this.player.warpFactor, 2);
         // if the move takes 80% or greater of the remaining time then warn them
         let percentOfRemaining = 100 * timeRequired / this.game.timeRemaining;
-        if (percentOfRemaining > 80.0) {
-            // todo::
-            this.terminal.ask(`First Officer Spock- "Captain, I compute that such
+        if (true || percentOfRemaining > 80.0) {
+            let response;
+            let yes = /(yes|y)/i;
+            let no = /(no|n)/i;
+            do {
+                response = await this.terminal.ask(`First Officer Spock- "Captain, I compute that such
   a trip would require approximately ${percentOfRemaining.toFixed(2)}% of our
   remaining time.  Are you sure this is wise?"`);
-            let response = yield;
-            if (/(yes|y)/i.test(response)) {
+                yes = /(yes|y)/i;
+                no = /(no|n)/i;
+            } while(!yes.test(response) && !no.test(response));
+
+
+            if (yes.test(response)) {
                 this.terminal.printLine("To boldly go...");
-            } else if (/(no|n)/i.test(response)) {
+            } else if (no.test(response)) {
                 this.terminal.printLine("Cancelling move.");
                 return;
             }
@@ -1182,15 +1166,11 @@ retaliate.`;
     }
 
     // manual mode
-    * manual(deltaQx, deltaQy, deltaSx, deltaSy) {
+    manual(deltaQx, deltaQy, deltaSx, deltaSy) {
         // calculate the destination
         try {
             let destination = this.player.mover.calculateDestination(deltaQx, deltaQy, deltaSx, deltaSy);
-            let iter = this.moveTo(destination);
-            if (!iter.next().done) {
-                let response = yield;
-                iter.next(response);
-            }
+            return this.moveTo(destination);
         } catch (e) {
             this.terminal.printLine(e.message);
             return;
@@ -1198,22 +1178,18 @@ retaliate.`;
     }
 
     // automatic mode
-    * automatic(quadX, quadY, sectorX, sectorY) {
+    automatic(quadX, quadY, sectorX, sectorY) {
         try {
             // get sector
             let sector = this.galaxy.getSector(quadX, quadY, sectorX, sectorY);
-            let iter = this.moveTo(sector);
-            if (!iter.next().done) {
-                let response = yield;
-                iter.next(response);
-            }
+            return this.moveTo(sector);
         } catch (e) {
             this.terminal.printLine(e.message);
             return;
         }
     }
 
-    * run(commandObj) {
+    async run() {
         // modes : manual and automatic
         let manual = true;
         let automatic = false;
@@ -1221,7 +1197,7 @@ retaliate.`;
         let automaticOption = optionRegexifier("a", "automatic");
 
         // remove mode option from arguments, if provided
-        let args = commandObj.arguments;
+        let args = this.terminal.getArguments();
         if (args.some(arg => manualOption.test(arg))) {
             manual = true;
             automatic = false;
@@ -1249,11 +1225,7 @@ retaliate.`;
             let deltaSx = Math.trunc((argX * 10) % 10);
             let deltaSy = Math.trunc((argY * 10) % 10);
             // todo:: check bounds
-            let iter = this.manual(deltaQx, deltaQy, deltaSx, deltaSy);
-            if (!iter.next().done) {
-                let response = yield;
-                iter.next(response);
-            }
+            await this.manual(deltaQx, deltaQy, deltaSx, deltaSy);
         } else if (automatic) {
             console.log("automatic mode");
             // parse args <quadY> <quadX> <sectorY> <sectorX>
@@ -1263,22 +1235,12 @@ retaliate.`;
             // make sure to convert from the 1 based commands
             // to the 0 based coordinates
             if (args.length === 4) {
-                let iter = this.automatic(args[0] - 1, args[1] - 1, args[2] - 1, args[3] - 1);
-                if (!iter.next().done) {
-                    let response = yield;
-                    iter.next(response);
-                }
+                await this.automatic(args[0] - 1, args[1] - 1, args[2] - 1, args[3] - 1);
             } else if (args.length === 2) {
                 let quadrant = this.player.gameObject.quadrant;
-                let iter = this.automatic(quadrant.x, quadrant.y, args[0] - 1, args[1] - 1);
-                if (!iter.next().done) {
-                    let response = yield;
-                    iter.next(response);
-                }
+                await this.automatic(quadrant.x, quadrant.y, args[0] - 1, args[1] - 1);
             }
-
         }
-        return commandObj;
     }
 }
 
@@ -1365,14 +1327,14 @@ See REQUEST command for details.`;
         let playerQuad = this.player.gameObject.quadrant;
         let playerSector = this.player.gameObject.sector;
         let collider = this.player.collider;
-        let percent = collider.health * 100/ collider.maxHealth;
+        let percent = collider.health * 100 / collider.maxHealth;
         let hullIntegrity = `Hull Integrity\t${collider.health.toFixed(2)}, ${percent.toFixed(1)}%`;
         let position = `Position\t${playerQuad.x + 1} - ${playerQuad.y + 1}, ${playerSector.x + 1} - ${playerSector.y + 1}`;
         let lifeSupport = `Life Support NA`;
-        if(this.player.lifeSupport.isOk()) {
-             lifeSupport = `Life Support\tACTIVE`;
+        if (this.player.lifeSupport.isOk()) {
+            lifeSupport = `Life Support\tACTIVE`;
         } else {
-             lifeSupport = `Life Support\tDAMAGED, reserves = ${this.player.lifeSupport.reserves.toFixed(1)}`;
+            lifeSupport = `Life Support\tDAMAGED, reserves = ${this.player.lifeSupport.reserves.toFixed(1)}`;
         }
         let warpFactor = `Warp Factor\t${this.player.warpFactor.toFixed(1)}`;
         let grid = this.player.powerGrid;
@@ -1397,10 +1359,9 @@ See REQUEST command for details.`;
         ];
     }
 
-    run(commandObj) {
+    run() {
         this.terminal.newLine();
         this.terminal.echo(this.getStatusText().join("\n"));
-        return commandObj;
     }
 }
 
@@ -1416,7 +1377,6 @@ export class RequestCommand extends Command {
         this.fullName = "request information";
         this.arguments = 1;
         this.type = INFO_COMMAND;
-        this.canAskQuestions = true;
         this.info = `Mnemonic:  REQUEST
   Shortest abbreviation:  REQ
   Full command:  REQUEST [ITEM]
@@ -1438,12 +1398,11 @@ the [STATUS] command.  [ITEM] specifies which information as follows:
  TIME LEFT             TIME                                TI`;
     }
 
-    * run(commandObj) {
-        let request = commandObj.arguments[0];
+    async run() {
+        let request = this.terminal.getArguments()[0];
         // ask
         if (!request) {
-            this.terminal.ask("Information desired? ");
-            request = yield;
+            request = await this.terminal.ask("Information desired? ");
         }
 
         // otherwise
@@ -1489,7 +1448,6 @@ the [STATUS] command.  [ITEM] specifies which information as follows:
                 "  energy, torpedoes, shields, klingons, time.\n"
         }
         this.terminal.echo(output);
-        return commandObj;
     }
 }
 
@@ -1567,7 +1525,7 @@ export class ChartCommand extends Command {
         return this.terminal.formatGrid(grid).map(row => row.join("  ")).join("\n");
     }
 
-    run(commandObj) {
+    run() {
         this.terminal.echo("\nSTAR CHART FOR THE KNOWN GALAXY\n");
         this.terminal.newLine();
         this.terminal.printLine(this.makeChartText());
@@ -1581,7 +1539,6 @@ period (.):        digit not known`);
         let q = this.player.gameObject.quadrant;
         this.terminal.printLine(`Enterprise is currently in ${this.player.gameObject.getQuadrantLocation()}`);
         this.terminal.printLine();
-        return commandObj;
     }
 }
 
@@ -1654,18 +1611,12 @@ export class ShortRangeScanCommand extends Command {
     short-range scan anytime you like.`;
     }
 
-    run(commandObj) {
+    async run() {
         // get the options
         let no = optionRegexifier("n", "no");
-        let printStatus = true;
-        if (no.test(commandObj.argumentStr)) {
-            printStatus = false;
-        }
+        let printStatus = !this.terminal.hasOption(no);
         let chart = optionRegexifier("c", "chart");
-        let printChart = false;
-        if (chart.test(commandObj.argumentStr)) {
-            printChart = true;
-        }
+        let printChart = this.terminal.hasOption(chart);
 
         // use player location
         let quadrant = this.game.player.gameObject.quadrant;
@@ -1717,7 +1668,7 @@ export class ShortRangeScanCommand extends Command {
         this.terminal.newLine();
         // format the grid so the spacing is correct
         matrix = this.terminal.formatGrid(matrix);
-        // todo:: print chart
+
         // add status info
         if (printStatus) {
             // join the row together, add separators
@@ -1726,14 +1677,14 @@ export class ShortRangeScanCommand extends Command {
             let statusLines = this.statusCommand.getStatusText();
             statusLines.forEach((line, i) => {
                 matrix[i] += "\t" + line;
-            })
+            });
             // join the rows with \n
             let text = matrix.join("\n");
             // print
             // this.terminal.echo(text);
             this.terminal.echo(text);
         } else {
-            this.terminal.echo(this.terminal.formatGrid(matrix));
+            this.terminal.printGrid(this.terminal.formatGrid(matrix), " ", "", true);
         }
         // print out the star chart if requested
         if (printChart) {
@@ -1745,6 +1696,7 @@ export class ShortRangeScanCommand extends Command {
         this.terminal.printLine(". = nothing; K = klingon; C = commander; S = super commander; R = romulan; E = Enterprise;");
         this.terminal.printLine("* = star; p = planet; b = base; empty = black hole.");
         this.terminal.newLine();
+        // this.terminal.print();
     }
 }
 
@@ -1804,7 +1756,7 @@ export class LongRangeScanCommand extends Command {
     done safely regardless of battle conditions.`;
     }
 
-    run(commandObj) {
+    run() {
         // todo:: save info
         // use player location
         let playerQuadrant = this.game.player.gameObject.quadrant;
@@ -1852,8 +1804,6 @@ export class LongRangeScanCommand extends Command {
         let txt = this.terminal.formatGrid(matrix).map(row => row.join("\t")).join("\n");
         this.terminal.echo(txt);
         this.terminal.newLine();
-
-        return commandObj;
     }
 }
 
@@ -1880,7 +1830,7 @@ your starship is resupplied with energy, shield energy photon
 torpedoes.`;
     }
 
-    run(commandObj) {
+    run() {
         if (this.player.docked) {
             this.terminal.echo("Already docked.");
             return;

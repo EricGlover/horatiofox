@@ -1,11 +1,40 @@
+/**
+ *
+ */
 class Terminal {
     constructor() {
+        this.$el = null;
         this.$terminal = null;
         this._out = "";
         this.silent = true;
+        this._command = null;
+        this._input = null;
+        this._argumentStr = null;
+        this._arguments = null;
         this.questionMode = false;
         this.question = "";
         this.commands = [];
+        window.terminal = this;
+    }
+
+    init($terminal) {
+        this.$el = $terminal;
+        this.$terminal = this.$el.Ptty({
+            ps: "",
+            autocomplete: true,
+            i18n: {
+                welcome: "-SUPER- STAR TREK\n\n",
+                error_not_found: "Command not recognized, try 'help'.",
+                error_bad_methdo: "Command malformed. Try 'help'."
+            }
+        });
+    }
+
+    setPrompt(ps) {
+        this.$terminal.change_settings({ps});
+        this.$terminal.run_command();
+        // clear fake command
+        this.$el.find(".content > div").last().remove();
     }
 
     echo(str) {
@@ -39,8 +68,12 @@ class Terminal {
         this._out = "";
     }
 
+    /**
+     * Print my output
+     */
     print() {
         if(this.silent) return;
+        if(!this._out) return;
         this.$terminal.echo(this._out);
         this._out = "";
     }
@@ -62,16 +95,24 @@ class Terminal {
 
     parseCommand(commandObj, command) {
         let input = this.$terminal.get_input();
-        let args = input.replace(command.regex, "");
-        commandObj.command = command;
-        commandObj.input = input;
-        commandObj.argumentStr = args;
-        commandObj.arguments = args.split(/\s/).filter(str => str.length > 0);
+        let args = input.replace(command.regex, "");    // remove the command from the arguments
+        this._command = command;
+        this._input = input; // original input
+        this._argumentStr = args;    //string arguments
+        this._arguments = args.split(/\s/).filter(str => str.length > 0);    //array of args
+    }
+
+    getArguments() {
+        return this._arguments;
+    }
+
+    hasOption(regex) {
+        return regex.test(this._argumentStr);
     }
 
     // the only hitch here is question mode
     // in question mode we have the
-    runCommand(commandName, commandObj) {
+    async runCommand(commandName, commandObj) {
         // find a command by name
         let command = this.commands.find(c => c.name === commandName);
         if (!command) {
@@ -79,69 +120,14 @@ class Terminal {
             return commandObj;
         }
 
-        // if there's no interactive questions we just run the command
-        // then resolve the user command promise so the game loop can run
-        // then print the output
-        if(!command.canAskQuestions) {
-            // get input parsing arguments
-            this.parseCommand(commandObj, command);
-
-            // this is how the sausage is made
-            try {
-                command.run(commandObj);
-            } catch(e) {
-                console.error(e);
-                this.printLine("OOOF, that went really wrong. Try that again.");
-                this.print();
-            }
-            this.resolveUserCommand({command, commandObj});
-
-            commandObj.out = this.getOutput();
-            this.clear();
-            return commandObj;
-        } else if(command.canAskQuestions) {
-            // we do some generator functions to yield control back and forth
-            let ret;
-            if(this.questionMode) {
-                // clear the previous question
-                this.questionMode = false;
-                this.question = "";
-                // pass the user response to the command
-                let input = this.$terminal.get_input();
-                ret = this.iterator.next(input);
-                if(ret.done) {
-                    commandObj = ret.value;
-                    this.iterator = null;
-                }
-            } else {
-                // first run, do all the normal things
-                // get input parsing arguments
-                this.parseCommand(commandObj, command);
-                this.iterator = command.run(commandObj);
-
-                try {
-                    ret = this.iterator.next(commandObj);
-                } catch(e) {
-                    console.error(e);
-                    this.printLine("OOOF, that went really wrong. Try that again.");
-                    this.print();
-                }
-            }
-
-            // command is finished executing
-            if(ret.done) {
-                delete commandObj.next;
-                delete commandObj.ps;
-                this.resolveUserCommand({command, commandObj});
-                commandObj.out = this.getOutput();
-                this.clear();
-                return commandObj;
-            } else if(this.questionMode && !ret.done) { // we're asking the user a question
-                // set next command to this and ps to our question
-                commandObj.next = command.name;
-                commandObj.ps = this.question;
-            }
-            return commandObj;
+        // get input parsing arguments
+        this.parseCommand(commandObj, command);
+        try {
+            this.resolveUserCommand({command});
+        } catch(e) {
+            console.error(e);
+            this.printLine("OOOF, that went really wrong. Try that again.");
+            this.print();
         }
     }
 
@@ -151,12 +137,34 @@ class Terminal {
         });
     }
 
-    ask(question) {
-        this.questionMode = true;
-        this.question = question;
-    }
-    answer() {
-        this.questionResolution(this.$terminal.get_input());
+    /**
+     * Ask a question, returns resolved user input
+     * @param question
+     * @returns {Promise<void>}
+     */
+    async ask(question) {
+        // print existing stuff ?
+        this.print();
+        // this.questionMode = true;
+        // this.question = question;
+        let oldPrompt = this.$terminal.get_settings().ps;
+        this.setPrompt(question);
+        return new Promise((resolve, reject) => {
+            this.answer = (commandObj) => {
+                let userInput = this.$terminal.get_input();
+                this.$terminal.unregister('command','answer');
+                this.$terminal.change_settings({ps: oldPrompt});
+                this.$terminal.set_command_option({next: null});
+                resolve(userInput);
+                return commandObj;
+            };
+            this.$terminal.register('command', {
+                name: "answer",
+                method: this.answer.bind(this),
+                regex: /answer/
+            });
+            this.$terminal.set_command_option({next: 'answer'});
+        })
     }
 
     /**
