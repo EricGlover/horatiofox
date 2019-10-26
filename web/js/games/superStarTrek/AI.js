@@ -32,9 +32,10 @@ export default class AI extends Component {
             console.error("OUT OF ENERGY");
             return;
         }
-
-        this.parent.phasers.fire(amountToFire, this.player);
-        this.parent.powerGrid.useEnergy(amountToFire);  // todo:::
-        this.parent.phasers.coolDown();
+        if (this.parent.phasers.isOk()) {
+            this.parent.phasers.fire(amountToFire, this.player);
+            this.parent.powerGrid.useEnergy(amountToFire);  // todo:::
+            this.parent.phasers.coolDown();
+        }
     }
 }

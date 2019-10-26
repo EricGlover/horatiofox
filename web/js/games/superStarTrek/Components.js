@@ -4,7 +4,7 @@ import {terminal} from "./Terminal.js";
 import {DEVICE_DAMAGE_ENABLED} from "./Game.js";
 
 let colliderMaxHitToDamageDevices = 275.0;
-let colliderMinHitToDamageDevices = 20.0;
+let colliderMinHitToDamageDevices = 50.0;
 
 
 export class Component {

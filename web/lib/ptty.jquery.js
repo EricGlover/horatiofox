@@ -217,7 +217,7 @@
 
         var rules = [
           att +
-            "{ position: relative; display: block; overflow-X: hidden; height: 100%; }",
+            // "{ position: relative; display: block; overflow-X: hidden; height: 100%; }",
           "div.content div p" + "{ margin: 0; }",
           "div.content div" +
             "{ clear: both; white-space:pre-wrap; word-wrap:break-word; }",

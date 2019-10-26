@@ -235,7 +235,7 @@ export class Shields extends Device {
     }
 
     printInfo() {
-        return `${this.up ? "UP" : "DOWN"}, ${(this.units * 100 / this.capacity).toFixed(1)}% ${this.units.toFixed(2)} units`;
+        return `${this.up ? "UP" : "DOWN"}, ${this.units.toFixed(2)} ${(this.units * 100 / this.capacity).toFixed(1)}%`;
     }
 
     recharge() {

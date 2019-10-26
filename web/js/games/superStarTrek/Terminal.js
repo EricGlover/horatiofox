@@ -2,11 +2,11 @@
  *
  */
 class Terminal {
-    constructor() {
+    constructor(takesInput = true) {
         this.$el = null;
         this.$terminal = null;
         this._out = "";
-        this.silent = true;
+        this.silent = false;
         this._command = null;
         this._input = null;
         this._argumentStr = null;
@@ -15,19 +15,45 @@ class Terminal {
         this.question = "";
         this.commands = [];
         window.terminal = this;
+        this.paging = true;
+        this.takesInput = takesInput;
     }
 
-    init($terminal) {
+    hideInput() {
+        this.$el.find(".prompt").hide();
+    }
+
+    initChartPane($chart) {
+        this.$chart = $chart;
+        this.$chartPane = this.$chart.Ptty({
+            ps: "",
+            autocomplete: false,
+            // native_css: false,
+            // theme: 'my-theme',
+            i18n: {
+                welcome: "-SUPER- STAR TREK\n\n",
+                error_not_found: "Command not recognized, try 'help'.",
+                error_bad_methdo: "Command malformed. Try 'help'."
+            }
+        })
+    }
+
+    init($terminal, theme) {
         this.$el = $terminal;
         this.$terminal = this.$el.Ptty({
             ps: "",
             autocomplete: true,
+            // native_css: false,
+            theme: theme,
             i18n: {
                 welcome: "-SUPER- STAR TREK\n\n",
                 error_not_found: "Command not recognized, try 'help'.",
                 error_bad_methdo: "Command malformed. Try 'help'."
             }
         });
+        if(!this.takesInput) {
+            this.hideInput();
+        }
     }
 
     setPrompt(ps) {
@@ -66,6 +92,10 @@ class Terminal {
     clear() {
         if(this.silent) return;
         this._out = "";
+    }
+
+    clearAll() {
+        this.$el.find(".content").empty();
     }
 
     /**
@@ -174,26 +204,51 @@ class Terminal {
      * @param columnWidth int
      * @returns array<array<string>>
      */
-    formatGrid(grid, padLeft = true, columnWidth = null) {
-        // get longest string that we'll use for data
-        var longest = grid.reduce((l, row) => {
-            var l2 = row.reduce((carry, d) => {
-                return carry > d.length ? carry : d.length;
-            }, 0);
-            return l > l2 ? l : l2;
-        }, 0);
-        if (columnWidth === null) {
-            columnWidth = longest;
-        }
-        return grid.map(row => {
-            return row.map(str => {
-                if (padLeft) {
-                    return str.padStart(columnWidth)
-                } else {
-                    return str.padEnd(columnWidth);
-                }
+    formatGrid(grid, padLeft = true, columnWidth = null, individualWidths = false) {
+        if(!individualWidths) {
+            if (columnWidth === null) {
+                // get longest string that we'll use for data
+                var longest = grid.reduce((l, row) => {
+                    var l2 = row.reduce((carry, d) => {
+                        return carry > d.length ? carry : d.length;
+                    }, 0);
+                    return l > l2 ? l : l2;
+                }, 0);
+                columnWidth = longest;
+            }
+            return grid.map(row => {
+                return row.map(str => {
+                    if (padLeft) {
+                        return str.padStart(columnWidth)
+                    } else {
+                        return str.padEnd(columnWidth);
+                    }
+                });
             });
-        });
+        } else {
+            let widths = [];
+            grid.forEach(row => {
+                row.forEach((str, i) => {
+                    if(!widths[i]) {
+                        widths[i] = str.length;
+                        return;
+                    }
+                    let prev = widths[i];
+                    if(str.length > prev) {
+                        widths[i] = str.length;
+                    }
+                })
+            });
+            return grid.map(row => {
+                return row.map((str, i) => {
+                    if (padLeft) {
+                        return str.padStart(widths[i])
+                    } else {
+                        return str.padEnd(widths[i]);
+                    }
+                });
+            });
+        }
     }
 
     /**
@@ -218,3 +273,5 @@ class Terminal {
 }
 
 export const terminal = new Terminal();
+export const pane1 = new Terminal(false);
+export const pane2 = new Terminal(false);

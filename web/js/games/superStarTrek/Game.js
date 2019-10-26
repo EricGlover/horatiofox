@@ -90,8 +90,10 @@ export const clock = new GameClock();
  *
  */
 export default class Game {
-    constructor(terminal, features) {
+    constructor(terminal, pane1, pane2, features) {
         this.terminal = terminal;
+        this.pane1 = pane1;
+        this.pane2 = pane2;
         this.service = new Service();
         this.shipBuilder = new ShipBuilder();
         this.galaxy = new Galaxy(8, 8, 10, 10, true);
@@ -331,8 +333,26 @@ export default class Game {
         }, 0);
     }
 
+    async renderPane1() {
+        this.pane1.clearAll();
+        await this.pane1Command.run();
+        this.pane1.print();
+    }
+
+    async renderPane2() {
+        this.pane2.clearAll();
+        await this.pane2Command.run();
+        this.pane2.print();
+    }
+
     setup() {
         this.makeCommands();
+
+        // make panes
+        let status = new StatusCommand(this, this.pane1, this.player, this.galaxy);
+        let chart = new ChartCommand(this, this.pane2, this.player);
+        this.pane1Command = new ShortRangeScanCommand(this, this.pane1, chart, status);
+        this.pane2Command = chart;
 
         // these methods should probably be on the game .... whatever
         // do some setup for our galaxy, make the immovable objects
@@ -367,12 +387,9 @@ export default class Game {
         let baseStr = sbq.join("   ");
         // change terminal settings
         let startText = `It is stardate ${this.clock.starDate.toFixed(0)}. Federation is being attacked by
-a deadly Klingon invasion force. As captain of the United
-Starship U.S.S. Enterprise, it is your mission to seek out
-and destroy this invasion force of ${this.numberOfKlingons} klingons.
+a deadly Klingon invasion force. As captain of the UnitedStarship U.S.S. Enterprise, it is your mission to seek out and destroy this invasion force of ${this.numberOfKlingons} klingons.
 
-The Klingons will overpower the Federation in ${this.timeRemaining} days, every Klingon you destroy will 
-weaken this invasion force and buy us more time.
+The Klingons will overpower the Federation in ${this.timeRemaining} days, every Klingon you destroy will weaken this invasion force and buy us more time.
 
 You will have ${starBases.length} supporting starbases.
 Starbase locations-   ${baseStr}
@@ -404,6 +421,8 @@ Good Luck!
             let justArrivedIntoCombat = false;
             let inCombat = false;
             while(userTurn && !this.isVictory() && !this.isDefeat()) {
+                await this.renderPane1();
+                await this.renderPane2();
                 let {command} = await this.terminal.runUserCommand();
                 await command.run();
                 this.terminal.print();
@@ -502,15 +521,15 @@ With your starship confiscated by the Klingon High Command, you relocate to a mi
 
     makeCommands() {
         this.commands = [];
-        let chartCommand = new ChartCommand(this, this.terminal, this.player);
+        // let chartCommand = new ChartCommand(this, this.terminal, this.player);
         let commandsCommand = new CommandsCommand(this, this.terminal);
         let statusCommand = new StatusCommand(this, this.terminal, this.player, this.galaxy);
         this.commands.push(new ShieldsCommand(this, this.terminal, this.player));
         this.commands.push(commandsCommand);
         this.commands.push(statusCommand);
         this.commands.push(new RequestCommand(this, this.terminal, statusCommand));
-        this.commands.push(chartCommand);
-        this.commands.push(new ShortRangeScanCommand(this, this.terminal, chartCommand, statusCommand));
+        // this.commands.push(chartCommand);
+        // this.commands.push(new ShortRangeScanCommand(this, this.terminal, chartCommand, statusCommand));
         if(DEBUG) {
             this.commands.push(new LongRangeScanCommand(this, this.terminal, this.player));
         }

@@ -19,10 +19,90 @@
             crossorigin="anonymous"></script>
     <script type="text/javascript" src="/lib/semantic/semantic.min.js"></script>
     <script type="module" src="/dist/superStarTrek.bundle.js"></script>
-<body>
+    <style>
+        .pane-1 {
+            font-family: monospace, Courier;
+            background-color: black;
+            /*color: white;*/
+            font-size: 14px;
+            line-height: 1.2em;
+            /* Hack to hide the real caret */
+            color: transparent;
+            text-shadow: 0 0 0 #ddd;
+        }
+        .pane-1 .content {
+            padding-left: 10px;
+        }
+
+        .pane-1 .prompt {
+            display: none;
+        }
+
+        .pane-1 .content ul {
+            margin: 0;
+        }
+
+        .pane-1 .content ul li {
+            list-style-type: none;
+        }
+        .pane-1 .loading span::after {
+            content: "⚙";
+            color: #ddd;
+            font-size: 10em;
+            border-radius: 10em;
+            opacity: 0.4;
+        }
+        .my-theme {
+            font-family: monospace, Courier;
+            background-color: black;
+            line-height: 1.2em;
+            font-size: 0.8em;
+            /* Hack to hide the real caret */
+            color: transparent;
+            text-shadow: 0 0 0 #ddd;
+        }
+
+        .my-theme .content {
+            padding: 10px 10px 0 10px;
+        }
+
+        .my-theme .prompt {
+            padding: 0 15px 15px 15px;
+        }
+
+        .my-theme .content ul {
+            margin: 0;
+        }
+
+        .my-theme .content ul li {
+            list-style-type: none;
+        }
+
+        .my-theme .loading span::after {
+            content: "⚙";
+            color: #ddd;
+            font-size: 10em;
+            border-radius: 10em;
+            opacity: 0.4;
+        }
+    </style>
+<body style="font-size: 14px;">
 {{ include('/partials/navbar.twig') }}
-<h1>Super Star Trek</h1>
-<div id="terminal"></div>
+<h1 class="ui header">Super Star Trek</h1>
+<div id="panes" class="ui grid" style="height: 100%; max-height: 100%; margin-top: 10px;">
+    <div id="left" class="eight wide column" style="border-right: 10px solid gray; max-height: 100%; overflow: scroll;"></div>
+    <div id="middle" class="eight wide column" style="min-width: 680px; padding: 0; display: flex; flex-flow: column nowrap;">
+        <div id="right-top" class="" style="border-bottom: 10px solid gray; height: 50%;"></div>
+        <div id="right-bottom" class="" style="height: 50%;"></div>
+    </div>
+    {#    <div id="left" class="five wide column" style="background-color: blue;"></div>#}
+    {#        <div id="middle" style="width: 700px; flex-grow: 1; display: flex; flex-flow: column nowrap;">#}
+    {#            <div id="middle-top" style="background-color: green; flex-grow: 1"></div>#}
+    {#            <div id="middle-bottom" style="background-color: yellow; flex-grow: 1"></div>#}
+    {#        </div>#}
+    {#        <div id="right" style="background-color: red; flex-grow: 1;"></div>#}
+</div>
+{#<div id="terminal"></div>#}
 </body>
 
 </html>

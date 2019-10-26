@@ -249,6 +249,7 @@ safely even in the midst of battle.`;
             this.terminal.skipLine(1);
             this.terminal.printLine("All systems operational.");
             this.terminal.skipLine(1);
+            return;
         }
 
         let report = [
@@ -1128,7 +1129,7 @@ retaliate.`;
         let timeRequired = distance / Math.pow(this.player.warpFactor, 2);
         // if the move takes 80% or greater of the remaining time then warn them
         let percentOfRemaining = 100 * timeRequired / this.game.timeRemaining;
-        if (true || percentOfRemaining > 80.0) {
+        if (percentOfRemaining > 80.0) {
             let response;
             let yes = /(yes|y)/i;
             let no = /(no|n)/i;
@@ -1320,7 +1321,46 @@ See REQUEST command for details.`;
      #define IHDOCKED 'D'
      COMMAND> s
      */
-    getStatusText() {
+    getStatusText(format = true) {
+        if(format) {
+            let date = `Stardate\t${this.game.clock.starDate.toFixed(1)}`
+            let condition = `Condition\t${this.player.printCondition()}`;
+
+            let playerQuad = this.player.gameObject.quadrant;
+            let playerSector = this.player.gameObject.sector;
+            let collider = this.player.collider;
+            let percent = collider.health * 100 / collider.maxHealth;
+            let hullIntegrity = `Hull Integrity\t${collider.health.toFixed(2)}, ${percent.toFixed(1)}%`;
+            let position = `Position\t${playerQuad.x + 1} - ${playerQuad.y + 1}, ${playerSector.x + 1} - ${playerSector.y + 1}`;
+            let lifeSupport = [`Life Support`, `NA`]
+            if (this.player.lifeSupport.isOk()) {
+                lifeSupport = [`Life Support`, `ACTIVE`];
+            } else {
+                lifeSupport = [`Life Support`, `DAMAGED, reserves = ${this.player.lifeSupport.reserves.toFixed(1)}`];
+            }
+            let warpFactor = [`Warp Factor`, `${this.player.warpFactor.toFixed(1)}`];
+            let grid = this.player.powerGrid;
+            let gridPercent = grid.energy * 100 / grid.capacity;
+            let energy = [`Energy`, `${grid.energy.toFixed(2)}, ${gridPercent.toFixed(1)}%`];
+            let torpedoes = [`Torpedoes`, `${this.player.photons.getTorpedoCount()}`];
+            let shields = [`Shields`, `${this.player.shields.printInfo()}`];
+            let klingonsRemaining = [`Klingons Left`, `${this.galaxy.container.getCountOfGameObjects(AbstractKlingon)}`];
+            let timeLeft = [`Time Left`,`${this.game.timeRemaining.toFixed(2)}`];
+            let matrix = [
+                ['Stardate', this.game.clock.starDate.toFixed(1)],
+                ['Condition', this.player.printCondition()],
+                ['Hull Integrity', `${collider.health.toFixed(2)}, ${percent.toFixed(1)}%`],
+                ['Position', `${playerQuad.x + 1} - ${playerQuad.y + 1}, ${playerSector.x + 1} - ${playerSector.y + 1}`],
+                lifeSupport,
+                warpFactor,
+                energy,
+                torpedoes,
+                shields,
+                klingonsRemaining,
+                timeLeft
+            ];
+            return this.terminal.formatGrid(matrix, false, null, true).map(arr => arr.join("   "));
+        }
         let date = `Stardate\t${this.game.clock.starDate.toFixed(1)}`
         let condition = `Condition\t${this.player.printCondition()}`;
 
@@ -1612,6 +1652,8 @@ export class ShortRangeScanCommand extends Command {
     }
 
     async run() {
+        this.terminal.skipLine(1);
+        this.terminal.printLine("CHART OF THE CURRENT QUADRANT");
         // get the options
         let no = optionRegexifier("n", "no");
         let printStatus = !this.terminal.hasOption(no);
@@ -1676,7 +1718,7 @@ export class ShortRangeScanCommand extends Command {
             // skip the header rows, then add the status text line by line
             let statusLines = this.statusCommand.getStatusText();
             statusLines.forEach((line, i) => {
-                matrix[i] += "\t" + line;
+                matrix[i] += "  " + line;
             });
             // join the rows with \n
             let text = matrix.join("\n");
@@ -1693,8 +1735,10 @@ export class ShortRangeScanCommand extends Command {
         }
         this.terminal.newLine();
         this.terminal.newLine();
-        this.terminal.printLine(". = nothing; K = klingon; C = commander; S = super commander; R = romulan; E = Enterprise;");
-        this.terminal.printLine("* = star; p = planet; b = base; empty = black hole.");
+        this.terminal.printLine("E = Enterprise");
+        this.terminal.printLine("K = klingon; C = commander; S = super commander; R = romulan;");
+        this.terminal.printLine(". = nothing; * = star; empty = black hole.");
+        this.terminal.printLine("p = planet; b = base;")
         this.terminal.newLine();
         // this.terminal.print();
     }
