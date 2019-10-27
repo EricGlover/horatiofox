@@ -31,6 +31,7 @@ import {DEBUG} from './superStarTrek.js';
 import mitt from 'mitt';
 
 import {DamageReportCommand, RestCommand, WarpFactorCommand} from "./commands";
+import {Collider} from "./Components";
 
 /** Game length options **/
 export const GAME_LENGTH_SHORT = 1;
@@ -187,6 +188,7 @@ export default class Game {
                 this.shipBuilder.kscEnergy = 1750;
                 this.shipBuilder.rHealth = 40;
                 this.shipBuilder.rEnergy = 700;
+                Collider.setDeviceDamageRange(100.0, 275.0);
                 break;
             case SKILL_FAIR:
                 this.player.phasers.overheatThreshold = 1500;
@@ -199,6 +201,7 @@ export default class Game {
                 this.shipBuilder.kscEnergy = 1750;
                 this.shipBuilder.rHealth = 40;
                 this.shipBuilder.rEnergy = 700;
+                Collider.setDeviceDamageRange(80.0, 275.0);
                 break;
             case SKILL_GOOD:
                 this.player.phasers.overheatThreshold = 1200;
@@ -211,6 +214,7 @@ export default class Game {
                 this.shipBuilder.kscEnergy = 2500;
                 this.shipBuilder.rHealth = 100;
                 this.shipBuilder.rEnergy = 700;
+                Collider.setDeviceDamageRange(50.0, 250.0);
                 break;
             case SKILL_EXPERT:
                 this.player.phasers.overheatThreshold = 1000;
@@ -223,6 +227,7 @@ export default class Game {
                 this.shipBuilder.kscEnergy = 2500;
                 this.shipBuilder.rHealth = 100;
                 this.shipBuilder.rEnergy = 700;
+                Collider.setDeviceDamageRange(50.0, 200.0);
                 break;
             case SKILL_EMERITUS:
                 this.player.phasers.overheatThreshold = 800;
@@ -235,6 +240,7 @@ export default class Game {
                 this.shipBuilder.kscEnergy = 2500;
                 this.shipBuilder.rHealth = 100;
                 this.shipBuilder.rEnergy = 700;
+                Collider.setDeviceDamageRange(50.0, 200.0);
                 break;
             default:
                 console.error("invalid skill setting.", skill);
@@ -351,7 +357,7 @@ export default class Game {
         // make panes
         let status = new StatusCommand(this, this.pane1, this.player, this.galaxy);
         let chart = new ChartCommand(this, this.pane2, this.player);
-        this.pane1Command = new ShortRangeScanCommand(this, this.pane1, chart, status);
+        this.pane1Command = new ShortRangeScanCommand(this, this.pane1, this.player, chart, status);
         this.pane2Command = chart;
 
         // these methods should probably be on the game .... whatever

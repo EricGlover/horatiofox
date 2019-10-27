@@ -3,8 +3,9 @@
 import {terminal} from "./Terminal.js";
 import {DEVICE_DAMAGE_ENABLED} from "./Game.js";
 
-let colliderMaxHitToDamageDevices = 275.0;
-let colliderMinHitToDamageDevices = 50.0;
+// these are treated as collider class variables
+let _colliderMaxHitToDamageDevices = 275.0;
+let _colliderMinHitToDamageDevices = 50.0;
 
 
 export class Component {
@@ -26,6 +27,19 @@ export class Collider extends Component {
         this.length = length;
         this.gameObject = gameObject;
         this._indestructible = false;
+    }
+
+    static setDeviceDamageRange(min, max) {
+        _colliderMinHitToDamageDevices = min;
+        _colliderMaxHitToDamageDevices = max;
+    }
+
+    static get minHitToDamageDevices() {
+        return _colliderMinHitToDamageDevices
+    }
+
+    static get maxHitToDamageDevices() {
+        return _colliderMaxHitToDamageDevices;
     }
 
     repair() {
@@ -99,7 +113,7 @@ export class Collider extends Component {
 
     //
     hitWillDamageDevices(damage) {
-        let threshold = Math.random() * (colliderMaxHitToDamageDevices - colliderMinHitToDamageDevices) + colliderMinHitToDamageDevices;
+        let threshold = Math.random() * (Collider.maxHitToDamageDevices - Collider.minHitToDamageDevices) + Collider.minHitToDamageDevices;
         console.log('device damage threshold = ', threshold);
         return damage > threshold;
     }
@@ -173,7 +187,7 @@ export class Mover extends Component {
             // todo:: check bounds
             this.gameObject.x += deltaX;
             this.gameObject.y += deltaY;
-            this.gameObject.updateSectorAfterMove();
+            this.gameObject.updateCoordinates();
             keepGoing = yield;
             i++;
         }
@@ -211,7 +225,7 @@ export class Mover extends Component {
             }
             this.gameObject.x += deltaX;
             this.gameObject.y += deltaY;
-            this.gameObject.updateSectorAfterMove();
+            this.gameObject.updateCoordinates();
             remaining -= delta; // technically incorrect if deltas modified but whatever
             if (remaining <= 0) {
                 return;
@@ -278,8 +292,8 @@ export class GameObject  extends  Component {
         this.quadrant = null;
         this.sector = null;
         // x and y are floats
-        this.x = null;
-        this.y = null;
+        this._x = null;
+        this._y = null;
         this.takesWholeSector = takesWholeSector;
     }
 
@@ -306,20 +320,37 @@ export class GameObject  extends  Component {
         this.galaxy = null;
         this.quadrant = null;
         this.sector = null;
-        // global coordinates
+        // this._x = null;
+        // this._y = null;
         this.x = null;
         this.y = null;
+        this.userSectorX = null;
+        this.userSectorY = null;
+        this.userQuadrantX = null;
+        this.userQuadrantY = null;
     }
+    // global coordinates
+    // get x() {
+    //     return this._x;
+    // }
+    // set x(x) {
+    //     if(x === this._x) return;
+    //     this._x = x;
+    //     this.updateCoordinates();
+    // }
+    // get y() {
+    //     return this._y;
+    // }
+    // set y(y) {
+    //     if(y === this._y) return;
+    //     this._y = y;
+    //     this.updateCoordinates();
+    // }
 
-    // check that sector is empty
-    canMoveTo(sector) {
-        if (this.takesWholeSector && !sector.container.isEmpty()) {
-            return false;
-        }
-        return true;
-    }
-
-    updateSectorAfterMove() {
+    // calculate coordinates
+    // update our containers
+    // update our user coordinates
+    updateCoordinates() {
         try {
             let currentSector = this.galaxy.getSectorGlobal(this.x, this.y);
             if (currentSector !== this.sector) {
@@ -331,10 +362,25 @@ export class GameObject  extends  Component {
                 this.quadrant = currentSector.quadrant;
                 this.sector = currentSector;
             }
-        } catch (e) {
+            // locations
+            let x = ((this.x % this.quadrant.width) + .5).toFixed(1);
+            let y = ((this.y % this.quadrant.width) + .5).toFixed(1);
+            this.userSectorX = this.sector.x + 1;
+            this.userSectorY = this.sector.y + 1;
+            this.userQuadrantX = this.quadrant.x + 1;
+            this.userQuadrantY = this.quadrant.y + 1;
+        } catch(e) {
             // left galaxy
             this.removeSelf();
         }
+    }
+
+    // check that sector is empty
+    canMoveTo(sector) {
+        if (this.takesWholeSector && !sector.container.isEmpty()) {
+            return false;
+        }
+        return true;
     }
 
     // the x and y in the sector 0 - 0 is top left
@@ -342,6 +388,9 @@ export class GameObject  extends  Component {
     placeIn(galaxy, quadrant, sector, x = .5, y = .5) {
         if (!this.canMoveTo(sector)) {
             throw new Error("Cant place object in non empty sector");
+        }
+        if(!sector) {
+            debugger;
         }
         this.galaxy = galaxy;
         this.quadrant = quadrant;
@@ -353,22 +402,17 @@ export class GameObject  extends  Component {
         // set global x y
         this.x = this.sector.globalX + x;
         this.y = this.sector.globalY + y;
+        this.updateCoordinates();
+    }
+    // functions for printing out our location to the user
+    getSectorLocation(includeSector = true, float) {
+        return `${includeSector ? 'Sector ' : ''}${this.userSectorX} - ${this.userSectorY}`;
     }
 
-    // todo:: modify getSectorXY to correctly display
-    // when coordinates are not in the center of a center
-    getSectorY(float = false) {
-        // if(float) {
-        //   return this.y % this.quadrant.width;
-        // }
-        return this.sector.y;
-    }
-
-    getSectorX(float = false) {
-        // if(float) {
-        //   return this.x % this.quadrant.width;
-        // }
-        return this.sector.x;
+    getSectorLocationFloat(includeSector = true) {
+        let x = ((this.x % this.quadrant.width) + .5).toFixed(1);
+        let y = ((this.y % this.quadrant.width) + .5).toFixed(1);
+        return `${includeSector ? 'Sector ' : ''}${x} - ${y}`
     }
 
     getLocation() {
@@ -376,18 +420,6 @@ export class GameObject  extends  Component {
     }
 
     getQuadrantLocation() {
-        return `Quadrant ${this.quadrant.x + 1} - ${this.quadrant.y + 1}`;
-    }
-
-    // ugggghhhhh... coordinate systems
-    // todo:::
-    getSectorLocation(includeSector = true, float) {
-        return `${includeSector ? 'Sector ' : ''}${this.getSectorX() + 1} - ${this.getSectorY() + 1}`;
-    }
-
-    getSectorLocationFloat(includeSector = true) {
-        let x = ((this.x % this.quadrant.width) + .5).toFixed(1);
-        let y = ((this.y % this.quadrant.width) + .5).toFixed(1);
-        return `${includeSector ? 'Sector ' : ''}${x} - ${y}`
+        return `Quadrant ${this.userQuadrantX} - ${this.userQuadrantY}`;
     }
 }

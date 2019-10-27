@@ -14,6 +14,7 @@ import {
     KlingonSuperCommander,
     Romulan
 } from "./Enemies/Enemies.js";
+import {shortRangeSensorType} from './Devices.js';
 import StarBase from "./Objects/StarBase.js";
 import Star from "./Objects/Star.js";
 import Enterprise from "./PlayerShips/Enterprise.js";
@@ -264,7 +265,7 @@ safely even in the midst of battle.`;
             })
         ];
         this.terminal.skipLine(1);
-        this.terminal.printLine(this.terminal.printGrid(this.terminal.formatGrid(report), "", ""));
+        this.terminal.printLine(this.terminal.printGrid(this.terminal.formatGrid(report, false), "  ", ""));
         this.terminal.skipLine(1);
     }
 }
@@ -1001,9 +1002,9 @@ providing the file is in the current directory.`;
         let arg = this.terminal.getArguments()[0];
         // prompt
         if (!arg) {
-          do {
-              arg = await this.terminal.ask("Help on what command?");
-          } while(!arg);
+            do {
+                arg = await this.terminal.ask("Help on what command?");
+            } while (!arg);
         }
 
         // get the relevant command by name
@@ -1139,7 +1140,7 @@ retaliate.`;
   remaining time.  Are you sure this is wise?"`);
                 yes = /(yes|y)/i;
                 no = /(no|n)/i;
-            } while(!yes.test(response) && !no.test(response));
+            } while (!yes.test(response) && !no.test(response));
 
 
             if (yes.test(response)) {
@@ -1322,7 +1323,7 @@ See REQUEST command for details.`;
      COMMAND> s
      */
     getStatusText(format = true) {
-        if(format) {
+        if (format) {
             let date = `Stardate\t${this.game.clock.starDate.toFixed(1)}`
             let condition = `Condition\t${this.player.printCondition()}`;
 
@@ -1345,7 +1346,7 @@ See REQUEST command for details.`;
             let torpedoes = [`Torpedoes`, `${this.player.photons.getTorpedoCount()}`];
             let shields = [`Shields`, `${this.player.shields.printInfo()}`];
             let klingonsRemaining = [`Klingons Left`, `${this.galaxy.container.getCountOfGameObjects(AbstractKlingon)}`];
-            let timeLeft = [`Time Left`,`${this.game.timeRemaining.toFixed(2)}`];
+            let timeLeft = [`Time Left`, `${this.game.timeRemaining.toFixed(2)}`];
             let matrix = [
                 ['Stardate', this.game.clock.starDate.toFixed(1)],
                 ['Condition', this.player.printCondition()],
@@ -1583,10 +1584,11 @@ period (.):        digit not known`);
 }
 
 export class ShortRangeScanCommand extends Command {
-    constructor(game, terminal, chartCommand, statusCommand) {
+    constructor(game, terminal, player, chartCommand, statusCommand) {
         super();
         this.terminal = terminal;
         this.game = game;
+        this.player = player;
         this.chartCommand = chartCommand;
         this.statusCommand = statusCommand;
         this.abbreviation = "s";
@@ -1606,6 +1608,7 @@ export class ShortRangeScanCommand extends Command {
                 description: "display star chart"
             }
         };
+        this.deviceUsed = [shortRangeSensorType];
         this.info = `Mnemonic:  SRSCAN
     Shortest abbreviation:  S
     Full commands:  SRSCAN
@@ -1651,7 +1654,38 @@ export class ShortRangeScanCommand extends Command {
     short-range scan anytime you like.`;
     }
 
+    objectToText(obj) {
+        if (!obj) {
+            return '.';
+        } else if (obj instanceof Klingon) {
+            return 'K';
+        } else if (obj instanceof KlingonCommander) {
+            return "C";
+        } else if (obj instanceof KlingonSuperCommander) {
+            return "S";
+        } else if (obj instanceof Romulan) {
+            return "R";
+        } else if (obj instanceof Enterprise) {
+            return "E";
+        } else if (obj instanceof Star) {
+            return "*";
+        } else if (obj instanceof Planet) {
+            return "P";
+        } else if (obj instanceof StarBase) {
+            return "B";
+        } else if (obj instanceof BlackHole) {
+            return " ";
+        }
+        return "?";
+    }
+
     async run() {
+        // get their short range sensors
+        let sensors = this.player.deviceContainer.getDevice(shortRangeSensorType);
+        if (!sensors) {
+            this.terminal.printLine("Captain we don't have sensors!");
+            return;
+        }
         this.terminal.skipLine(1);
         this.terminal.printLine("CHART OF THE CURRENT QUADRANT");
         // get the options
@@ -1661,36 +1695,36 @@ export class ShortRangeScanCommand extends Command {
         let printChart = this.terminal.hasOption(chart);
 
         // use player location
-        let quadrant = this.game.player.gameObject.quadrant;
+        let quadrant = this.player.gameObject.quadrant;
         let matrix = [];
-        for (let i = 0; i < quadrant.sectors.length; i++) {
-            let textRow = [];
-            quadrant.sectors[i].forEach(sector => {
+
+        // make our matrix of text
+        // if damage set everything to -
+        if(sensors.isDamaged()) {
+            for (let i = 0; i < quadrant.sectors.length; i++) {
+                let textRow = [];
+                quadrant.sectors[i].forEach(sector => {
+                    textRow.push('-')
+                });
+                matrix.push(textRow);
+            }
+            // now show the adjacent sectors
+            let adjacent = this.player.gameObject.sector.getAdjacentSectors(true);
+            adjacent.forEach(sector => {
                 let obj = sector.container.getAllGameObjects()[0];
-                if (!obj) {
-                    textRow.push('.');
-                } else if (obj instanceof Klingon) {
-                    textRow.push('K');
-                } else if (obj instanceof KlingonCommander) {
-                    textRow.push("C");
-                } else if (obj instanceof KlingonSuperCommander) {
-                    textRow.push("S");
-                } else if (obj instanceof Romulan) {
-                    textRow.push("R");
-                } else if (obj instanceof Enterprise) {
-                    textRow.push("E");
-                } else if (obj instanceof Star) {
-                    textRow.push("*");
-                } else if (obj instanceof Planet) {
-                    textRow.push("P");
-                } else if (obj instanceof StarBase) {
-                    textRow.push("B");
-                } else if (obj instanceof BlackHole) {
-                    textRow.push(" ");
-                }
-            });
-            matrix.push(textRow);
+                matrix[sector.y][sector.x] = this.objectToText(obj);
+            })
+        } else {
+            for (let i = 0; i < quadrant.sectors.length; i++) {
+                let textRow = [];
+                quadrant.sectors[i].forEach(sector => {
+                    let obj = sector.container.getAllGameObjects()[0];
+                    textRow.push(this.objectToText(obj));
+                });
+                matrix.push(textRow);
+            }
         }
+
         // add left number column for y coord
         matrix.forEach((row, i) => {
             row.unshift(`${i + 1}`);

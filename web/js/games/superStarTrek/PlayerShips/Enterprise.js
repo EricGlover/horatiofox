@@ -7,7 +7,9 @@ import {Device,
     LifeSupport,
     PhotonTorpedoLauncher,
     DeviceContainer,
-    PowerGrid
+    PowerGrid,
+    shortRangeSensorType,
+    warpEngineType
 } from "../Devices.js";
 
 const CONDITION_GREEN = 1;
@@ -37,10 +39,10 @@ export default class Enterprise {
         this.photons = new PhotonTorpedoLauncher(this, 10, 10);
         this.shields = new Shields(this, 2500, this.powerGrid);
 
-        this.shortRangeSensors = new Device(this, "Short Range Sensors");
+        this.shortRangeSensors = new Device(this, shortRangeSensorType);
         // this.longRangeSensors = new Device(this, "Long Range Sensors");
         this.lifeSupport = new LifeSupport(this, 4.0, clock);
-        this.warpEngines = new Device(this, "Warp Engines");
+        this.warpEngines = new Device(this, warpEngineType);
         // this.impulseEngines = new Device(this, "Impulse Engines");
         // this.subspaceRadio = new Device(this, "Subspace Radio");
         // this.shuttleCraft = new Device(this, "Shuttle Craft");

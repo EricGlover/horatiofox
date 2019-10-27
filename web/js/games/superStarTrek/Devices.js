@@ -2,11 +2,51 @@ import {terminal} from './Terminal.js';
 import {Component, GameObject, Mover, Collider} from "./Components.js";
 import {clock} from "./Game.js";
 
-export class Device extends Component {
-    constructor(parent, name, propName, chanceOfBeginDamaged = .65) {
-        super(propName, parent);
-        this.parent = parent;
+/**
+ * Device Types, defined constants make it easier to check the type of device
+ * Commands use these to indicate what devices they require to function
+ *
+ * The alternative approach would be to make a new Device class to extend Device
+ * for every type of device, but for the moment at least it seems there are
+ * many device types that don't require additional functionality
+ * beyond what the Device class itself has, so by defining types
+ * we can keep many Devices as instances of just the Device class
+ * while still getting the ability to have well defined type attributes
+ * propName = the property that the device holder stores the device on
+ * name = the name that will be displayed to the user
+ */
+class DeviceType {
+    constructor(name, propName) {
         this.name = name;
+        this.propName = propName;
+        Object.freeze(this);
+    }
+}
+/// Device Type Singletons
+export const shortRangeSensorType = new DeviceType('Short Range Sensors', 'shortRangeSensors');
+export const longRangeSensorType = new DeviceType("Long Range Sensors", 'longRangeSensors');
+export const phaserType = new DeviceType("Phasers", "phasers");
+export const powerGridType = new DeviceType("Power Circuits", "powerGrid");
+export const warpEngineType = new DeviceType("Warp Engines", "warpEngines");
+export const impulseEngineType = new DeviceType("Impulse Engines", "impulseEngines");
+export const lifeSupportType = new DeviceType("Life Support", "lifeSupport");
+export const shieldType = new DeviceType("Shields", "shields");
+export const photonTorpedoLauncherType = new DeviceType("Photon Torpedo Launcher", "photons");
+// export const
+
+/**
+ * Our base device class
+ * Handles all the logic for devices:
+ * 1) taking damage
+ * 2) getting repaired
+ * 3) checking the type of device
+ */
+export class Device extends Component {
+    constructor(parent, type, chanceOfBeginDamaged = .65) {
+        super(type.propName, parent);
+        this.parent = parent;
+        this.name = type.name;
+        this.type = type;
 
         this._chanceOfBeingDamaged = chanceOfBeginDamaged;
 
@@ -16,6 +56,10 @@ export class Device extends Component {
         this.parent.deviceContainer.addDevices(this);
 
         this._damage = 0;
+    }
+    isType(deviceType) {
+        if(!deviceType instanceof DeviceType) return false;
+        return this.type.name === deviceType.name;
     }
     get damage() {
         return this._damage;
@@ -70,49 +114,10 @@ export class Device extends Component {
 
     // timeToRepair()
 }
-/**
- * Has max, has min 0, can be damaged
- */
-export class PowerGrid extends Device {
-    constructor(capacity, parent) {
-        super(parent, "Power Circuits", "powerGrid", .12);
-        this.capacity = capacity;
-        this._energy = capacity;
-    }
-    get energy(){
-        return this._energy;
-    }
-    set energy(e) {
-        e = Math.min(e, this.capacity);
-        e = Math.max(e, 0);
-        this._energy = e;
-    }
-    getPercent() {
-        return this._energy / this.capacity;
-    }
-    atMax() {
-        return this._energy === this.capacity;
-    }
-    recharge() {
-        this._energy = this.capacity;
-    }
-    useEnergy(e) {
-        this.checkDamage();
-        if (this._energy - e < -0.01) {
-            debugger;
-            throw new Error("Not enough energy!");
-        }
-        this._energy -= e;
-    }
-    addEnergy(e) {
-        this.checkDamage();
-        if (this._energy + e > this.capacity) {
-            throw new Error("Too much energy.");
-        }
-        this._energy += e;
-    }
-}
 
+/**
+ * An array of devices
+ */
 export class DeviceContainer {
     constructor(parent) {
         this.parent = parent;
@@ -154,12 +159,58 @@ export class DeviceContainer {
             damage -= portion;
         }
     }
+
+    getDevice(type) {
+        return this.parent[type.propName];
+    }
+}
+/**
+ * Has max, has min 0, can be damaged
+ */
+export class PowerGrid extends Device {
+    constructor(capacity, parent) {
+        super(parent, powerGridType, .12);
+        this.capacity = capacity;
+        this._energy = capacity;
+    }
+    get energy(){
+        return this._energy;
+    }
+    set energy(e) {
+        e = Math.min(e, this.capacity);
+        e = Math.max(e, 0);
+        this._energy = e;
+    }
+    getPercent() {
+        return this._energy / this.capacity;
+    }
+    atMax() {
+        return this._energy === this.capacity;
+    }
+    recharge() {
+        this._energy = this.capacity;
+    }
+    useEnergy(e) {
+        this.checkDamage();
+        if (this._energy - e < -0.01) {
+            debugger;
+            throw new Error("Not enough energy!");
+        }
+        this._energy -= e;
+    }
+    addEnergy(e) {
+        this.checkDamage();
+        if (this._energy + e > this.capacity) {
+            throw new Error("Too much energy.");
+        }
+        this._energy += e;
+    }
 }
 
 // todo:::
 export class WarpDrive extends Device {
     constructor(parent, powerGrid) {
-        super(parent, "warp drive", "warp");
+        super(parent, warpEngineType);
         this.powerGrid = powerGrid;
         this._warpFactor = 5.0;
     }
@@ -182,14 +233,14 @@ export class WarpDrive extends Device {
 
 export class ImpulseEngines extends Device {
     constructor(parent, powerGrid) {
-        super(parent, "impulse engines", "impulse");
+        super(parent, impulseEngineType);
         this.powerGrid = powerGrid;
     }
 }
 
 export class LifeSupport extends Device {
     constructor(parent, reserves, clock) {
-        super(parent, "Life Support", "lifeSupport");
+        super(parent, lifeSupportType);
         this.maxReserves = reserves;
         this.reserves = reserves;
         this.onTimeElapsed = this.onTimeElapsed.bind(this);
@@ -227,7 +278,7 @@ export class LifeSupport extends Device {
 
 export class Shields extends Device {
     constructor(parent, capacity) {
-        super(parent, "Shields", "shields");
+        super(parent, shieldType);
         this.capacity = capacity;
         this.up = false;
         this.units = this.capacity;
@@ -312,7 +363,7 @@ export class Shields extends Device {
 
 export class Phasers extends Device {
     constructor(parent, energySystem) {
-        super(parent, "Phasers", "phasers");
+        super(parent, phaserType);
         if (!energySystem) {
             throw new Error('Phaser must have energy');
         }
@@ -427,7 +478,7 @@ class Torpedo {
 
 export class PhotonTorpedoLauncher extends Device {
     constructor(parent, count = 0, capacity = 0) {
-        super(parent, "Photon Torpedo Launcher", "photons");
+        super(parent, photonTorpedoLauncherType);
         this.terminal = terminal;
         this._capacity = capacity;
         this._torpedoes = count;

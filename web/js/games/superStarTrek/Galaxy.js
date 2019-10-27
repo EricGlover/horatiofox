@@ -29,7 +29,7 @@ export class Sector {
     }
 
     getAdjacentSectors(includeSelf = false) {
-        return this.quadrant.getSectorsAdjacentTo(this.x, this.y, includeSelf);
+        return this.quadrant.getSectorsAdjacentTo(this, includeSelf);
     }
 
     // game object that take up the whole sector
@@ -68,10 +68,13 @@ export class Quadrant {
     }
 
     // internal coordinates x y
-    getSectorsAdjacentTo(sectorX, sectorY, includeSelf = false) {
+    getSectorsAdjacentTo(sector, includeSelf = false) {
+        if(!sector instanceof Sector) return [];
+        let sectorX = sector.x;
+        let sectorY = sector.y;
         let sectors = [];
-        for (let y = sectorY - 1; y < sectorY + 1; y++) {
-            for (let x = sectorX - 1; x < sectorX + 1; x++) {
+        for (let y = sectorY - 1; y <= sectorY + 1; y++) {
+            for (let x = sectorX - 1; x <= sectorX + 1; x++) {
                 if (this.areValidCoordinates(x, y)) {
                     if (includeSelf || x !== sectorX && y !== sectorY) {
                         sectors.push(this.sectors[y][x]);
@@ -140,13 +143,17 @@ export class Quadrant {
     }
 }
 
+/**
+ * Holds quadrants
+ * Has some spatial logic
+ */
 export class Galaxy {
     constructor(width, length, quadrantWidth = 10, quadrantLength = 10, initEmptyQuadrants = true) {
         this.container = new GameObjectContainer(this);
-        this.width = width;
-        this.length = length;
-        this.quadrantWidth = quadrantWidth;
-        this.quadrantLength = quadrantLength;
+        this.width = width; // number of columns of quadrants
+        this.length = length;   // number of rows of quadrants
+        this.quadrantWidth = quadrantWidth; // number of columns of sectors in each quadrant
+        this.quadrantLength = quadrantLength;   // number of rows of sectors in each quadrant
         // setup our grid
         this.quadrants = [];
         for (let i = 0; i < length; i++) {
