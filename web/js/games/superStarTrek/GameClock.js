@@ -1,4 +1,4 @@
-import mitt from "mitt";
+import mitt from "../../../lib/dist/mitt.es.js";
 
 class GameClock {
     constructor() {
