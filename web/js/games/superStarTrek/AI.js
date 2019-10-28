@@ -2,11 +2,15 @@ import {Component} from "./Components.js";
 
 export default class AI extends Component {
     constructor(parent, galaxy, player) {
-        super("ai", parent);
+        super(AI, parent);
         this.parent = parent;
         this.parent.ai = this;
         this.galaxy = galaxy;
         this.player = player;
+    }
+
+    static get propName() {
+        return "ai";
     }
 
     takeTurn() {

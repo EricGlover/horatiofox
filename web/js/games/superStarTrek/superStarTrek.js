@@ -10,13 +10,17 @@ import Menu from "./Menu.js";
 import {terminal, pane1, pane2} from './Terminal.js';
 import Tests from './Tests.js';
 
-export const DEBUG = true;
+export const DEBUG = false;
 const RUN_TESTS = false;
-export const LAST_UPDATED_AT = "Oct 20 2019";
+export const LAST_UPDATED_AT = "Oct 27 2019";
+import Screen from "./utils/Screen.js";
 
 $(document).ready(function () {
     let nav = new Navbar();
     nav.init();
+    // media querying bullshit
+    window.screen = new Screen();
+
     // return;
     const versions = {
         1: {
@@ -40,10 +44,10 @@ $(document).ready(function () {
             author: "Eric Glover"
         }
     };
-
-    terminal.init($("#left"), 'boring');
-    pane1.init($("#right-top"), 'pane-1');
-    pane2.init($("#right-bottom"), 'pane-1');
+    // return;
+    terminal.init($("#main-pane"), 'boring');
+    pane1.init($("#info-pane-1"));
+    pane2.init($("#info-pane-2"));
 
     // test some things
     if (RUN_TESTS) {
@@ -52,7 +56,7 @@ $(document).ready(function () {
     }
 
     // make our game and menu
-    let game = new Game(terminal, pane1, pane2);
+    let game = new Game(terminal, pane1, pane2, screen);
     let menu = new Menu(terminal);
     menu.game = game;
     terminal.silent = false;

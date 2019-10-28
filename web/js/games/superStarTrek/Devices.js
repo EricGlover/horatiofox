@@ -1,6 +1,6 @@
 import {terminal} from './Terminal.js';
 import {Component, GameObject, Mover, Collider} from "./Components.js";
-import {clock} from "./Game.js";
+import clock from "./GameClock.js";
 
 /**
  * Device Types, defined constants make it easier to check the type of device
@@ -43,7 +43,7 @@ export const photonTorpedoLauncherType = new DeviceType("Photon Torpedo Launcher
  */
 export class Device extends Component {
     constructor(parent, type, chanceOfBeginDamaged = .65) {
-        super(type.propName, parent);
+        super(type, parent);
         this.parent = parent;
         this.name = type.name;
         this.type = type;

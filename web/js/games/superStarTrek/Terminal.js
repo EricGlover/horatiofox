@@ -23,21 +23,6 @@ class Terminal {
         this.$el.find(".prompt").hide();
     }
 
-    initChartPane($chart) {
-        this.$chart = $chart;
-        this.$chartPane = this.$chart.Ptty({
-            ps: "",
-            autocomplete: false,
-            // native_css: false,
-            // theme: 'my-theme',
-            i18n: {
-                welcome: "-SUPER- STAR TREK\n\n",
-                error_not_found: "Command not recognized, try 'help'.",
-                error_bad_methdo: "Command malformed. Try 'help'."
-            }
-        })
-    }
-
     init($terminal, theme) {
         this.$el = $terminal;
         this.$terminal = this.$el.Ptty({
@@ -96,6 +81,7 @@ class Terminal {
 
     clearAll() {
         this.$el.find(".content").empty();
+        this._out = "";
     }
 
     /**
@@ -115,12 +101,22 @@ class Terminal {
     // note : we return the result of runCommand in case it wants to
     // modify the output
     registerCommand(command) {
+        // check that we don't already have the command
+        let has = this.commands.find(c => command.name === c.name);
+        if(has) return;
         this.commands.push(command);
         this.$terminal.register("command", {
             name: command.name,
             method:  commandObj => this.runCommand(command.name, commandObj),
             regex: command.regex
         });
+    }
+
+    unregisterCommand(command) {
+        let idx = this.commands.findIndex(c => command.name === c.name);
+        if(idx === -1) return;
+        this.commands.splice(idx, 1);
+        this.$terminal.unregister("command", command.name);
     }
 
     parseCommand(commandObj, command) {

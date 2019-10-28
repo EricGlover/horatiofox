@@ -1503,6 +1503,7 @@ export class ChartCommand extends Command {
         this.regex = regexifier("c", "chart", "star chart");
         this.fullName = "star chart";
         this.type = INFO_COMMAND;
+        this.addPadding = false;
         this.info = `
       Mnemonic:  ${this.name}
       Shortest abbreviation:  ${this.abbreviation}
@@ -1567,7 +1568,9 @@ export class ChartCommand extends Command {
     }
 
     run() {
-        this.terminal.echo("\nSTAR CHART FOR THE KNOWN GALAXY\n");
+        if(this.addPadding) this.terminal.newLine();
+        this.terminal.echo("STAR CHART FOR THE KNOWN GALAXY");
+        if(this.addPadding) this.terminal.newLine();
         this.terminal.newLine();
         this.terminal.printLine(this.makeChartText());
         this.terminal.printLine();
@@ -1579,7 +1582,7 @@ period (.):        digit not known`);
         this.terminal.printLine();
         let q = this.player.gameObject.quadrant;
         this.terminal.printLine(`Enterprise is currently in ${this.player.gameObject.getQuadrantLocation()}`);
-        this.terminal.printLine();
+        if(this.addPadding) this.terminal.newLine();
     }
 }
 
@@ -1609,6 +1612,7 @@ export class ShortRangeScanCommand extends Command {
             }
         };
         this.deviceUsed = [shortRangeSensorType];
+        this.addPadding = false;
         this.info = `Mnemonic:  SRSCAN
     Shortest abbreviation:  S
     Full commands:  SRSCAN
@@ -1686,8 +1690,6 @@ export class ShortRangeScanCommand extends Command {
             this.terminal.printLine("Captain we don't have sensors!");
             return;
         }
-        this.terminal.skipLine(1);
-        this.terminal.printLine("CHART OF THE CURRENT QUADRANT");
         // get the options
         let no = optionRegexifier("n", "no");
         let printStatus = !this.terminal.hasOption(no);
@@ -1741,10 +1743,13 @@ export class ShortRangeScanCommand extends Command {
         matrix.unshift(headerRow);
 
         // make the matrix from the sector
-        this.terminal.newLine();
+
         // format the grid so the spacing is correct
         matrix = this.terminal.formatGrid(matrix);
 
+        if(this.addPadding) this.terminal.newLine();
+        this.terminal.printLine("CHART OF THE CURRENT QUADRANT");
+        this.terminal.newLine();
         // add status info
         if (printStatus) {
             // join the row together, add separators
@@ -1767,14 +1772,13 @@ export class ShortRangeScanCommand extends Command {
             this.terminal.echo("\n\n");
             this.terminal.echo(this.chartCommand.makeChartText());
         }
-        this.terminal.newLine();
+        if(this.addPadding) this.terminal.newLine();
         this.terminal.newLine();
         this.terminal.printLine("E = Enterprise");
         this.terminal.printLine("K = klingon; C = commander; S = super commander; R = romulan;");
         this.terminal.printLine(". = nothing; * = star; empty = black hole.");
         this.terminal.printLine("p = planet; b = base;")
-        this.terminal.newLine();
-        // this.terminal.print();
+        if(this.addPadding) this.terminal.newLine();
     }
 }
 

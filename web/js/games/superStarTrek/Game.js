@@ -28,7 +28,6 @@ import {
     RequestCommand, ShortRangeScanCommand, StatusCommand
 } from "./commands.js";
 import {DEBUG} from './superStarTrek.js';
-import mitt from 'mitt';
 
 import {DamageReportCommand, RestCommand, WarpFactorCommand} from "./commands";
 import {Collider} from "./Components";
@@ -51,50 +50,19 @@ export const GAME_MODE_TOURNAMENT = 2;
 export const GAME_MODE_FROZEN = 3;
 
 export const DEVICE_DAMAGE_ENABLED = true;
-
-class GameClock {
-    constructor() {
-        this.emitter = new mitt();
-        this._initialStarDate = null;
-        this._starDate = null;
-    }
-
-    init(date) {
-        this._initialStarDate = date;
-        this._starDate = date;
-    }
-
-    get starDate() {
-        return this._starDate;
-    }
-
-    getElapsedTime() {
-        return this._starDate - this._initialStarDate;
-    }
-
-    elapseTime(days) {
-        this._starDate += days;
-        this.emitter.emit("timeElapse", days);
-    }
-    unregister(fn) {
-        this.emitter.off('timeElapse', fn);
-    }
-
-    register(fn) {
-        this.emitter.on("timeElapse", fn);
-    }
-}
-
-export const clock = new GameClock();
+import clock from "./GameClock.js";
 
 /**
  *
  */
 export default class Game {
-    constructor(terminal, pane1, pane2, features) {
+    constructor(terminal, pane1, pane2, screen, features) {
         this.terminal = terminal;
         this.pane1 = pane1;
         this.pane2 = pane2;
+        this.screen = screen;
+        this.screen.addSizeChangeCallback(this.onScreenSizeChange.bind(this));
+        this.hideInfoPanes();
         this.service = new Service();
         this.shipBuilder = new ShipBuilder();
         this.galaxy = new Galaxy(8, 8, 10, 10, true);
@@ -339,6 +307,61 @@ export default class Game {
         }, 0);
     }
 
+    async onScreenSizeChange() {
+        // unregister / register commands from or to the main terminal
+        // depending on screen size
+        // then render
+        if (this.screen.isSmallScreen || this.screen.isTinyScreen) {
+            this.terminal.registerCommand(this.scanCommand);
+            this.terminal.registerCommand(this.chartCommand);
+        } else if (this.screen.isMediumScreen) {
+            this.terminal.registerCommand(this.chartCommand);
+            this.terminal.unregisterCommand(this.scanCommand);
+        } else if ( this.screen.isLargeScreen) {
+            this.terminal.unregisterCommand(this.scanCommand);
+            this.terminal.unregisterCommand(this.chartCommand);
+        }
+        await this.render();
+    }
+    async render() {
+        if (this.screen.isSmallScreen) {
+            // render only main pane
+        } else if (this.screen.isMediumScreen) {
+            // render info pane 1 only
+            await this.renderPane1();
+        } else if (this.screen.isLargeScreen) {
+            // render all panes
+            await this.renderPane1();
+            await this.renderPane2();
+        } else {
+            // assume tiny screen
+            // render only main pane
+        }
+    }
+
+    hideInfoPanes() {
+        this.pane1.$el.hide();
+        this.pane2.$el.hide();
+    }
+
+    showInfoPanes() {
+        if (this.screen.isSmallScreen) {
+            // render only main pane
+        } else if (this.screen.isMediumScreen) {
+            // render info pane 1 only
+            this.pane1.$el.show();
+        } else if (this.screen.isLargeScreen) {
+            // render all panes
+            this.pane1.$el.show();
+            this.pane2.$el.show();
+        } else {
+            // assume tiny screen
+            // render only main pane
+        }
+    }
+
+
+
     async renderPane1() {
         this.pane1.clearAll();
         await this.pane1Command.run();
@@ -353,12 +376,6 @@ export default class Game {
 
     setup() {
         this.makeCommands();
-
-        // make panes
-        let status = new StatusCommand(this, this.pane1, this.player, this.galaxy);
-        let chart = new ChartCommand(this, this.pane2, this.player);
-        this.pane1Command = new ShortRangeScanCommand(this, this.pane1, this.player, chart, status);
-        this.pane2Command = chart;
 
         // these methods should probably be on the game .... whatever
         // do some setup for our galaxy, make the immovable objects
@@ -378,6 +395,8 @@ export default class Game {
 
         // technically this should be last so we can't have users trying to do stuff
         this.registerCommands();
+        this.showInfoPanes();
+        this.onScreenSizeChange();
         this.loop();
     }
 
@@ -427,8 +446,7 @@ Good Luck!
             let justArrivedIntoCombat = false;
             let inCombat = false;
             while(userTurn && !this.isVictory() && !this.isDefeat()) {
-                await this.renderPane1();
-                await this.renderPane2();
+                await this.render();
                 let {command} = await this.terminal.runUserCommand();
                 await command.run();
                 this.terminal.print();
@@ -527,15 +545,16 @@ With your starship confiscated by the Klingon High Command, you relocate to a mi
 
     makeCommands() {
         this.commands = [];
-        // let chartCommand = new ChartCommand(this, this.terminal, this.player);
+        this.chartCommand = new ChartCommand(this, this.terminal, this.player);
         let commandsCommand = new CommandsCommand(this, this.terminal);
         let statusCommand = new StatusCommand(this, this.terminal, this.player, this.galaxy);
         this.commands.push(new ShieldsCommand(this, this.terminal, this.player));
         this.commands.push(commandsCommand);
         this.commands.push(statusCommand);
         this.commands.push(new RequestCommand(this, this.terminal, statusCommand));
-        // this.commands.push(chartCommand);
-        // this.commands.push(new ShortRangeScanCommand(this, this.terminal, chartCommand, statusCommand));
+        this.commands.push(this.chartCommand);
+        this.scanCommand = new ShortRangeScanCommand(this, this.terminal, this.player, this.chartCommand, statusCommand);
+        this.commands.push(this.scanCommand);
         if(DEBUG) {
             this.commands.push(new LongRangeScanCommand(this, this.terminal, this.player));
         }
@@ -550,6 +569,11 @@ With your starship confiscated by the Klingon High Command, you relocate to a mi
         this.commands.push(new WarpFactorCommand(this.terminal, this.player));
         this.commands.push(new DamageReportCommand(this, this.terminal, this.player));
         this.commands.push(new RestCommand(this, this.terminal));
+
+        let status = new StatusCommand(this, this.pane1, this.player, this.galaxy);
+        let chart = new ChartCommand(this, this.pane2, this.player);
+        this.pane1Command = new ShortRangeScanCommand(this, this.pane1, this.player, chart, status);
+        this.pane2Command = chart;
     }
 
     // register all our commands with our terminal,

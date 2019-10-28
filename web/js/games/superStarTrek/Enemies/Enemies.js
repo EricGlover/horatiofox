@@ -2,7 +2,7 @@ import {GameObject, Collider} from "../Components.js";
 import {terminal} from '../Terminal.js';
 import AI from '../AI.js';
 import {PowerGrid, Phasers, PhotonTorpedoLauncher, LifeSupport, Shields} from "../Devices.js";
-import {clock} from "../Game.js";
+import clock from "../GameClock.js";
 
 export class ShipBuilder {
     constructor() {
@@ -47,7 +47,6 @@ export class ShipBuilder {
     }
 
 }
-
 
 export class AbstractEnemy {
     constructor(galaxy, player, game) {

@@ -7,11 +7,24 @@ import {DEVICE_DAMAGE_ENABLED} from "./Game.js";
 let _colliderMaxHitToDamageDevices = 275.0;
 let _colliderMinHitToDamageDevices = 50.0;
 
-
+/**
+ * Our base component class
+ * All components appear on their parents on the same prop name
+ * for a given kind of component (ex : all phasers are on .phasers)
+ * all components can access their parent
+ */
 export class Component {
-    constructor(propName, parent) {
+    constructor(_class, parent) {
+        if(!_class.propName) {
+            debugger;
+            throw new Error("To inherit component you need to define a static propName");
+        }
         this.parent = parent;
-        this.parent[propName] = this;
+        this.parent[_class.propName] = this;
+        this.parent.hasComponent = Component.hasComponent.bind(this.parent);
+    }
+    static hasComponent(_class) {
+        return this[_class.propName];
     }
 }
 
@@ -19,7 +32,7 @@ export class Component {
 // width and height are in units 1/100 * sector width
 export class Collider extends Component {
     constructor(parent, gameObject, width = 0, length = 0, health = 1) {
-        super("collider", parent);
+        super(Collider, parent);
         this.health = health;
         this.maxHealth = this.health;
         this.terminal = terminal;
@@ -27,6 +40,10 @@ export class Collider extends Component {
         this.length = length;
         this.gameObject = gameObject;
         this._indestructible = false;
+    }
+
+    static propName() {
+        return "collider";
     }
 
     static setDeviceDamageRange(min, max) {
@@ -149,8 +166,12 @@ export class Collider extends Component {
 // things that can move
 export class Mover extends Component {
     constructor(parent, gameObject) {
-        super("mover", parent);
+        super(Mover, parent);
         this.gameObject = gameObject;
+    }
+
+    static get propName() {
+        return "mover";
     }
 
     calculateDisplacement(sector) {
@@ -251,10 +272,12 @@ export class Mover extends Component {
 // a thing that holds game objects
 export class GameObjectContainer extends Component {
     constructor(parent) {
-        super("container", parent);
+        super(GameObjectContainer, parent);
         this.gameObjects = [];
     }
-
+    static get propName() {
+        return "container";
+    }
     isEmpty() {
         return this.gameObjects.length === 0;
     }
@@ -287,7 +310,7 @@ export class GameObjectContainer extends Component {
 // the game
 export class GameObject  extends  Component {
     constructor(parent, takesWholeSector = false) {
-        super("gameObject", parent);
+        super(GameObject, parent);
         this.galaxy = null;
         this.quadrant = null;
         this.sector = null;
@@ -297,6 +320,9 @@ export class GameObject  extends  Component {
         this.takesWholeSector = takesWholeSector;
     }
 
+    static get propName() {
+        return "gameObject";
+    }
     // if something was removed from the game...
     isInGame() {
         if(!this.galaxy || !this.quadrant || !this.sector) {
