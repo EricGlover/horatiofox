@@ -29,7 +29,7 @@ import {
 } from "./commands.js";
 import {DEBUG} from './superStarTrek.js';
 
-import {DamageReportCommand, RestCommand, WarpFactorCommand} from "./commands";
+import {DamageReportCommand, RepairCommand, RestCommand, WarpFactorCommand} from "./commands";
 import {Collider} from "./Components";
 
 /** Game length options **/
@@ -118,14 +118,20 @@ export default class Game {
             klingon = new Klingon(this.galaxy, this.player, this);
             klingon.gameObject.placeIn(this.galaxy, quad, sector);
 
-            // this.player.deviceContainer.damageRandomDevices(10);
+
         } else {
             let quad = this.galaxy.getRandomQuadrant();
             let sector = quad.getRandomSector();
             this.player.gameObject.placeIn(this.galaxy, quad, sector);
         }
-        this.setDifficulty(this.skill);
 
+        if (DEBUG) {
+            this.player.deviceContainer.damageRandomDevices(10);
+            // this.player.powerGrid._damage = 0;
+            // this.player.warpEngines._damage = 0;
+            // this.player.shortRangeSensors._damage = 0;
+        }
+        this.setDifficulty(this.skill);
 
 
         // user input stuff
@@ -144,12 +150,12 @@ export default class Game {
 
     // set all the difficulty related game variables
     setDifficulty(skill) {
-        switch(skill) {
+        switch (skill) {
             case SKILL_NOVICE:
                 this.player.phasers.overheatThreshold = 1500;
                 // enemy values
-                this.shipBuilder.kHealth  = 40;
-                this.shipBuilder.kEnergy  = 400;
+                this.shipBuilder.kHealth = 40;
+                this.shipBuilder.kEnergy = 400;
                 this.shipBuilder.kcHealth = 100;
                 this.shipBuilder.kcEnergy = 1200;
                 this.shipBuilder.kscHealth = 400;
@@ -161,8 +167,8 @@ export default class Game {
             case SKILL_FAIR:
                 this.player.phasers.overheatThreshold = 1500;
                 // enemy values
-                this.shipBuilder.kHealth  = 40;
-                this.shipBuilder.kEnergy  = 400;
+                this.shipBuilder.kHealth = 40;
+                this.shipBuilder.kEnergy = 400;
                 this.shipBuilder.kcHealth = 100;
                 this.shipBuilder.kcEnergy = 1200;
                 this.shipBuilder.kscHealth = 400;
@@ -174,8 +180,8 @@ export default class Game {
             case SKILL_GOOD:
                 this.player.phasers.overheatThreshold = 1200;
                 // enemy values
-                this.shipBuilder.kHealth  = 100;
-                this.shipBuilder.kEnergy  = 700;
+                this.shipBuilder.kHealth = 100;
+                this.shipBuilder.kEnergy = 700;
                 this.shipBuilder.kcHealth = 200;
                 this.shipBuilder.kcEnergy = 1500;
                 this.shipBuilder.kscHealth = 600;
@@ -187,8 +193,8 @@ export default class Game {
             case SKILL_EXPERT:
                 this.player.phasers.overheatThreshold = 1000;
                 // enemy values
-                this.shipBuilder.kHealth  = 100;
-                this.shipBuilder.kEnergy  = 700;
+                this.shipBuilder.kHealth = 100;
+                this.shipBuilder.kEnergy = 700;
                 this.shipBuilder.kcHealth = 200;
                 this.shipBuilder.kcEnergy = 1500;
                 this.shipBuilder.kscHealth = 600;
@@ -200,8 +206,8 @@ export default class Game {
             case SKILL_EMERITUS:
                 this.player.phasers.overheatThreshold = 800;
                 // enemy values
-                this.shipBuilder.kHealth  = 100;
-                this.shipBuilder.kEnergy  = 700;
+                this.shipBuilder.kHealth = 100;
+                this.shipBuilder.kEnergy = 700;
                 this.shipBuilder.kcHealth = 200;
                 this.shipBuilder.kcEnergy = 1500;
                 this.shipBuilder.kscHealth = 600;
@@ -252,22 +258,22 @@ export default class Game {
         score += killedRomulans * 20;
 
         let timeElapsed = this.clock.getElapsedTime();
-        if(timeElapsed === 0) timeElapsed = 1;
+        if (timeElapsed === 0) timeElapsed = 1;
         let klingonsPerDate = killedKlingonsAll / timeElapsed;
         score += klingonsPerDate * 500;
 
         // victory adds 100 * skill
-        if(this.isVictory()) {
+        if (this.isVictory()) {
             score += this.skill * 100;
         }
-        if(this.player.isDead()) {
+        if (this.player.isDead()) {
             score -= 200;
         }
         return score;
     }
 
     getGameLengthStr() {
-        switch(this.length) {
+        switch (this.length) {
             case GAME_LENGTH_SHORT:
                 return 'short';
             case GAME_LENGTH_MEDIUM:
@@ -302,7 +308,7 @@ export default class Game {
 
     getNumberOfTypeKilled(type) {
         return this.fallenFoes.reduce((carry, foe) => {
-            if(foe instanceof type) carry++;
+            if (foe instanceof type) carry++;
             return carry;
         }, 0);
     }
@@ -317,12 +323,13 @@ export default class Game {
         } else if (this.screen.isMediumScreen) {
             this.terminal.registerCommand(this.chartCommand);
             this.terminal.unregisterCommand(this.scanCommand);
-        } else if ( this.screen.isLargeScreen) {
+        } else if (this.screen.isLargeScreen) {
             this.terminal.unregisterCommand(this.scanCommand);
             this.terminal.unregisterCommand(this.chartCommand);
         }
         await this.render();
     }
+
     async render() {
         if (this.screen.isSmallScreen) {
             // render only main pane
@@ -359,7 +366,6 @@ export default class Game {
             // render only main pane
         }
     }
-
 
 
     async renderPane1() {
@@ -412,7 +418,7 @@ export default class Game {
         let baseStr = sbq.join("   ");
         // change terminal settings
         let startText = `It is stardate ${this.clock.starDate.toFixed(0)}. Federation is being attacked by
-a deadly Klingon invasion force. As captain of the UnitedStarship U.S.S. Enterprise, it is your mission to seek out and destroy this invasion force of ${this.numberOfKlingons} klingons.
+a deadly Klingon invasion force. As captain of the United Starship U.S.S. Enterprise, it is your mission to seek out and destroy this invasion force of ${this.numberOfKlingons} klingons.
 
 The Klingons will overpower the Federation in ${this.timeRemaining} days, every Klingon you destroy will weaken this invasion force and buy us more time.
 
@@ -439,21 +445,29 @@ Good Luck!
     async loop() {
         let wasInCombat = false;
 
-        while(!this.isDefeat() && !this.isVictory()) {
+        while (!this.isDefeat() && !this.isVictory()) {
             // user turn
             let userTurn = true;
             let hasMovedInCombat = false;
             let justArrivedIntoCombat = false;
             let inCombat = false;
-            while(userTurn && !this.isVictory() && !this.isDefeat()) {
+            while (userTurn && !this.isVictory() && !this.isDefeat()) {
                 await this.render();
-                let {command} = await this.terminal.runUserCommand();
-                await command.run();
+                let command;
+                try {
+                    let response = await this.terminal.runUserCommand();
+                    command = response.command;
+                    await command.run();
+                } catch (e) {
+                    this.terminal.printLine(e.message || `Can't do that, Captain!`);
+                }
+
+
                 this.terminal.print();
                 // when does the command run ?
 
                 // info commands and instant ship commands (like scan or set warp) never consume a turn
-                if(command.isInfoCommand() || command.isInstantShipCommand()) {
+                if (command.isInfoCommand() || command.isInstantShipCommand()) {
                     continue;
                 }
                 // update time remaining in case the balance of power has shifted
@@ -464,11 +478,11 @@ Good Luck!
                 justArrivedIntoCombat = inCombat && !wasInCombat;
 
                 // in combat you can move, then attack
-                if(inCombat) {
+                if (inCombat) {
                     if (command.isMoveCommand()) {
                         // if we already moved in combat, or just arrived into combat
                         // then moves consume a turn
-                        if(hasMovedInCombat || !wasInCombat) {
+                        if (hasMovedInCombat || !wasInCombat) {
                             userTurn = false;
                         }
                         hasMovedInCombat = true;
@@ -483,10 +497,10 @@ Good Luck!
                 }
             }
 
-            if(this.isVictory() || this.isDefeat()) break;
+            if (this.isVictory() || this.isDefeat()) break;
 
             // now it's the ai's turn, start shooting if we're in combat
-            if(inCombat && !justArrivedIntoCombat) {
+            if (inCombat && !justArrivedIntoCombat) {
                 this.player.gameObject.quadrant.container.getGameObjectsOfType(AbstractEnemy).forEach(enemy => {
                     enemy.ai.takeTurn();
                 });
@@ -506,14 +520,14 @@ Good Luck!
         this.terminal.skipLine(2);
 
         // show end game screen
-        if(victory) {
+        if (victory) {
             this.terminal.printLine("You win!");
             this.terminal.printLine(`It is stardate ${this.clock.starDate.toFixed(1)}.`);
             this.terminal.print();
         } else if (defeat) {
             this.terminal.printLine("You lose...");
             this.terminal.printLine(`It is stardate ${this.clock.starDate.toFixed(1)}.`);
-            if(this.timeRemaining <= 0) {
+            if (this.timeRemaining <= 0) {
                 this.terminal.printLine(`Your time has run out and the Federation has been conquered.
 With your starship confiscated by the Klingon High Command, you relocate to a mining facility and learn to love gagh.`);
             } else if (this.player.isDead()) {
@@ -545,6 +559,7 @@ With your starship confiscated by the Klingon High Command, you relocate to a mi
 
     makeCommands() {
         this.commands = [];
+        this.commands.push(new RepairCommand(this.terminal, this.player));
         this.chartCommand = new ChartCommand(this, this.terminal, this.player);
         let commandsCommand = new CommandsCommand(this, this.terminal);
         let statusCommand = new StatusCommand(this, this.terminal, this.player, this.galaxy);
@@ -555,7 +570,7 @@ With your starship confiscated by the Klingon High Command, you relocate to a mi
         this.commands.push(this.chartCommand);
         this.scanCommand = new ShortRangeScanCommand(this, this.terminal, this.player, this.chartCommand, statusCommand);
         this.commands.push(this.scanCommand);
-        if(DEBUG) {
+        if (DEBUG) {
             this.commands.push(new LongRangeScanCommand(this, this.terminal, this.player));
         }
 
@@ -735,11 +750,11 @@ With your starship confiscated by the Klingon High Command, you relocate to a mi
         // place in quadrant without enemies or the player
         for (let i = 0; i < n; i++) {
             let quadrant;
-            if(this.skill >= SKILL_GOOD) {
+            if (this.skill >= SKILL_GOOD) {
                 do {
                     quadrant = this.galaxy.getRandomQuadrant();
                 } while (quadrant.container.getCountOfGameObjects(AbstractKlingon) === 0 || this.player.gameObject.quadrant === quadrant);
-            } else if(this.skill >= SKILL_FAIR) {
+            } else if (this.skill >= SKILL_FAIR) {
                 do {
                     quadrant = this.galaxy.getRandomQuadrant();
                 } while (this.player.gameObject.quadrant === quadrant);
@@ -758,11 +773,11 @@ With your starship confiscated by the Klingon High Command, you relocate to a mi
         // place in quadrant without enemies
         for (let i = 0; i < n; i++) {
             let quadrant;
-            if(this.skill >= SKILL_GOOD) {
+            if (this.skill >= SKILL_GOOD) {
                 do {
                     quadrant = this.galaxy.getRandomQuadrant();
                 } while (quadrant.container.getCountOfGameObjects(AbstractKlingon) === 0 || this.player.gameObject.quadrant === quadrant);
-            } else if(this.skill >= SKILL_FAIR) {
+            } else if (this.skill >= SKILL_FAIR) {
                 do {
                     quadrant = this.galaxy.getRandomQuadrant();
                 } while (this.player.gameObject.quadrant === quadrant);
@@ -792,9 +807,9 @@ With your starship confiscated by the Klingon High Command, you relocate to a mi
         quadrants = quadrants.filter(q => q !== this.player.gameObject.quadrant);
         while (n > 0) {
             // get a random quadrant without klingons
-            let idx = Math.round(Math.random() * (quadrants.length - 1 ));
+            let idx = Math.round(Math.random() * (quadrants.length - 1));
             let quadrant = quadrants.splice(idx, 1)[0];
-            if(!quadrant) { // if we somehow ran out of quadrants then just peace out
+            if (!quadrant) { // if we somehow ran out of quadrants then just peace out
                 break;  //
             }
             // randomize the amount of klingons to place a bit
@@ -821,7 +836,7 @@ With your starship confiscated by the Klingon High Command, you relocate to a mi
             let quadrant;
             do {
                 quadrant = this.galaxy.getRandomQuadrant();
-            } while(this.player.gameObject.quadrant === quadrant);
+            } while (this.player.gameObject.quadrant === quadrant);
 
             let sector = quadrant.getRandomEmptySector();
             console.log("placing romulan");

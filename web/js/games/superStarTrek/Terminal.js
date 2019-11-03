@@ -197,7 +197,9 @@ class Terminal {
      *
      * Specify a column width or defaults to the largest
      * @param grid array<array<string>>
+     * @param padLeft bool add padding to left (true), add padding to right (false)
      * @param columnWidth int
+     * @param individualWidths bool (set the column widths individually or use the widest column)
      * @returns array<array<string>>
      */
     formatGrid(grid, padLeft = true, columnWidth = null, individualWidths = false) {

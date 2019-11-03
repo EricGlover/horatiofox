@@ -1,9 +1,10 @@
 import {GameObject, Collider} from "../Components.js";
 import {terminal} from '../Terminal.js';
 import AI from '../AI.js';
-import {PowerGrid, Phasers, PhotonTorpedoLauncher, LifeSupport, Shields} from "../Devices.js";
+import {PowerGrid, Phasers, PhotonTorpedoLauncher, LifeSupport, Shields, DeviceContainer} from "../Devices.js";
 import clock from "../GameClock.js";
 
+// todo:: redo the ship classes as types
 export class ShipBuilder {
     constructor() {
         this.kHealth  = 40;
@@ -57,6 +58,7 @@ export class AbstractEnemy {
         this.gameObject = new GameObject(this, true);
         this.collider = new Collider(this, this.gameObject, 80, 80);
 
+        this.deviceContainer = new DeviceContainer(this);
         this.phasers = new Phasers(this, this.powerGrid);
         // this.photons = new PhotonTorpedoLauncher(this);
         this.lifeSupport = new LifeSupport(this, 2.0, clock);

@@ -1,6 +1,7 @@
 import {terminal} from './Terminal.js';
 import {Component, GameObject, Mover, Collider} from "./Components.js";
 import clock from "./GameClock.js";
+import Enterprise from "./PlayerShips/Enterprise.js";
 
 /**
  * Device Types, defined constants make it easier to check the type of device
@@ -22,6 +23,7 @@ class DeviceType {
         Object.freeze(this);
     }
 }
+
 /// Device Type Singletons
 export const shortRangeSensorType = new DeviceType('Short Range Sensors', 'shortRangeSensors');
 export const longRangeSensorType = new DeviceType("Long Range Sensors", 'longRangeSensors');
@@ -32,6 +34,7 @@ export const impulseEngineType = new DeviceType("Impulse Engines", "impulseEngin
 export const lifeSupportType = new DeviceType("Life Support", "lifeSupport");
 export const shieldType = new DeviceType("Shields", "shields");
 export const photonTorpedoLauncherType = new DeviceType("Photon Torpedo Launcher", "photons");
+
 // export const
 
 /**
@@ -50,23 +53,25 @@ export class Device extends Component {
 
         this._chanceOfBeingDamaged = chanceOfBeginDamaged;
 
-        if(!this.parent.deviceContainer) {
+        if (!this.parent.deviceContainer) {
             this.parent.deviceContainer = new DeviceContainer(this.parent);
         }
         this.parent.deviceContainer.addDevices(this);
 
         this._damage = 0;
     }
+
     isType(deviceType) {
-        if(!deviceType instanceof DeviceType) return false;
+        if (!deviceType instanceof DeviceType) return false;
         return this.type.name === deviceType.name;
     }
+
     get damage() {
         return this._damage;
     }
 
     checkDamage() {
-        if(this.isDamaged()) {
+        if (this.isDamaged()) {
             throw new Error(`${this.name} is damaged!`);
         }
     }
@@ -74,21 +79,22 @@ export class Device extends Component {
     isOk() {
         return this._damage === 0;
     }
+
     isDamaged() {
         return this._damage > 0;
     }
 
     takeDamage(damage) {
-        if(this._damage === 0) {
+        if (this._damage === 0) {
             terminal.printLine(`***${this.parent.name}'s ${this.name} has been damaged.`);
         }
         this._damage += damage;
     }
 
     repair(amount) {
-        if(this._damage === 0) return;
+        if (this._damage === 0) return;
         this._damage -= amount;
-        if(this._damage === 0) {
+        if (this._damage === 0) {
             terminal.printLine(`${this.parent.name}'s ${this.name} have been repaired.`);
         }
         /// don't go negative
@@ -115,6 +121,12 @@ export class Device extends Component {
     // timeToRepair()
 }
 
+export const REPAIR_STRATEGY_EVEN = 'even';
+export const REPAIR_STRATEGY_LEAST = 'least';
+export const REPAIR_STRATEGY_MOST = 'most';
+export const REPAIR_STRATEGY_PRIORITY = 'priority';
+const REPAIR_MODES = [REPAIR_STRATEGY_EVEN, REPAIR_STRATEGY_LEAST, REPAIR_STRATEGY_MOST, REPAIR_STRATEGY_PRIORITY];
+
 /**
  * An array of devices
  */
@@ -123,19 +135,78 @@ export class DeviceContainer {
         this.parent = parent;
         this.parent.deviceContainer = this;
         this.devices = [];
+        this.repairSpeed = 1;   //speed at which devices are repaired (docked = 3)
+        this.repairMode = REPAIR_STRATEGY_EVEN;
         this.onTimeElapse = this.onTimeElapse.bind(this);
-        clock.register(this.onTimeElapse)
+        clock.register(this.onTimeElapse);
+        this.repairPriorities = {}; // map <device type name> => int [0, Infinity)
+    }
+
+    setRepairSpeed(n) {
+        this.repairSpeed = n;
+    }
+
+    setRepairMode(mode) {
+        if (!REPAIR_MODES.some(m => mode === m)) {
+            throw new Error(`${mode} is not a valid repair mode.`);
+        }
+        this.repairMode = mode;
     }
 
     onTimeElapse(days) {
-        // spread repairs across damaged devices evenly
+        // debugger;
+        // todo:: check for repair priority
+        let repairAmount = days * this.repairSpeed;
         let damagedDevices = this.devices.filter(d => d.isDamaged());
-        let r = days / damagedDevices.length;
-        damagedDevices.forEach(d => d.repair(r));
+        switch (this.repairMode) {
+            case REPAIR_STRATEGY_EVEN:
+                // spread repairs across damaged devices evenly
+                let r = repairAmount / damagedDevices.length;
+                damagedDevices.forEach(d => d.repair(r));
+                break;
+            case REPAIR_STRATEGY_LEAST:
+                // repair the least damaged device first
+                damagedDevices.sort((a, b) => {
+                    return a.damage - b.damage;
+                });
+                // repair loop
+                for (let i = 0; i < damagedDevices.length && repairAmount > 0; i++) {
+                    let device = damagedDevices[i];
+                    let toRepair = Math.min(repairAmount, device.damage);
+                    device.repair(toRepair);
+                    repairAmount -= toRepair;
+                }
+                break;
+            case REPAIR_STRATEGY_MOST:
+                // repair the most damaged device first
+                damagedDevices.sort((a, b) => {
+                    return b.damage - a.damage;
+                });
+                // repair loop
+                for (let i = 0; i < damagedDevices.length && repairAmount > 0; i++) {
+                    let device = damagedDevices[i];
+                    let toRepair = Math.min(repairAmount, device.damage);
+                    device.repair(toRepair);
+                    repairAmount -= toRepair;
+                }
+                break;
+            case REPAIR_STRATEGY_PRIORITY:
+                // todo:: spread repairs evenly amongst same priority devices
+                // todo:: update the info section to include an explanation of this stuff....
+                // repair devices based on their priority
+                damagedDevices.sort((a, b) => {
+                    return this.repairPriorities[b.type.name] - this.repairPriorities[a.type.name];
+                });
+                break;
+            default:
+                console.error(`repair mode ${this.repairMode} invalid.`);
+        }
+
     }
 
     addDevices(...devices) {
         this.devices.push(...devices);
+        this.makeRepairPriority();
     }
 
     getRandomDevice() {
@@ -147,13 +218,13 @@ export class DeviceContainer {
         let minDamage = Math.max(damage / 10, 2);
         let originalDamage = damage;
         // distribute damage amongst devices
-        while(damage > 0) {
+        while (damage > 0) {
             // take a portion of this (make this better latter)
             let portion = Math.max(originalDamage * Math.random(), minDamage);
             let device;
             do {
                 device = this.getRandomDevice();
-            } while(device.hitDoesDamage());
+            } while (device.hitDoesDamage());
 
             device.takeDamage(portion);
             damage -= portion;
@@ -163,7 +234,32 @@ export class DeviceContainer {
     getDevice(type) {
         return this.parent[type.propName];
     }
+
+    getDevices() {
+        return this.devices.slice();
+    }
+
+    /**
+     * @param deviceType DeviceType
+     * @param priority int
+     */
+    setRepairPriority(deviceType, priority) {
+        this.repairPriorities[deviceType.name] = priority;
+    }
+
+    makeRepairPriority() {
+        this.devices.forEach((device, i) => this.repairPriorities[device.type.name] = i + 1);
+    }
+
+    // return map <device type name> => int ?
+    getRepairPriorities() {
+        return this.repairPriorities;
+    }
+    getDeviceRepairPriority(deviceType) {
+        return this.repairPriorities[deviceType.name] || 0;
+    }
 }
+
 /**
  * Has max, has min 0, can be damaged
  */
@@ -173,23 +269,29 @@ export class PowerGrid extends Device {
         this.capacity = capacity;
         this._energy = capacity;
     }
-    get energy(){
+
+    get energy() {
         return this._energy;
     }
+
     set energy(e) {
         e = Math.min(e, this.capacity);
         e = Math.max(e, 0);
         this._energy = e;
     }
+
     getPercent() {
         return this._energy / this.capacity;
     }
+
     atMax() {
         return this._energy === this.capacity;
     }
+
     recharge() {
         this._energy = this.capacity;
     }
+
     useEnergy(e) {
         this.checkDamage();
         if (this._energy - e < -0.01) {
@@ -198,6 +300,7 @@ export class PowerGrid extends Device {
         }
         this._energy -= e;
     }
+
     addEnergy(e) {
         this.checkDamage();
         if (this._energy + e > this.capacity) {
@@ -214,18 +317,21 @@ export class WarpDrive extends Device {
         this.powerGrid = powerGrid;
         this._warpFactor = 5.0;
     }
+
     get warpFactor() {
         return this._warpFactor;
     }
+
     set warpFactor(n) {
         this.checkDamage();
-        if(typeof n !== "number" || Number.isNaN(n)) {
+        if (typeof n !== "number" || Number.isNaN(n)) {
             return;
         } else if (n < 1.0 || n > 10.0) {
             return;
         }
         this._warpFactor = n;
     }
+
     // moveTo(){
     //
     // }
@@ -263,11 +369,11 @@ export class LifeSupport extends Device {
     }
 
     onTimeElapsed(days) {
-        if(this.isDamaged()) {
+        if (this.isDamaged()) {
             this.reserves -= days;
             this.reserves = Math.max(this.reserves, 0);
-            if(this.reserves === 0) {
-                if(this.parent.die) this.parent.die();
+            if (this.reserves === 0) {
+                if (this.parent.die) this.parent.die();
                 this.terminal.printLine(`${this.parent.name}'s crew suffocates.`);
             }
         } else if (!this.isDamaged() && !this.atMax()) {
@@ -310,7 +416,7 @@ export class Shields extends Device {
             this.terminal.printLine("Shields already up.");
             return;
         }
-        if(this.isDamaged()) {
+        if (this.isDamaged()) {
             this.terminal.printLine("Shields are damaged.");
             return;
         }

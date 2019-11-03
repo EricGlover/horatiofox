@@ -27,6 +27,8 @@ export default class Enterprise {
 
         this.warpFactor = 5.0;
 
+        this.dockedRepairSpeed = 3;
+        this.undockedRepairSpeed = 1;
         this.docked = false;
         this.dockedAt = null;
         this.name = "Enterprise";
@@ -86,17 +88,20 @@ export default class Enterprise {
         if (this.docked) {
             return;
         }
-        this.powerGrid.recharge();
-        this.photons.addTorpedoes(this.photons._capacity - this.photons.getTorpedoCount());
-        this.shields.recharge();
+        if(this.powerGrid.isOk()) this.powerGrid.recharge();
+        if(this.photons.isOk()) this.photons.addTorpedoes(this.photons._capacity - this.photons.getTorpedoCount());
+        if(this.shields.isOk()) this.shields.recharge();
         this.repairHull();
         this.docked = true;
         this.dockedAt = starbase;
+        this.deviceContainer.setRepairSpeed(this.dockedRepairSpeed);
     }
 
     undock() {
+        debugger;
         this.docked = false;
         this.dockedAt = null;
+        this.deviceContainer.setRepairSpeed(this.undockedRepairSpeed);
     }
 
     impulseTo(sector) {
@@ -117,13 +122,14 @@ export default class Enterprise {
         if (!sector instanceof Sector) {
             throw new Error("Can't move there");
         }
+        this.warpEngines.checkDamage();
+        this.powerGrid.checkDamage();
         if(this.docked) this.undock();
 
         // calculate distance, and energy required
         let distance = Galaxy.calculateDistance(this.gameObject.sector, sector);
         let energy = .1 * distance * Math.pow(this.warpFactor, 3);
         if(this.shields.up) energy *= 2;
-        console.log(energy);
         if(this.powerGrid.energy < energy) {
             throw new Error("Not enough energy.");
         }
