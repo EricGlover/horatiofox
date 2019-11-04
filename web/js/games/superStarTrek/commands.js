@@ -85,7 +85,7 @@ class Command {
     getOption(args) {
         let matched = {};
         Object.keys(this.options).forEach(prop => {
-            matched[prop] = args.some(str => this.options[prop].test(str))
+            matched[prop] = args.some(str => this.options[prop].test(str));
         });
         return matched;
     }
@@ -180,10 +180,10 @@ export class RepairCommand extends Command {
 
     setRepairMode() {
         let args = this.terminal.getArguments();
-        let argEven = /(e|even)/i;
-        let argLeast = /(l|least)/i;
-        let argMost = /(m|most)/i;
-        let argPrio = /(p|priority)/i;
+        let argEven = optionRegexifier('e', 'even');
+        let argLeast = optionRegexifier('l', 'least');
+        let argMost = optionRegexifier('m', 'most');
+        let argPrio = optionRegexifier('p', 'priority');
         if (argEven.test(args[1])) {
             this.player.deviceContainer.setRepairMode(REPAIR_STRATEGY_EVEN);
         } else if (argLeast.test(args[1])) {
@@ -359,7 +359,8 @@ safely even in the midst of battle.`;
             this.terminal.skipLine(1);
             return;
         }
-
+        this.terminal.skipLine(1);
+        this.terminal.printLine(`Repair mode: ${this.player.deviceContainer.repairMode}`);
         let report = [
             ["", "", "", "-REPAIR TIMES-"],
             ["Priority", "DEVICE", "IN FLIGHT", "DOCKED"],
@@ -372,7 +373,7 @@ safely even in the midst of battle.`;
                 ]
             })
         ];
-        this.terminal.skipLine(1);
+
         this.terminal.printLine(this.terminal.printGrid(this.terminal.formatGrid(report, false, null, true), "  ", ""));
         this.terminal.skipLine(1);
     }
@@ -1138,15 +1139,19 @@ export class MoveCommand extends Command {
         this.terminal = terminal;
         this.player = player;
         this.galaxy = galaxy;
-        this.abbreviation = "";
+        this.abbreviation = "m";
         this.name = "move";
-        this.regex = regexifier("m", "move");
         this.fullName = "move under warp drive";
+        this.regex = regexifier(this.abbreviation, this.name);
         this.type = MOVE_COMMAND;
+        this.addOption('manual', 'm', 'manual');
+        this.addOption('automatic', 'a', 'automatic');
+        this.addOption('impulse', 'i', 'impulse');
+        this.useImpulse = false;
         this.info = `  Mnemonic:  MOVE
   Shortest abbreviation:  M
-  Full command:  MOVE MANUAL [displacement]
-                 MOVE AUTOMATIC [destination]
+  Full command:  MOVE MANUAL [displacement] [impulse]
+                 MOVE AUTOMATIC [destination] [impulse]
 
 This command is the usual way to move from one place to another
 within the galaxy.  You move under warp drive, according to the
@@ -1207,13 +1212,27 @@ still go warp 4.
 It uses time and energy to move.  How much time and how much energy
 depends on your current warp factor, the distance you move, and
 whether your shields are up.  The higher the warp factor, the faster
-you move, but higher warp factors require more energy.  You may move
-with your shields up, but this doubles the energy required.
+you move, but higher warp factors require more energy.  Specifically, 
+    energy required = distance in terms of quadrants * (warpFactor ^ 3)
+You may move with your shields up, but this doubles the energy required. 
+
 
 You can move within a quadrant without being attacked if you just
 entered the quadrant or have bee attacked since your last move
 command.  This enables you to move and hit them before they
-retaliate.`;
+retaliate.
+
+====When using Impulse Engines =====
+The impulse engines give you a way to move when your warp engines are
+damaged.  They move you at a speed of 0.95 sectors per stardate,
+which is the equivalent of a warp factor of about 0.975, so they are
+much too slow to use except in emergencies.
+
+Movement commands are indicated just as in the "MOVE" command.
+
+The impulse engines require 20 units of energy to engage, plus 10
+units per sector (100 units per quadrant) traveled. It does not cost
+extra to move with the shields up.`;
     }
 
     async moveTo(sector) {
@@ -1259,8 +1278,12 @@ retaliate.`;
             }
         }
 
+        if(this.useImpulse) {
+            this.player.impulseTo(sector);
+        } else {
+            this.player.warpTo(sector);
+        }
 
-        this.player.warpTo(sector);
 
         this.game.clock.elapseTime(timeRequired);
         // check bounds
@@ -1301,26 +1324,11 @@ retaliate.`;
 
     async run() {
         // modes : manual and automatic
-        let manual = true;
-        let automatic = false;
-        let manualOption = optionRegexifier("m", "manual");
-        let automaticOption = optionRegexifier("a", "automatic");
-
         // remove mode option from arguments, if provided
         let args = this.terminal.getArguments();
-        if (args.some(arg => manualOption.test(arg))) {
-            manual = true;
-            automatic = false;
-            // remove matching arg
-            args = args.filter(arg => !manualOption.test(arg))
-        }
-        if (args.some(arg => automaticOption.test(arg))) {
-            manual = false;
-            automatic = true;
-            // remove matching arg
-            args = args.filter(arg => !automaticOption.test(arg))
-        }
-
+        let {manual, automatic, impulse} = this.getOption(args);
+        this.useImpulse = impulse;
+        if(!manual && !automatic) manual = true;    // set a default
         if (manual) {
             console.log("manual mode");
             // parse args, only two arguments

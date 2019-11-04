@@ -126,7 +126,7 @@ export default class Game {
         }
 
         if (DEBUG) {
-            this.player.deviceContainer.damageRandomDevices(10);
+            this.player.deviceContainer.damageRandomDevices(2);
             // this.player.powerGrid._damage = 0;
             // this.player.warpEngines._damage = 0;
             // this.player.shortRangeSensors._damage = 0;
@@ -458,6 +458,7 @@ Good Luck!
                     let response = await this.terminal.runUserCommand();
                     command = response.command;
                     await command.run();
+                    if(this.player.docked) this.player.rechargeEverything();
                 } catch (e) {
                     this.terminal.printLine(e.message || `Can't do that, Captain!`);
                 }

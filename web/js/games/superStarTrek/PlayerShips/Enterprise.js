@@ -11,6 +11,7 @@ import {Device,
     shortRangeSensorType,
     warpEngineType
 } from "../Devices.js";
+import {impulseEngineType} from "../Devices";
 
 const CONDITION_GREEN = 1;
 const CONDITION_YELLOW = 2;
@@ -27,8 +28,8 @@ export default class Enterprise {
 
         this.warpFactor = 5.0;
 
-        this.dockedRepairSpeed = 3;
-        this.undockedRepairSpeed = 1;
+        this.dockedRepairSpeed = 1;
+        this.undockedRepairSpeed = .3;
         this.docked = false;
         this.dockedAt = null;
         this.name = "Enterprise";
@@ -45,7 +46,7 @@ export default class Enterprise {
         // this.longRangeSensors = new Device(this, "Long Range Sensors");
         this.lifeSupport = new LifeSupport(this, 4.0, clock);
         this.warpEngines = new Device(this, warpEngineType);
-        // this.impulseEngines = new Device(this, "Impulse Engines");
+        this.impulseEngines = new Device(this, impulseEngineType);
         // this.subspaceRadio = new Device(this, "Subspace Radio");
         // this.shuttleCraft = new Device(this, "Shuttle Craft");
         // this.computer = new Device(this, "Computer");
@@ -88,13 +89,18 @@ export default class Enterprise {
         if (this.docked) {
             return;
         }
+        this.rechargeEverything();
+        this.docked = true;
+        this.dockedAt = starbase;
+        this.deviceContainer.setRepairSpeed(this.dockedRepairSpeed);
+    }
+
+    rechargeEverything() {
+        this.lifeSupport.recharge();
         if(this.powerGrid.isOk()) this.powerGrid.recharge();
         if(this.photons.isOk()) this.photons.addTorpedoes(this.photons._capacity - this.photons.getTorpedoCount());
         if(this.shields.isOk()) this.shields.recharge();
         this.repairHull();
-        this.docked = true;
-        this.dockedAt = starbase;
-        this.deviceContainer.setRepairSpeed(this.dockedRepairSpeed);
     }
 
     undock() {
@@ -105,8 +111,25 @@ export default class Enterprise {
     }
 
     impulseTo(sector) {
-        // calculate resources needed
+        // same as warp using warp factor = 1
+        if (!sector instanceof Sector) {
+            throw new Error("Can't move there");
+        }
+        this.impulseEngines.checkDamage();
+        this.powerGrid.checkDamage();
+        if(this.docked) this.undock();
+
+        // calculate distance, and energy required
+        let distance = Galaxy.calculateDistance(this.gameObject.sector, sector);
+        //( .1 * distance in sectors = distance in quadrants ) * warpFactor ^ 3
+        let energy = .1 * distance;
+        if(this.shields.up) energy *= 2;
+        if(this.powerGrid.energy < energy) {
+            throw new Error("Not enough energy.");
+        }
+
         this.mover.moveToSector(sector);
+        this.powerGrid.useEnergy(energy);
     }
 
     setWarpFactor(warpFactor) {
@@ -128,6 +151,7 @@ export default class Enterprise {
 
         // calculate distance, and energy required
         let distance = Galaxy.calculateDistance(this.gameObject.sector, sector);
+        //( .1 * distance in sectors = distance in quadrants ) * warpFactor ^ 3
         let energy = .1 * distance * Math.pow(this.warpFactor, 3);
         if(this.shields.up) energy *= 2;
         if(this.powerGrid.energy < energy) {

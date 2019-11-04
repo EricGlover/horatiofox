@@ -111,11 +111,11 @@ export class Device extends Component {
     }
 
     timeToRepairInFlight() {
-        return this._damage * 3.5;
+        return this._damage / DEVICE_REPAIR_SPEED_IN_FLIGHT;
     }
 
     timeToRepairAtDock() {
-        return this._damage;
+        return this._damage / DEVICE_REPAIR_SPEED_DOCKED;
     }
 
     // timeToRepair()
@@ -126,7 +126,8 @@ export const REPAIR_STRATEGY_LEAST = 'least';
 export const REPAIR_STRATEGY_MOST = 'most';
 export const REPAIR_STRATEGY_PRIORITY = 'priority';
 const REPAIR_MODES = [REPAIR_STRATEGY_EVEN, REPAIR_STRATEGY_LEAST, REPAIR_STRATEGY_MOST, REPAIR_STRATEGY_PRIORITY];
-
+const DEVICE_REPAIR_SPEED_DOCKED = 1;
+const DEVICE_REPAIR_SPEED_IN_FLIGHT = .3;
 /**
  * An array of devices
  */
@@ -135,11 +136,14 @@ export class DeviceContainer {
         this.parent = parent;
         this.parent.deviceContainer = this;
         this.devices = [];
-        this.repairSpeed = 1;   //speed at which devices are repaired (docked = 3)
+        this.repairSpeed = DEVICE_REPAIR_SPEED_IN_FLIGHT;   //speed at which devices are repaired (docked = 1)
         this.repairMode = REPAIR_STRATEGY_EVEN;
         this.onTimeElapse = this.onTimeElapse.bind(this);
         clock.register(this.onTimeElapse);
-        this.repairPriorities = {}; // map <device type name> => int [0, Infinity)
+        // <int> priority # => List <device>
+        // also <string> device type name => priority #
+        this.repairPriorities = new Map();
+        this.prioritiesInUse = new Set();
     }
 
     setRepairSpeed(n) {
@@ -153,6 +157,39 @@ export class DeviceContainer {
         this.repairMode = mode;
     }
 
+    _repairDevicesEvenly(devices, totalAmount) {
+        // r = amount to repair per device
+        let r = totalAmount / devices.length;
+        let repairAmountLeft = totalAmount;
+        let remainingDevices = devices.slice();
+        // dont over-repair devices .....
+        // if we have devices that have less damage than we're repairing each device
+        // then repair them first and recalculate how much we can repair the
+        // remaining devices
+        let devicesWithLessDamage;
+        do {
+            devicesWithLessDamage = remainingDevices.filter(d => d.damage < r && d.damage > 0);
+            if(devicesWithLessDamage.length === 0) break;
+            remainingDevices = remainingDevices.filter(d => d.damage >= r && d.damage > 0);
+            devicesWithLessDamage.forEach(d => {
+                let toRepair = Math.min(d.damage, r, repairAmountLeft);
+                if(toRepair <= 0) return;
+                d.repair(toRepair);
+                repairAmountLeft -= toRepair;
+            });
+            r = repairAmountLeft / remainingDevices.length;
+        } while (devicesWithLessDamage.length > 0 && repairAmountLeft > 0);
+
+        if(repairAmountLeft <= 0) return;
+        // repair the remaining devices
+        remainingDevices.forEach(d => {
+            let toRepair = Math.min(d.damage, r, repairAmountLeft);
+            if(toRepair <= 0) return;
+            d.repair(toRepair);
+            repairAmountLeft -= toRepair;
+        });
+    }
+
     onTimeElapse(days) {
         // debugger;
         // todo:: check for repair priority
@@ -161,8 +198,7 @@ export class DeviceContainer {
         switch (this.repairMode) {
             case REPAIR_STRATEGY_EVEN:
                 // spread repairs across damaged devices evenly
-                let r = repairAmount / damagedDevices.length;
-                damagedDevices.forEach(d => d.repair(r));
+                this._repairDevicesEvenly(damagedDevices, repairAmount);
                 break;
             case REPAIR_STRATEGY_LEAST:
                 // repair the least damaged device first
@@ -191,12 +227,25 @@ export class DeviceContainer {
                 }
                 break;
             case REPAIR_STRATEGY_PRIORITY:
-                // todo:: spread repairs evenly amongst same priority devices
+                // spread repairs evenly amongst devices on the same priority level
+                // sort the used priority numbers
+                let priorityNumbers = [...this.prioritiesInUse.keys()];
+                priorityNumbers.sort();
+                // iterate through the devices by their priority number
+                for(let i = 0; i < priorityNumbers.length && repairAmount > 0; i++) {
+                    let priorityNumber = priorityNumbers[i];
+                    // get device list
+                    let deviceList = this.repairPriorities.get(priorityNumber) || [];
+                    // calc total current device damage
+                    let totalDamage = deviceList.reduce((carry, d) => d.damage + carry, 0);
+                    // do the repairs
+                    this._repairDevicesEvenly(deviceList, repairAmount);
+                    // calculate amount repaired and decrement from total
+                    let newTotalDamage = deviceList.reduce((carry, d) => d.damage + carry, 0);
+                    let repaired = totalDamage - newTotalDamage;
+                    repairAmount -= repaired;
+                }
                 // todo:: update the info section to include an explanation of this stuff....
-                // repair devices based on their priority
-                damagedDevices.sort((a, b) => {
-                    return this.repairPriorities[b.type.name] - this.repairPriorities[a.type.name];
-                });
                 break;
             default:
                 console.error(`repair mode ${this.repairMode} invalid.`);
@@ -205,8 +254,12 @@ export class DeviceContainer {
     }
 
     addDevices(...devices) {
+        let prevLength = this.devices.length;
         this.devices.push(...devices);
-        this.makeRepairPriority();
+        // don't remake the whole repair priority structure , just add the new entries
+        // set the priority of the new devices to their index in this.devices + 1
+        devices.forEach((d, i) => this.setRepairPriority(d.type, prevLength + 1 + i));
+        // this.makeRepairPriority();
     }
 
     getRandomDevice() {
@@ -244,11 +297,42 @@ export class DeviceContainer {
      * @param priority int
      */
     setRepairPriority(deviceType, priority) {
-        this.repairPriorities[deviceType.name] = priority;
+        // get device and check that we have that device
+        let device = this.devices.find(d => d.type.name === deviceType.name);
+        if(!device) return;
+
+        // remove old record
+        if(this.repairPriorities.has(deviceType.name)) {
+            let oldP = this.repairPriorities.get(deviceType.name);
+            if(oldP === priority) return;
+            let list = this.repairPriorities.get(oldP);
+            // remove device from list
+            list = list.filter(d => {
+                return d.type.name !== deviceType.name;
+            });
+
+            if(list.length === 0) {
+                // if there's no devices on that priority #
+                // remove the list from the map and remove the number from the set
+                this.repairPriorities.delete(oldP);
+                this.prioritiesInUse.delete(oldP);
+            } else {
+                this.repairPriorities.set(oldP, list);
+            }
+        }
+
+        // add new record
+        this.prioritiesInUse.add(priority);
+        this.repairPriorities.set(deviceType.name, priority);
+        let pList = this.repairPriorities.get(priority) || [];
+        pList.push(device);
+        this.repairPriorities.set(priority, pList);
     }
 
     makeRepairPriority() {
-        this.devices.forEach((device, i) => this.repairPriorities[device.type.name] = i + 1);
+        this.devices.forEach((device, i) => {
+            this.setRepairPriority(device.type, i + 1);
+        });
     }
 
     // return map <device type name> => int ?
@@ -256,7 +340,7 @@ export class DeviceContainer {
         return this.repairPriorities;
     }
     getDeviceRepairPriority(deviceType) {
-        return this.repairPriorities[deviceType.name] || 0;
+        return this.repairPriorities.get(deviceType.name) || 0;
     }
 }
 
@@ -364,7 +448,6 @@ export class LifeSupport extends Device {
     }
 
     recharge() {
-        this.checkDamage();
         this.reserves = this.maxReserves;
     }
 
