@@ -80,7 +80,7 @@ export default class Game {
         this.secretPassword = null;
 
         // place player in random quad and sector
-        this.player = new Enterprise(this.terminal, this.clock);
+        this.player = new Enterprise(this.terminal, this.clock, this.galaxy);
         if (false && DEBUG) {
             // testing torpedoes
             let quad = this.galaxy.getQuadrant(0, 0);

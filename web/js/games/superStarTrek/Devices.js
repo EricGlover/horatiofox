@@ -14,6 +14,8 @@ import {AbstractEnemy} from "./Enemies/Enemies";
  * beyond what the Device class itself has, so by defining types
  * we can keep many Devices as instances of just the Device class
  * while still getting the ability to have well defined type attributes
+ *
+ *
  * propName = the property that the device holder stores the device on
  * name = the name that will be displayed to the user
  */
@@ -25,6 +27,9 @@ class DeviceType {
     }
 }
 
+/**
+ * warp engines and impulse engines
+ */
 class EngineDeviceType extends DeviceType {
     constructor(name, propName) {
         super(name, propName);
@@ -41,6 +46,7 @@ export const impulseEngineType = new EngineDeviceType("Impulse Engines", "impuls
 export const lifeSupportType = new DeviceType("Life Support", "lifeSupport");
 export const shieldType = new DeviceType("Shields", "shields");
 export const photonTorpedoLauncherType = new DeviceType("Photon Torpedo Launcher", "photons");
+export const subspaceRadioType = new DeviceType("Subspace Radio", "subspaceRadio");
 
 // export const
 
@@ -49,7 +55,7 @@ export const photonTorpedoLauncherType = new DeviceType("Photon Torpedo Launcher
  * Handles all the logic for devices:
  * 1) taking damage
  * 2) getting repaired
- * 3) checking the type of device
+ * 3) checking the type of device  : use Device.isType(device, deviceType)
  */
 export class Device extends Component {
     constructor(parent, type, chanceOfBeginDamaged = .65) {
@@ -66,6 +72,13 @@ export class Device extends Component {
         this.parent.deviceContainer.addDevices(this);
 
         this._damage = 0;
+    }
+
+    static isType(device, deviceType) {
+        if(!(device instanceof Device)) {
+            return false;
+        }
+        return device.isType(deviceType);
     }
 
     isType(deviceType) {
@@ -124,8 +137,6 @@ export class Device extends Component {
     timeToRepairAtDock() {
         return this._damage / DEVICE_REPAIR_SPEED_DOCKED;
     }
-
-    // timeToRepair()
 }
 
 export const REPAIR_STRATEGY_EVEN = 'even';
@@ -138,6 +149,8 @@ const DEVICE_REPAIR_SPEED_IN_FLIGHT = .3;
 
 /**
  * An array of devices
+ * Handles the repair strategy logic
+ * Uses the game clock
  */
 export class DeviceContainer {
     constructor(parent) {
@@ -403,10 +416,27 @@ export class PowerGrid extends Device {
     }
 }
 
+/**
+ * Warp Engines and Impulse Engines are both instances of Engines but they have different types
+ * Controls setting the warpFactor (impulse can't, warp has a range)
+ * Uses gameObject and Galaxy to calculate distance
+ * Uses mover to move the game object
+ * Uses power grid to consume power
+ * This could be extended to different engines
+ */
 export class Engines extends Device {
     constructor(parent, type, powerGrid, gameObject, mover, minWarp, maxWarp, adjustableWarpFactor = false) {
         if (!(type instanceof EngineDeviceType)) {
             throw new Error("Engines must have a type deriving from EngineDeviceType.");
+        }
+        if(!(gameObject instanceof GameObject)) {
+            throw new Error("Engines must have a game object");
+        }
+        if(!(mover instanceof Mover)) {
+            throw new Error("Engines must have a mover");
+        }
+        if(!(powerGrid instanceof PowerGrid)) {
+            throw new Error("Engines require a power grid");
         }
         super(parent, type);
         this.powerGrid = powerGrid;

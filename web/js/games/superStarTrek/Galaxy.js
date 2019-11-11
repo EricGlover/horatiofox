@@ -1,4 +1,9 @@
 import {GameObjectContainer} from "./Components.js";
+import {Component} from "./Components";
+import {AbstractKlingon} from "./Enemies/Enemies";
+import StarBase from "./Objects/StarBase";
+import Star from "./Objects/Star";
+import {Device, subspaceRadioType} from "./Devices";
 
 /**
  Coordinate System
@@ -14,6 +19,114 @@ import {GameObjectContainer} from "./Components.js";
  and 0 - 0, 0.5 - 0.5 refers to the same quadrant and sector but the dead center of it
  **/
 
+class ChartInfo {
+    constructor() {
+        this.hasSupernova = false;
+        this.klingons = 0;
+        this.bases = 0;
+        this.stars = 0;
+        this.hasTelemetrySensors = false;
+        this.scanned = false;
+    }
+}
+
+export class StarChart extends Component {
+    constructor(parent, galaxy, subspaceRadio) {
+        super(StarChart, parent);
+        this.galaxy = galaxy;
+        if(!Device.isType(subspaceRadio, subspaceRadioType)) {
+            throw new Error("Star chart needs a subspace radio.");
+        }
+        this.subspaceRadio = subspaceRadio;
+        this.info = []; // 2-d array [quadY] [quadX] => ChartInfo
+        // since we're calling updateTelemetry a lot this helps the caching
+        this.hasSensors = [];   // [setY0, setY1, ...]
+        for (let i = 0; i < this.galaxy.length; i++) {
+            let quadrantRow = [];
+            for (let j = 0; j < this.galaxy.width; j++) {
+                quadrantRow[j] = new ChartInfo();
+            }
+            this.info.push(quadrantRow);
+            this.hasSensors.push(new Set());
+        }
+    }
+
+    getInfo(quadrant) {
+        if (!(quadrant instanceof Quadrant)) {
+            throw new Error(`${quadrant} is not a quadrant.`);
+        }
+        if (!this.info[quadrant.y] || !this.info[quadrant.y][quadrant.x]) {
+            throw new Error(`Error finding info.`);
+        }
+        return this.info[quadrant.y][quadrant.x];
+    }
+
+    // updates a chartInfo to show current quadrant data
+    _updateInfo(quadrant, info) {
+        info.hasSupernova = quadrant.hasSupernova;
+        info.klingons = quadrant.container.getCountOfGameObjects(AbstractKlingon);
+        info.bases = quadrant.container.getCountOfGameObjects(StarBase);
+        info.stars = quadrant.container.getCountOfGameObjects(Star);
+        info.scanned = true;
+    }
+
+    // updates all the telemetry for quadrants we have sensors in
+    updateTelemetry() {
+        // check that subspace radio works
+        if(this.subspaceRadio.isDamaged()) {
+            return;
+        }
+        // go through our sensors
+        this.hasSensors.forEach((s, qy) => {
+            s.forEach(qx => {
+                // get corresponding info
+                let info = this.info[qy][qx];
+                // get sector from galaxy
+                let sector = this.galaxy.getSector(qx, qy);
+                this._updateInfo(sector, info);
+            });
+        });
+    }
+
+    hasTelemetrySensors(quadrant) {
+        return this.hasSensors[quadrant.y].has(quadrant.x);
+    }
+
+    _deployTelemetrySensors(quadrant, info) {
+        info.hasTelemetrySensors = true;
+        this.hasSensors[quadrant.y].add(quadrant.x);
+    }
+
+    shortRangeScan(quadrant) {
+        if (!(quadrant instanceof Quadrant)) {
+            throw new Error(`${quadrant} is not a quadrant.`);
+        }
+        // if we have telemetry sensors skip? ponder this
+
+        // get corresponding info
+        let info = this.getInfo(quadrant);
+        // update our info
+        this._updateInfo(quadrant, info);
+        // deploy telemetry sensors
+        this._deployTelemetrySensors(quadrant, info);
+    }
+
+    longRangeScan(quadrants) {
+        quadrants.forEach(quadrant => {
+            if (!(quadrant instanceof Quadrant)) {
+                throw new Error(`${quadrant} is not a quadrant.`);
+            }
+            // get corresponding info
+            let info = this.getInfo(quadrant);
+            // update our info
+            this._updateInfo(quadrant, info);
+        })
+    }
+
+    static get propName() {
+        return "starChart";
+    }
+}
 
 export class Sector {
     constructor(x, y, quadrant) {
@@ -102,16 +215,16 @@ export class Quadrant {
         let distanceFromStart = 1;
         while (totalChecked < this.width * this.length) {
             for (let y = sectorY - distanceFromStart; y <= sectorY + distanceFromStart; y++) {
-                if(!prevMatrix[y]) continue;    // invalid coordinates
+                if (!prevMatrix[y]) continue;    // invalid coordinates
                 for (let x = sectorX - distanceFromStart; x <= sectorX + distanceFromStart; x++) {
                     // check cache
-                    if(prevMatrix[y][x]) {
+                    if (prevMatrix[y][x]) {
                         continue;
                     }
                     // check that coordinates are valid
                     if (this.areValidCoordinates(x, y)) {
                         let sector = this.getSector(x, y);
-                        if(!sector.isFull()) {
+                        if (!sector.isFull()) {
                             return sector;
                         }
                         prevMatrix[y][x] = true;
@@ -274,6 +387,29 @@ export class Galaxy {
             throw new Error(`There is no quadrant ${quadrantX + 1} - ${quadrantY + 1}.`);
         }
         return this.quadrants[quadrantY][quadrantX];
+    }
+    // coordinates are 0 based
+    areValidCoordinates(quadrantX, quadrantY) {
+        return quadrantY > 0 && quadrantY < this.length && quadrantX > 0 && quadrantX < this.width;
+    }
+
+    //
+    // internal coordinates x y
+    getQuadrantsAdjacentTo(quadrant, includeSelf = false) {
+        if (!quadrant instanceof Quadrant) return [];
+        let quadrantX = quadrant.x;
+        let quadrantY = quadrant.y;
+        let quadrants = [];
+        for (let y = quadrantY - 1; y <= quadrantY + 1; y++) {
+            for (let x = quadrantX - 1; x <= quadrantX + 1; x++) {
+                if (this.areValidCoordinates(x, y)) {
+                    if (includeSelf || x !== quadrantX && y !== quadrantY) {
+                        quadrants.push(this.quadrants[y][x]);
+                    }
+                }
+            }
+        }
+        return quadrants;
     }
 }
 

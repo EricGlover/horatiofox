@@ -309,9 +309,9 @@ export class GameObjectContainer extends Component {
 // a game object is simply a thing with a position in
 // the game
 export class GameObject  extends  Component {
-    constructor(parent, takesWholeSector = false) {
+    constructor(parent, takesWholeSector = false, galaxy = null) {
         super(GameObject, parent);
-        this.galaxy = null;
+        this.galaxy = galaxy;
         this.quadrant = null;
         this.sector = null;
         // x and y are floats

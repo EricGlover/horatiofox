@@ -1,6 +1,5 @@
 import {GameObject, Mover, Collider} from "../Components.js";
 import {AbstractEnemy} from "../Enemies/Enemies.js";
-import {Sector} from '../Galaxy.js';
 import {
     Device,
     Phasers,
@@ -10,10 +9,11 @@ import {
     DeviceContainer,
     PowerGrid,
     shortRangeSensorType,
-    warpEngineType,
+    longRangeSensorType,
     Engines,
-    impulseEngineType
+    subspaceRadioType
 } from "../Devices.js";
+import {StarChart} from "../Galaxy.js";
 
 const CONDITION_GREEN = 1;
 const CONDITION_YELLOW = 2;
@@ -21,8 +21,8 @@ const CONDITION_RED = 3;
 const CONDITION_DOCKED = 4;
 
 export default class Enterprise {
-    constructor(terminal, clock) {
-        this.gameObject = new GameObject(this);
+    constructor(terminal, clock, galaxy) {
+        this.gameObject = new GameObject(this, false, galaxy);
         this.mover = new Mover(this, this.gameObject);
         this.deviceContainer = new DeviceContainer(this);
         this.powerGrid = new PowerGrid(3000.0, this);
@@ -43,17 +43,19 @@ export default class Enterprise {
         this.shields = new Shields(this, 2500, this.powerGrid);
 
         this.shortRangeSensors = new Device(this, shortRangeSensorType);
-        // this.longRangeSensors = new Device(this, "Long Range Sensors");
+        this.longRangeSensors = new Device(this, longRangeSensorType);
         this.lifeSupport = new LifeSupport(this, 4.0, clock);
         this.warpEngines = Engines.makeWarpEngines(this, this.powerGrid, this.gameObject, this.mover);
         this.warpEngines.warpFactor = 5.0;
         this.impulseEngines = Engines.makeImpulseEngines(this, this.powerGrid, this.gameObject, this.mover);
-        // this.subspaceRadio = new Device(this, "Subspace Radio");
+        this.subspaceRadio = new Device(this, subspaceRadioType);
         // this.shuttleCraft = new Device(this, "Shuttle Craft");
         // this.computer = new Device(this, "Computer");
         // this.transporter = new Device(this, "Transporter");
         // this.shieldControl = new Device(this, "Shield Control");
         // this.probesLauncher = new Device(this, "Probe Launcher");
+
+        this.starChart = new StarChart(this, this.gameObject.galaxy, this.subspaceRadio);
         window.e = this;
     }
 

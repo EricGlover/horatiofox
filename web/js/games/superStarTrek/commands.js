@@ -26,7 +26,7 @@ import Star from "./Objects/Star.js";
 import Enterprise from "./PlayerShips/Enterprise.js";
 import Planet from "./Objects/Planet.js";
 import BlackHole from "./Objects/BlackHole.js";
-import {Sector} from './Galaxy.js';
+import {Sector, StarChart} from './Galaxy.js';
 
 // same thing as the regexifier but with the end of line character added
 // so that you when we break apart the command by \s it identifies it correctly
@@ -1906,6 +1906,8 @@ export class ShortRangeScanCommand extends Command {
                 matrix[sector.y][sector.x] = this.objectToText(obj);
             })
         } else {
+            // update star chart
+            this.player.starChart.shortRangeScan(quadrant);
             for (let i = 0; i < quadrant.sectors.length; i++) {
                 let textRow = [];
                 quadrant.sectors[i].forEach(sector => {
@@ -1972,11 +1974,12 @@ export class ShortRangeScanCommand extends Command {
 }
 
 export class LongRangeScanCommand extends Command {
-    constructor(game, terminal, player) {
+    constructor(game, terminal, player, galaxy) {
         super();
         this.terminal = terminal;
         this.game = game;
         this.player = player;
+        this.galaxy = galaxy;
         this.abbreviation = "l";
         this.name = "lrscan";
         this.regex = regexifier("l", "lrscan", "long range scan");
@@ -2028,11 +2031,28 @@ export class LongRangeScanCommand extends Command {
     }
 
     run() {
+        if(!this.player.longRangeSensors || this.player.longRangeSensors.isDamaged()) {
+            this.terminal.printLine(`Spock - Long Range Sensors are damaged, Captain.`);
+            return;
+        }
+        if(!this.player.starChart || !(this.player.starChart instanceof StarChart)) {
+            this.terminal.printLine(`Spock - This is embarrassing but I've misplaced the Star Chart Captain.`);
+            return;
+        }
         // todo:: save info
+        // update star chart
+
         // use player location
-        let playerQuadrant = this.game.player.gameObject.quadrant;
+        let playerQuadrant = this.player.gameObject.quadrant;
         // get a 3 x 3 quadrant matrix with the player at the center
         let matrix = [];
+
+        let adjacentQuadrants = this.galaxy.getQuadrantsAdjacentTo(playerQuadrant, true);
+        this.player.starChart.longRangeScan(adjacentQuadrants);
+
+        
+
+        // todo :: read from the star chart
         for (let y = playerQuadrant.y - 1; y <= playerQuadrant.y + 1; y++) {
             let textRow = [];
 
