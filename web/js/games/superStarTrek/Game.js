@@ -126,7 +126,7 @@ export default class Game {
         }
 
         if (DEBUG) {
-            this.player.deviceContainer.damageRandomDevices(2);
+            // this.player.deviceContainer.damageRandomDevices(2);
             // this.player.powerGrid._damage = 0;
             // this.player.warpEngines._damage = 0;
             // this.player.shortRangeSensors._damage = 0;
@@ -660,8 +660,7 @@ With your starship confiscated by the Klingon High Command, you relocate to a mi
             } while (quadrant.container.getCountOfGameObjects(Planet) > 0);
             let sector = quadrant.getRandomEmptySector();
             // set up planet
-            let planet = new Planet();
-            planet.randomlyGenerate();
+            let planet = Planet.randomlyGenerate();
 
             // place in galaxy
             planet.gameObject.placeIn(this.galaxy, quadrant, sector);

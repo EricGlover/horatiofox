@@ -1,7 +1,8 @@
 import {GameObject, Mover, Collider} from "../Components.js";
 import {AbstractEnemy} from "../Enemies/Enemies.js";
 import {Sector} from '../Galaxy.js';
-import {Device,
+import {
+    Device,
     Phasers,
     Shields,
     LifeSupport,
@@ -9,9 +10,10 @@ import {Device,
     DeviceContainer,
     PowerGrid,
     shortRangeSensorType,
-    warpEngineType
+    warpEngineType,
+    Engines,
+    impulseEngineType
 } from "../Devices.js";
-import {impulseEngineType} from "../Devices";
 
 const CONDITION_GREEN = 1;
 const CONDITION_YELLOW = 2;
@@ -25,8 +27,6 @@ export default class Enterprise {
         this.deviceContainer = new DeviceContainer(this);
         this.powerGrid = new PowerGrid(3000.0, this);
         this.collider = new Collider(this, this.gameObject, 80, 80, 1500);
-
-        this.warpFactor = 5.0;
 
         this.dockedRepairSpeed = 1;
         this.undockedRepairSpeed = .3;
@@ -45,8 +45,9 @@ export default class Enterprise {
         this.shortRangeSensors = new Device(this, shortRangeSensorType);
         // this.longRangeSensors = new Device(this, "Long Range Sensors");
         this.lifeSupport = new LifeSupport(this, 4.0, clock);
-        this.warpEngines = new Device(this, warpEngineType);
-        this.impulseEngines = new Device(this, impulseEngineType);
+        this.warpEngines = Engines.makeWarpEngines(this, this.powerGrid, this.gameObject, this.mover);
+        this.warpEngines.warpFactor = 5.0;
+        this.impulseEngines = Engines.makeImpulseEngines(this, this.powerGrid, this.gameObject, this.mover);
         // this.subspaceRadio = new Device(this, "Subspace Radio");
         // this.shuttleCraft = new Device(this, "Shuttle Craft");
         // this.computer = new Device(this, "Computer");
@@ -97,9 +98,9 @@ export default class Enterprise {
 
     rechargeEverything() {
         this.lifeSupport.recharge();
-        if(this.powerGrid.isOk()) this.powerGrid.recharge();
-        if(this.photons.isOk()) this.photons.addTorpedoes(this.photons._capacity - this.photons.getTorpedoCount());
-        if(this.shields.isOk()) this.shields.recharge();
+        if (this.powerGrid.isOk()) this.powerGrid.recharge();
+        if (this.photons.isOk()) this.photons.addTorpedoes(this.photons._capacity - this.photons.getTorpedoCount());
+        if (this.shields.isOk()) this.shields.recharge();
         this.repairHull();
     }
 
@@ -111,55 +112,13 @@ export default class Enterprise {
     }
 
     impulseTo(sector) {
-        // same as warp using warp factor = 1
-        if (!sector instanceof Sector) {
-            throw new Error("Can't move there");
-        }
-        this.impulseEngines.checkDamage();
-        this.powerGrid.checkDamage();
-        if(this.docked) this.undock();
-
-        // calculate distance, and energy required
-        let distance = Galaxy.calculateDistance(this.gameObject.sector, sector);
-        //( .1 * distance in sectors = distance in quadrants ) * warpFactor ^ 3
-        let energy = .1 * distance;
-        if(this.shields.up) energy *= 2;
-        if(this.powerGrid.energy < energy) {
-            throw new Error("Not enough energy.");
-        }
-
-        this.mover.moveToSector(sector);
-        this.powerGrid.useEnergy(energy);
-    }
-
-    setWarpFactor(warpFactor) {
-        if(typeof warpFactor !== "number" || Number.isNaN(warpFactor)) {
-            return;
-        } else if (warpFactor < 1.0 || warpFactor > 10.0) {
-            return;
-        }
-        this.warpFactor = warpFactor;
+        if (this.docked) this.undock();
+        this.impulseEngines.moveTo(sector);
     }
 
     warpTo(sector) {
-        if (!sector instanceof Sector) {
-            throw new Error("Can't move there");
-        }
-        this.warpEngines.checkDamage();
-        this.powerGrid.checkDamage();
-        if(this.docked) this.undock();
-
-        // calculate distance, and energy required
-        let distance = Galaxy.calculateDistance(this.gameObject.sector, sector);
-        //( .1 * distance in sectors = distance in quadrants ) * warpFactor ^ 3
-        let energy = .1 * distance * Math.pow(this.warpFactor, 3);
-        if(this.shields.up) energy *= 2;
-        if(this.powerGrid.energy < energy) {
-            throw new Error("Not enough energy.");
-        }
-
-        this.mover.moveToSector(sector);
-        this.powerGrid.useEnergy(energy);
+        if (this.docked) this.undock();
+        this.warpEngines.moveTo(sector);
     }
 
     getCondition() {

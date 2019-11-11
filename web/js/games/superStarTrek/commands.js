@@ -26,6 +26,7 @@ import Star from "./Objects/Star.js";
 import Enterprise from "./PlayerShips/Enterprise.js";
 import Planet from "./Objects/Planet.js";
 import BlackHole from "./Objects/BlackHole.js";
+import {Sector} from './Galaxy.js';
 
 // same thing as the regexifier but with the end of line character added
 // so that you when we break apart the command by \s it identifies it correctly
@@ -120,6 +121,24 @@ class Command {
     makeInfo() {
         // set mnemonic shortest abbrev full name text
     }
+
+    /**
+     * Ask a yes / no question get a boolean answer
+     * @param terminal
+     * @param question
+     * @returns {Promise<boolean>}
+     */
+    async getConfirmation(terminal, question) {
+        let response;
+        let yes = /(yes|y)/i;
+        let no = /(no|n)/i;
+        do {
+            response = await terminal.ask(question);
+            yes = /(yes|y)/i;
+            no = /(no|n)/i;
+        } while (!yes.test(response) && !no.test(response));
+        return yes.test(response);
+    }
 }
 
 export class RepairCommand extends Command {
@@ -139,18 +158,21 @@ export class RepairCommand extends Command {
     Abbreviation: REP
     Syntax: 
         1) REPAIR mode [mode]
-        2) REPAIR set priority 
-    Syntax 1) Modes: 
+        2) REPAIR set-priority
+        
+    Examples : 
+        repair even
+        repair set-priority
+        
+    Syntax 1) Setting your repair mode: 
         "even"  - tell repair crews to spread their time evenly across all damaged devices
         "least" - tell repair crews to repair the least damaged devices first
         "most"  - tell repair crews to repair the most damaged devices first
         "priority" (alias "p")    - tell repair to repair devices by their priorities
-     Examples : 
-     repair even
-     repair set-priority
       
-     Syntax 2) REPAIR set priority 
-        This is how you set the priorities for your devices. You'll be asked to give a repair priority (a number 1 - # of devices) for each device. Lower numbers are higher priority.   
+    Syntax 2) REPAIR set priority 
+        This is how you set the priorities for your devices. You'll be asked to give a repair priority (a number 1 - # of devices) for each device. Lower numbers are higher priority.
+        If multiple devices have the same priority repair time will be split evenly amongst them.    
         `;
     }
 
@@ -159,16 +181,16 @@ export class RepairCommand extends Command {
 
         // go through each device
         let devices = this.player.deviceContainer.getDevices();
-        for(let i = 0; i < devices.length; i++) {
+        for (let i = 0; i < devices.length; i++) {
             let device = devices[i];
             let priority = this.player.deviceContainer.getDeviceRepairPriority(device.type);
             this.terminal.printLine(`${device.type.name}'s priority is currently ${priority}.`);
             let validResponse = false;
             let newPriority;
-            while(!validResponse) {
+            while (!validResponse) {
                 let response = await this.terminal.ask(`Set ${device.type.name} priority to : `);
                 newPriority = Number.parseInt(response);
-                if(Number.isNaN(newPriority) || newPriority < 0) {
+                if (Number.isNaN(newPriority) || newPriority < 0) {
                     this.terminal.printLine("Beg pardon, Captain?");
                 } else {
                     validResponse = true;
@@ -292,7 +314,7 @@ time warp.`
             this.terminal.printLine("Beg your pardon, Captain?");
             return;
         }
-        this.player.setWarpFactor(warpFactor);
+        this.player.warpEngines.warpFactor = warpFactor;
     }
 }
 
@@ -1236,13 +1258,16 @@ extra to move with the shields up.`;
     }
 
     async moveTo(sector) {
+        let enginesToUse = this.player.warpEngines;
+        if (this.useImpulse) enginesToUse = this.player.impulseEngines;
+
         // how do they do collisions ?
         // check path for objects
         // calculate distance, energy required and time expended
         let distance = Galaxy.calculateDistance(this.player.gameObject.sector, sector);
-        let energy = .1 * distance * Math.pow(this.player.warpFactor, 3);
-        if (this.player.shields.up) energy *= 2;
+        let energy = enginesToUse.calculateEnergyUsage(distance);
 
+        // check power requirements
         if (this.player.powerGrid.energy < energy) {
             /** todo::
              * Engineering to bridge--
@@ -1254,37 +1279,61 @@ extra to move with the shields up.`;
             return;
         }
 
-        let timeRequired = distance / Math.pow(this.player.warpFactor, 2);
+        // check time requirements
+        let timeRequired = enginesToUse.calculateTimeRequired(distance);
         // if the move takes 80% or greater of the remaining time then warn them
         let percentOfRemaining = 100 * timeRequired / this.game.timeRemaining;
         if (percentOfRemaining > 80.0) {
-            let response;
-            let yes = /(yes|y)/i;
-            let no = /(no|n)/i;
-            do {
-                response = await this.terminal.ask(`First Officer Spock- "Captain, I compute that such
+            let proceed = await this.getConfirmation(this.terminal, `First Officer Spock- "Captain, I compute that such
   a trip would require approximately ${percentOfRemaining.toFixed(2)}% of our
   remaining time.  Are you sure this is wise?"`);
-                yes = /(yes|y)/i;
-                no = /(no|n)/i;
-            } while (!yes.test(response) && !no.test(response));
 
-
-            if (yes.test(response)) {
+            if (proceed) {
                 this.terminal.printLine("To boldly go...");
-            } else if (no.test(response)) {
+            } else if (!proceed) {
                 this.terminal.printLine("Cancelling move.");
                 return;
             }
         }
 
-        if(this.useImpulse) {
+        // check for damaged systems, suggest alternatives if possible
+        if (this.player.impulseEngines.isDamaged() && this.player.warpEngines.isDamaged()) {
+            this.terminal.printLine(`Scotty- "Captain, our warp engines and impulse engines are both damaged. We can't move until one of them is repaired."`);
+            return;
+        }
+
+        if (!this.useImpulse && this.player.warpEngines.isDamaged()) {
+            let proceed = await this.getConfirmation(this.terminal, `Scotty- "Warp Engines are damaged, shall we proceed at impulse instead?"`);
+
+            if (proceed) {
+                this.terminal.printLine("Aye, Captain. Engaging impulse engines.");
+                this.useImpulse = true;
+            } else if (!proceed) {
+                this.terminal.printLine("Cancelling move.");
+                return;
+            }
+        }
+
+        if (this.useImpulse && this.player.impulseEngines.isDamaged()) {
+            let proceed = await this.getConfirmation(this.terminal, `Scotty- "Impulse Engines are damaged, shall we use warp engines instead?"`);
+
+            if (proceed) {
+                this.terminal.printLine("Aye, Captain. Engaging warp engines.");
+                this.useImpulse = false;
+            } else if (!proceed) {
+                this.terminal.printLine("Cancelling move.");
+                return;
+            }
+        }
+
+        // do the move
+        if (this.useImpulse) {
             this.player.impulseTo(sector);
         } else {
             this.player.warpTo(sector);
         }
 
-
+        // elapse time
         this.game.clock.elapseTime(timeRequired);
         // check bounds
         // compute deltaX and deltaY
@@ -1298,39 +1347,17 @@ extra to move with the shields up.`;
         // for collisions
     }
 
-    // manual mode
-    manual(deltaQx, deltaQy, deltaSx, deltaSy) {
-        // calculate the destination
-        try {
-            let destination = this.player.mover.calculateDestination(deltaQx, deltaQy, deltaSx, deltaSy);
-            return this.moveTo(destination);
-        } catch (e) {
-            this.terminal.printLine(e.message);
-            return;
-        }
-    }
-
-    // automatic mode
-    automatic(quadX, quadY, sectorX, sectorY) {
-        try {
-            // get sector
-            let sector = this.galaxy.getSector(quadX, quadY, sectorX, sectorY);
-            return this.moveTo(sector);
-        } catch (e) {
-            this.terminal.printLine(e.message);
-            return;
-        }
-    }
-
     async run() {
+        // sort out our target Sector to move to depending on the chosen mode
         // modes : manual and automatic
         // remove mode option from arguments, if provided
         let args = this.terminal.getArguments();
         let {manual, automatic, impulse} = this.getOption(args);
         this.useImpulse = impulse;
-        if(!manual && !automatic) manual = true;    // set a default
+        if (!manual && !automatic) automatic = true;    // set a default
+
+        let destination;
         if (manual) {
-            console.log("manual mode");
             // parse args, only two arguments
             if (args.length !== 2) {
                 throw new Error("need y and x");
@@ -1342,22 +1369,68 @@ extra to move with the shields up.`;
             let deltaQy = Math.trunc(argY);
             let deltaSx = Math.trunc((argX * 10) % 10);
             let deltaSy = Math.trunc((argY * 10) % 10);
-            // todo:: check bounds
-            await this.manual(deltaQx, deltaQy, deltaSx, deltaSy);
+
+            // calculate the destination
+            try {
+                 destination = this.player.mover.calculateDestination(deltaQx, deltaQy, deltaSx, deltaSy);
+            } catch (e) {
+                console.error(e);
+            }
         } else if (automatic) {
-            console.log("automatic mode");
             // parse args <quadY> <quadX> <sectorY> <sectorX>
             // or just <sectorY> <sectorX>
-            // todo:: check bounds
-            args = args.map(str => Number.parseInt(str));
+            args = args.map(str => Number.parseInt(str)).filter(num => !Number.isNaN(num));
+
             // make sure to convert from the 1 based commands
             // to the 0 based coordinates
+            let quadX, quadY, sectorX, sectorY;
             if (args.length === 4) {
-                await this.automatic(args[0] - 1, args[1] - 1, args[2] - 1, args[3] - 1);
+                quadX = args[0] - 1;
+                quadY = args[1] - 1;
+                sectorX = args[2] - 1;
+                sectorY = args[3] - 1;
             } else if (args.length === 2) {
                 let quadrant = this.player.gameObject.quadrant;
-                await this.automatic(quadrant.x, quadrant.y, args[0] - 1, args[1] - 1);
+                quadX = quadrant.x;
+                quadY = quadrant.y;
+                sectorX = args[0] - 1;
+                sectorY = args[1] - 1;
+            } else {
+                this.terminal.printLine("Beg pardon, Captain?");
+                return;
             }
+            try {
+                // get sector
+                destination = this.galaxy.getSector(quadX, quadY, sectorX, sectorY);
+            } catch (e) {
+                console.error(e);
+            }
+        }
+
+        // now that we have a target destination check that it exists
+        if(!destination || !(destination instanceof Sector)) {
+            this.terminal.printLine('Beg pardon, Captain?');
+        }
+        // now check that there's nothing already there
+        // if there's something there, move us to an adjacent sector in the quadrant if possible
+        // todo:: add ramming
+        if(destination.isFull()) {
+            let newDestination = destination.quadrant.getNearestEmptySectorAdjacentTo(destination);
+            if(!newDestination) {
+                this.terminal.printLine(`Computer error Captain, can't move there.`);
+                console.error(`can't find adjacent sector`);
+                return;
+            }
+            let thing = destination.container.getAllGameObjects().filter(obj => obj.collider)[0];
+            this.terminal.printLine(`Sulu - "We managed to avoid the ${thing.name} at ${thing.gameObject.getSectorLocation()}."`);
+            destination = newDestination;
+        }
+
+        try {
+            await this.moveTo(destination);
+        } catch (e) {
+            console.error(e);
+            throw e;
         }
     }
 }
@@ -1455,7 +1528,7 @@ See REQUEST command for details.`;
             } else {
                 lifeSupport = [`Life Support`, `DAMAGED, reserves = ${this.player.lifeSupport.reserves.toFixed(1)}`];
             }
-            let warpFactor = [`Warp Factor`, `${this.player.warpFactor.toFixed(1)}`];
+            let warpFactor = [`Warp Factor`, `${this.player.warpEngines.warpFactor.toFixed(1)}`];
             let grid = this.player.powerGrid;
             let gridPercent = grid.energy * 100 / grid.capacity;
             let energy = [`Energy`, `${grid.energy.toFixed(2)}, ${gridPercent.toFixed(1)}%`];
@@ -1493,7 +1566,7 @@ See REQUEST command for details.`;
         } else {
             lifeSupport = `Life Support\tDAMAGED, reserves = ${this.player.lifeSupport.reserves.toFixed(1)}`;
         }
-        let warpFactor = `Warp Factor\t${this.player.warpFactor.toFixed(1)}`;
+        let warpFactor = `Warp Factor\t${this.player.warpEngines.warpFactor.toFixed(1)}`;
         let grid = this.player.powerGrid;
         let gridPercent = grid.energy * 100 / grid.capacity;
         let energy = `Energy\t\t${grid.energy.toFixed(2)}, ${gridPercent.toFixed(1)}%`;

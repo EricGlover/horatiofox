@@ -1,7 +1,7 @@
 import {terminal} from './Terminal.js';
 import {Component, GameObject, Mover, Collider} from "./Components.js";
 import clock from "./GameClock.js";
-import Enterprise from "./PlayerShips/Enterprise.js";
+import {Sector} from "./Galaxy.js";
 
 /**
  * Device Types, defined constants make it easier to check the type of device
@@ -24,13 +24,19 @@ class DeviceType {
     }
 }
 
+class EngineDeviceType extends DeviceType {
+    constructor(name, propName) {
+        super(name, propName);
+    }
+}
+
 /// Device Type Singletons
 export const shortRangeSensorType = new DeviceType('Short Range Sensors', 'shortRangeSensors');
 export const longRangeSensorType = new DeviceType("Long Range Sensors", 'longRangeSensors');
 export const phaserType = new DeviceType("Phasers", "phasers");
 export const powerGridType = new DeviceType("Power Circuits", "powerGrid");
-export const warpEngineType = new DeviceType("Warp Engines", "warpEngines");
-export const impulseEngineType = new DeviceType("Impulse Engines", "impulseEngines");
+export const warpEngineType = new EngineDeviceType("Warp Engines", "warpEngines");
+export const impulseEngineType = new EngineDeviceType("Impulse Engines", "impulseEngines");
 export const lifeSupportType = new DeviceType("Life Support", "lifeSupport");
 export const shieldType = new DeviceType("Shields", "shields");
 export const photonTorpedoLauncherType = new DeviceType("Photon Torpedo Launcher", "photons");
@@ -128,6 +134,7 @@ export const REPAIR_STRATEGY_PRIORITY = 'priority';
 const REPAIR_MODES = [REPAIR_STRATEGY_EVEN, REPAIR_STRATEGY_LEAST, REPAIR_STRATEGY_MOST, REPAIR_STRATEGY_PRIORITY];
 const DEVICE_REPAIR_SPEED_DOCKED = 1;
 const DEVICE_REPAIR_SPEED_IN_FLIGHT = .3;
+
 /**
  * An array of devices
  */
@@ -169,22 +176,22 @@ export class DeviceContainer {
         let devicesWithLessDamage;
         do {
             devicesWithLessDamage = remainingDevices.filter(d => d.damage < r && d.damage > 0);
-            if(devicesWithLessDamage.length === 0) break;
+            if (devicesWithLessDamage.length === 0) break;
             remainingDevices = remainingDevices.filter(d => d.damage >= r && d.damage > 0);
             devicesWithLessDamage.forEach(d => {
                 let toRepair = Math.min(d.damage, r, repairAmountLeft);
-                if(toRepair <= 0) return;
+                if (toRepair <= 0) return;
                 d.repair(toRepair);
                 repairAmountLeft -= toRepair;
             });
             r = repairAmountLeft / remainingDevices.length;
         } while (devicesWithLessDamage.length > 0 && repairAmountLeft > 0);
 
-        if(repairAmountLeft <= 0) return;
+        if (repairAmountLeft <= 0) return;
         // repair the remaining devices
         remainingDevices.forEach(d => {
             let toRepair = Math.min(d.damage, r, repairAmountLeft);
-            if(toRepair <= 0) return;
+            if (toRepair <= 0) return;
             d.repair(toRepair);
             repairAmountLeft -= toRepair;
         });
@@ -232,7 +239,7 @@ export class DeviceContainer {
                 let priorityNumbers = [...this.prioritiesInUse.keys()];
                 priorityNumbers.sort();
                 // iterate through the devices by their priority number
-                for(let i = 0; i < priorityNumbers.length && repairAmount > 0; i++) {
+                for (let i = 0; i < priorityNumbers.length && repairAmount > 0; i++) {
                     let priorityNumber = priorityNumbers[i];
                     // get device list
                     let deviceList = this.repairPriorities.get(priorityNumber) || [];
@@ -299,19 +306,19 @@ export class DeviceContainer {
     setRepairPriority(deviceType, priority) {
         // get device and check that we have that device
         let device = this.devices.find(d => d.type.name === deviceType.name);
-        if(!device) return;
+        if (!device) return;
 
         // remove old record
-        if(this.repairPriorities.has(deviceType.name)) {
+        if (this.repairPriorities.has(deviceType.name)) {
             let oldP = this.repairPriorities.get(deviceType.name);
-            if(oldP === priority) return;
+            if (oldP === priority) return;
             let list = this.repairPriorities.get(oldP);
             // remove device from list
             list = list.filter(d => {
                 return d.type.name !== deviceType.name;
             });
 
-            if(list.length === 0) {
+            if (list.length === 0) {
                 // if there's no devices on that priority #
                 // remove the list from the map and remove the number from the set
                 this.repairPriorities.delete(oldP);
@@ -339,6 +346,7 @@ export class DeviceContainer {
     getRepairPriorities() {
         return this.repairPriorities;
     }
+
     getDeviceRepairPriority(deviceType) {
         return this.repairPriorities.get(deviceType.name) || 0;
     }
@@ -394,12 +402,19 @@ export class PowerGrid extends Device {
     }
 }
 
-// todo:::
-export class WarpDrive extends Device {
-    constructor(parent, powerGrid) {
-        super(parent, warpEngineType);
+export class Engines extends Device {
+    constructor(parent, type, powerGrid, gameObject, mover, minWarp, maxWarp, adjustableWarpFactor = false) {
+        if (!(type instanceof EngineDeviceType)) {
+            throw new Error("Engines must have a type deriving from EngineDeviceType.");
+        }
+        super(parent, type);
         this.powerGrid = powerGrid;
-        this._warpFactor = 5.0;
+        this.mover = mover;
+        this.gameObject = gameObject;
+        this._warpFactor = minWarp;
+        this._warpFactorIsAdjustable = adjustableWarpFactor;
+        this._maxWarpFactor = maxWarp;
+        this._minWarpFactor = minWarp;
     }
 
     get warpFactor() {
@@ -407,24 +422,54 @@ export class WarpDrive extends Device {
     }
 
     set warpFactor(n) {
+        if (!this._warpFactorIsAdjustable) {
+            throw new Error("Warp factor is not adjustable");
+        }
         this.checkDamage();
         if (typeof n !== "number" || Number.isNaN(n)) {
             return;
-        } else if (n < 1.0 || n > 10.0) {
+        } else if (n < this._minWarpFactor || n > this._maxWarpFactor) {
             return;
         }
         this._warpFactor = n;
     }
 
-    // moveTo(){
-    //
-    // }
-}
+    calculateTimeRequired(distance) {
+        return distance / Math.pow(this.warpFactor, 2);
+    }
 
-export class ImpulseEngines extends Device {
-    constructor(parent, powerGrid) {
-        super(parent, impulseEngineType);
-        this.powerGrid = powerGrid;
+    calculateEnergyUsage(distance) {
+        let energy = .1 * distance * Math.pow(this.warpFactor, 3);
+        if (this.parent.shields && this.parent.shields.up) energy *= 2;
+        return energy;
+    }
+
+    moveTo(sector) {
+        if (!sector instanceof Sector) {
+            throw new Error("Can't move there");
+        }
+        this.checkDamage();
+        this.powerGrid.checkDamage();
+
+        // calculate distance, and energy required
+        let distance = Galaxy.calculateDistance(this.gameObject.sector, sector);
+        //( .1 * distance in sectors = distance in quadrants ) * warpFactor ^ 3
+        let energy = this.calculateEnergyUsage(distance);
+
+        if (this.powerGrid.energy < energy) {
+            throw new Error("Not enough energy.");
+        }
+
+        this.mover.moveToSector(sector);
+        this.powerGrid.useEnergy(energy);
+    }
+
+    static makeWarpEngines(parent, powerGrid, gameObject, mover) {
+        return new Engines(parent, warpEngineType, powerGrid, gameObject, mover, 1.0, 10.0, true);
+    }
+
+    static makeImpulseEngines(parent, powerGrid, gameObject, mover) {
+        return new Engines(parent, impulseEngineType, powerGrid, gameObject, mover, .975, .975, false);
     }
 }
 

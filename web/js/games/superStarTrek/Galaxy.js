@@ -69,7 +69,7 @@ export class Quadrant {
 
     // internal coordinates x y
     getSectorsAdjacentTo(sector, includeSelf = false) {
-        if(!sector instanceof Sector) return [];
+        if (!sector instanceof Sector) return [];
         let sectorX = sector.x;
         let sectorY = sector.y;
         let sectors = [];
@@ -83,6 +83,45 @@ export class Quadrant {
             }
         }
         return sectors;
+    }
+
+    getNearestEmptySectorAdjacentTo(sector) {
+        if (!sector instanceof Sector) return;
+        let sectorX = sector.x;
+        let sectorY = sector.y;
+
+        // a cache of previously
+        let prevMatrix = [];
+        for (let i = 0; i < this.length; i++) {
+            let row = new Array(this.width);
+            row.fill(false, 0);
+            prevMatrix.push(row);
+        }
+        prevMatrix[sectorY][sectorX] = true;
+        let totalChecked = 1;
+        let distanceFromStart = 1;
+        while (totalChecked < this.width * this.length) {
+            for (let y = sectorY - distanceFromStart; y <= sectorY + distanceFromStart; y++) {
+                if(!prevMatrix[y]) continue;    // invalid coordinates
+                for (let x = sectorX - distanceFromStart; x <= sectorX + distanceFromStart; x++) {
+                    // check cache
+                    if(prevMatrix[y][x]) {
+                        continue;
+                    }
+                    // check that coordinates are valid
+                    if (this.areValidCoordinates(x, y)) {
+                        let sector = this.getSector(x, y);
+                        if(!sector.isFull()) {
+                            return sector;
+                        }
+                        prevMatrix[y][x] = true;
+                        totalChecked++;
+                    }
+                }
+            }
+            distanceFromStart++;
+        }
+        return null;
     }
 
     areValidCoordinates(x, y) {
