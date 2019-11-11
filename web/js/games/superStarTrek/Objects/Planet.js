@@ -41,7 +41,7 @@ export default class Planet {
     constructor(type, hasCrystals, known = false) {
         if(!(type instanceof PlanetType)) throw new Error("planet type must be provided.");
         this.gameObject = new GameObject(this, true);
-        this.collider = new Collider(this, this.gameObject, 80, 80, 1000);
+        this.collider = new Collider(this, this.gameObject, 25, 25, 1000);
         this.type = type; // M N or O
         this.hasCrystals = hasCrystals;
         this.known = known;

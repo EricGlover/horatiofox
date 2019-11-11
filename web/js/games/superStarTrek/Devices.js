@@ -2,6 +2,7 @@ import {terminal} from './Terminal.js';
 import {Component, GameObject, Mover, Collider} from "./Components.js";
 import clock from "./GameClock.js";
 import {Sector} from "./Galaxy.js";
+import {AbstractEnemy} from "./Enemies/Enemies";
 
 /**
  * Device Types, defined constants make it easier to check the type of device
@@ -698,15 +699,35 @@ export class Phasers extends Device {
 }
 
 class Torpedo {
-    constructor() {
+    constructor(firedFrom) {
         this.gameObject = new GameObject(this, false);
         this.mover = new Mover(this, this.gameObject);
-        this.collider = new Collider(this, this.gameObject, 100, 100, 1);
+        this.proximity = new Collider(this, this.gameObject, 100, 100, 1);
+        this.collider = new Collider(this, this.gameObject, 1, 1, 1);
         this.damage = 100;
+        this.firedFrom = firedFrom;
     }
 
     die() {
         this.gameObject.removeSelf();
+    }
+
+    // we can't hit ourselves, things without colliders, or the ship we were fired from
+    _canHit(obj) {
+        return obj !== this && obj.collider && obj !== this.firedFrom;
+    }
+
+    // did obj trigger torpedoes proximity sensor ?
+    proximityHit(obj) {
+        if (!this._canHit(obj)) return false;
+        if (!(obj instanceof AbstractEnemy)) return false;
+        return this.proximity.collision(obj);
+    }
+
+    // did obj collide with the body of the torpedo
+    bodyHit(obj) {
+        if (!this._canHit(obj)) return false;
+        return this.collider.collision(obj);
     }
 }
 
@@ -754,7 +775,7 @@ export class PhotonTorpedoLauncher extends Device {
         let y = this.parent.gameObject.quadrant.globalY + sectorY;
 
         // make torpedo
-        let torpedo = new Torpedo();
+        let torpedo = new Torpedo(this.parent);
         // place torpedo at our current position
         torpedo.gameObject.placeIn(this.parent.gameObject.galaxy,
             this.parent.gameObject.quadrant,
@@ -789,25 +810,25 @@ export class PhotonTorpedoLauncher extends Device {
             // and nearby sectors
             let sectors = torpedo.gameObject.sector.getAdjacentSectors(true);
 
+            // check for collisions
             sectors.forEach(sector => {
                 if (hit) return;
                 sector.container.getAllGameObjects().forEach(obj => {
                     if (hit) return;
-                    // check that it's a collider and not the thing firing the torpedo, and it's not the torpedo
-                    if (obj.collider && obj !== torpedo && obj !== this.parent) {
-                        hit = torpedo.collider.collision(obj);
-                        if (hit) {
-                            thingHit = obj;
-                            console.log("HIT!!!", obj);
-                        }
+                    if(torpedo.proximityHit(obj) || torpedo.bodyHit(obj)) {
+                        hit = true;
+                        thingHit = obj;
+                        console.log("HIT!!!", obj);
                     }
                 });
             });
+
             if (hit) {
                 moveGenerator.next(false);
                 break;
             }
         } while (!ret.done);
+
         // print tracking coordinates
         for (let i = 0; i < trackingLocations.length; i++) {
             //print first and last, otherwise skip every other one
