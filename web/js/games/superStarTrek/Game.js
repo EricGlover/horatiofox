@@ -399,6 +399,8 @@ export default class Game {
         this.timeRemaining = 7 * this.length;
         this.federationPowerRemaining = this.calculateKlingonStrength() * this.timeRemaining;
 
+        this.player.starChart.showStarBases();
+
         // technically this should be last so we can't have users trying to do stuff
         this.registerCommands();
         this.showInfoPanes();
@@ -558,10 +560,18 @@ With your starship confiscated by the Klingon High Command, you relocate to a mi
         return this.galaxy.container.getCountOfGameObjects(AbstractKlingon) === 0;
     }
 
+    showAllInfoOnChart() {
+        this.pane2Command.showAll = true;
+    }
+
+    hideInfoFromChart() {
+        this.pane2Command.showAll = false;
+    }
+
     makeCommands() {
         this.commands = [];
         this.commands.push(new RepairCommand(this.terminal, this.player));
-        this.chartCommand = new ChartCommand(this, this.terminal, this.player);
+        this.chartCommand = new ChartCommand(this, this.terminal, this.player, this.galaxy);
         let commandsCommand = new CommandsCommand(this, this.terminal);
         let statusCommand = new StatusCommand(this, this.terminal, this.player, this.galaxy);
         this.commands.push(new ShieldsCommand(this, this.terminal, this.player));
@@ -572,7 +582,7 @@ With your starship confiscated by the Klingon High Command, you relocate to a mi
         this.scanCommand = new ShortRangeScanCommand(this, this.terminal, this.player, this.chartCommand, statusCommand);
         this.commands.push(this.scanCommand);
         if (DEBUG) {
-            this.commands.push(new LongRangeScanCommand(this, this.terminal, this.player));
+            this.commands.push(new LongRangeScanCommand(this, this.terminal, this.player, this.galaxy));
         }
 
         this.commands.push(new GetHelpCommand(this, this.terminal, commandsCommand));
@@ -587,7 +597,7 @@ With your starship confiscated by the Klingon High Command, you relocate to a mi
         this.commands.push(new RestCommand(this, this.terminal));
 
         let status = new StatusCommand(this, this.pane1, this.player, this.galaxy);
-        let chart = new ChartCommand(this, this.pane2, this.player);
+        let chart = new ChartCommand(this, this.pane2, this.player, this.galaxy);
         this.pane1Command = new ShortRangeScanCommand(this, this.pane1, this.player, chart, status);
         this.pane2Command = chart;
     }

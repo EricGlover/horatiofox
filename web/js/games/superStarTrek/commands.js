@@ -1682,17 +1682,19 @@ the [STATUS] command.  [ITEM] specifies which information as follows:
 }
 
 export class ChartCommand extends Command {
-    constructor(game, terminal, player) {
+    constructor(game, terminal, player, galaxy) {
         super();
         this.terminal = terminal;
         this.game = game;
         this.player = player;
+        this.galaxy = galaxy;
         this.abbreviation = "c";
         this.name = "chart";
         this.regex = regexifier("c", "chart", "star chart");
         this.fullName = "star chart";
         this.type = INFO_COMMAND;
         this.addPadding = false;
+        this.showAll = false;
         this.info = `
       Mnemonic:  ${this.name}
       Shortest abbreviation:  ${this.abbreviation}
@@ -1711,20 +1713,28 @@ export class ChartCommand extends Command {
         // use galaxy to make a grid of text
         let grid = [];
         // convert each row to text
-        for (let i = 0; i < this.game.galaxy.length; i++) {
-            let row = this.game.galaxy.getRow(i);
+        for (let i = 0; i < this.galaxy.length; i++) {
+            let row = this.galaxy.getRow(i);
             let textRow = [];
             // convert each quadrant to text
             row.forEach(quadrant => {
-                // todo
-                let superNovaText = quadrant.hasSupernova ? "1" : ".";
-                let klingonText = quadrant.container.getCountOfGameObjects(
-                    AbstractKlingon
-                );
-                let starbaseText = quadrant.container.getCountOfGameObjects(StarBase);
-                let starText = quadrant.container.getCountOfGameObjects(Star);
-                let text = `${superNovaText}${klingonText}${starbaseText}${starText}`;
-                textRow.push(text);
+                if(this.showAll) {
+                    let superNovaText = quadrant.hasSupernova ? "1" : ".";
+                    let klingonText = quadrant.container.getCountOfGameObjects(
+                        AbstractKlingon
+                    );
+                    let starbaseText = quadrant.container.getCountOfGameObjects(StarBase);
+                    let starText = quadrant.container.getCountOfGameObjects(Star);
+                    let text = `${superNovaText}${klingonText}${starbaseText}${starText}`;
+                    textRow.push(text);
+                }
+                // get info from chart
+                try {
+                    let info = this.player.starChart.getInfo(quadrant);
+                    textRow.push(info.print());
+                } catch (e) {
+                    textRow.push(`-1`); //out of bounds
+                }
             });
             //add row to our print out
             grid.push(textRow);
@@ -2039,62 +2049,41 @@ export class LongRangeScanCommand extends Command {
             this.terminal.printLine(`Spock - This is embarrassing but I've misplaced the Star Chart Captain.`);
             return;
         }
-        // todo:: save info
-        // update star chart
 
         // use player location
         let playerQuadrant = this.player.gameObject.quadrant;
         // get a 3 x 3 quadrant matrix with the player at the center
         let matrix = [];
 
+        // update star chart with the new info
         let adjacentQuadrants = this.galaxy.getQuadrantsAdjacentTo(playerQuadrant, true);
         this.player.starChart.longRangeScan(adjacentQuadrants);
 
-        
 
-        // todo :: read from the star chart
+        // look at surronding quadrants, get the corresponding info from the chart
         for (let y = playerQuadrant.y - 1; y <= playerQuadrant.y + 1; y++) {
             let textRow = [];
 
             for (let x = playerQuadrant.x - 1; x <= playerQuadrant.x + 1; x++) {
-                let quadrant = null;
+                // check for out of bounds
+                if(!this.galaxy.areValidCoordinates(x, y)) {
+                    textRow.push(`-1`); //out of bounds
+                    continue;
+                }
                 try {
-                    quadrant = this.game.galaxy.getQuadrant(x, y)
-                    if (!quadrant) {
-                        textRow.push(`-1`); //out of bounds
-                    } else {
-                        let num = 0;
-                        let superNovaText = quadrant.hasSupernova ? "1" : " ";
-                        // let superNovaText = quadrant.hasSupernova ? 1 : 0;
-                        // num += superNovaText * 1000;
-                        let klingonText = quadrant.container.getCountOfGameObjects(
-                            AbstractKlingon
-                        );
-                        num += klingonText * 100;
-                        klingonText = klingonText === 0 ? ' ' : klingonText;
-
-                        let starbaseText = quadrant.container.getCountOfGameObjects(StarBase);
-                        // num += starbaseText * 10;
-                        starbaseText = starbaseText === 0 ? ' ' : starbaseText;
-
-                        let starText = quadrant.container.getCountOfGameObjects(Star);
-                        starText = starText === 0 ? ' ' : starText;
-                        // num += starbaseText;
-
-                        let text = `${superNovaText}${klingonText}${starbaseText}${starText}`;
-                        textRow.push(text);
-                        // textRow.push("" + num);
-                    }
+                    let quadrant = this.galaxy.getQuadrant(x, y);
+                    let info = this.player.starChart.getInfo(quadrant);
+                    textRow.push(info.print());
                 } catch (e) {
                     textRow.push(`-1`); //out of bounds
                 }
             }
             matrix.push(textRow);
         }
-        this.terminal.echo(`\nLong-range scan for ${this.player.gameObject.getQuadrantLocation()}\n\n`);
-        let txt = this.terminal.formatGrid(matrix).map(row => row.join("\t")).join("\n");
-        this.terminal.echo(txt);
-        this.terminal.newLine();
+        this.terminal.printLine('Digits: Thousands = # supernova; Hundreds = # klingon; Tens = # star bases; ones = # stars.');
+        this.terminal.printLine(`Long-range scan for ${this.player.gameObject.getQuadrantLocation()}`);
+        this.terminal.skipLine(1);
+        this.terminal.printLine(this.terminal.printGrid(this.terminal.formatGrid(matrix), "    "));
     }
 }
 

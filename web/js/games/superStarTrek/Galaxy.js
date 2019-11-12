@@ -28,6 +28,23 @@ class ChartInfo {
         this.hasTelemetrySensors = false;
         this.scanned = false;
     }
+
+    print(showZeroes = false) {
+        if(!this.scanned) {
+            return `..${this.bases}.`;
+        } else {
+            if(showZeroes) {
+                return`${this.hasSupernova ? '1' : '0'}${this.klingons}${this.bases}${this.stars}`;
+            } else {
+                let num = 0;
+                if(this.hasSupernova) num += 1000;
+                num += this.klingons * 100;
+                num += this.bases * 10;
+                num += this.stars;
+                return '' + num;
+            }
+        }
+    }
 }
 
 export class StarChart extends Component {
@@ -68,6 +85,16 @@ export class StarChart extends Component {
         info.bases = quadrant.container.getCountOfGameObjects(StarBase);
         info.stars = quadrant.container.getCountOfGameObjects(Star);
         info.scanned = true;
+    }
+
+    showStarBases() {
+        this.galaxy.getAllQuadrants().forEach(quadrant => {
+            let bases = quadrant.container.getCountOfGameObjects(StarBase);
+            if(bases > 0) {
+                let info = this.getInfo(quadrant);
+                info.bases = bases;
+            }
+        })
     }
 
     // updates all the telemetry for quadrants we have sensors in
@@ -346,6 +373,10 @@ export class Galaxy {
         return this.quadrants[i];
     }
 
+    getAllQuadrants() {
+        return this.quadrants.flat();
+    }
+
     // calculate globalX and globalY
     // refers to the top left point of the sector
     getGlobalCoordinates(sector) {
@@ -390,7 +421,7 @@ export class Galaxy {
     }
     // coordinates are 0 based
     areValidCoordinates(quadrantX, quadrantY) {
-        return quadrantY > 0 && quadrantY < this.length && quadrantX > 0 && quadrantX < this.width;
+        return quadrantY >= 0 && quadrantY < this.length && quadrantX >= 0 && quadrantX < this.width;
     }
 
     //
