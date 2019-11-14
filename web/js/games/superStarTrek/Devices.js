@@ -47,8 +47,7 @@ export const lifeSupportType = new DeviceType("Life Support", "lifeSupport");
 export const shieldType = new DeviceType("Shields", "shields");
 export const photonTorpedoLauncherType = new DeviceType("Photon Torpedo Launcher", "photons");
 export const subspaceRadioType = new DeviceType("Subspace Radio", "subspaceRadio");
-
-// export const
+export const probeLauncherType = new DeviceType("Probe Launcher", "probeLauncher");
 
 /**
  * Our base device class
@@ -633,7 +632,6 @@ export class Phasers extends Device {
             throw new Error('Phaser must have energy');
         }
         this.energySystem = energySystem;
-        this.overheated = false;
         this.amountRecentlyFired = 0;
         this.overheatThreshold = 1500;
         this.terminal = terminal;
@@ -728,6 +726,39 @@ export class Phasers extends Device {
     }
 }
 
+class Probe {
+    constructor(armed) {
+        this.gameObject = new GameObject(this, false);
+        this.mover = new Mover(this, this.gameObject);
+        this.armed = armed;
+    }
+
+    die() {
+        this.gameObject.removeSelf();
+    }
+}
+
+export class ProbeLauncher extends Device {
+    constructor(parent, terminal, clock, count = 3) {
+        super(probeLauncherType, parent);
+        this.probes = count;
+        this.terminal = terminal;
+        this.clock = clock;
+        // moves at warp 10
+        // reports back to ship with subspace radio
+
+        // can be armed
+        // flies off in a direction
+        // dies if moves into quadrant with a supernova
+        // possibly launches telemetry probes (?)
+    }
+
+    launchProbe(quadrant, armed) {
+        this.checkDamage();
+        // basically the same as the torpedo stuff
+    }
+}
+
 class Torpedo {
     constructor(firedFrom) {
         this.gameObject = new GameObject(this, false);
@@ -782,10 +813,6 @@ export class PhotonTorpedoLauncher extends Device {
 
     getTorpedoCount() {
         return this._torpedoes;
-    }
-
-    calcAngleDegrees(x, y) {
-        return Math.atan2(y, x) * 180 / Math.PI;
     }
 
     // fire at sector x y , can be floats or ints

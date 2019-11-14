@@ -11,7 +11,8 @@ import {
     shortRangeSensorType,
     longRangeSensorType,
     Engines,
-    subspaceRadioType
+    subspaceRadioType,
+    ProbeLauncher
 } from "../Devices.js";
 import {StarChart} from "../Galaxy.js";
 
@@ -54,6 +55,7 @@ export default class Enterprise {
         // this.transporter = new Device(this, "Transporter");
         // this.shieldControl = new Device(this, "Shield Control");
         // this.probesLauncher = new Device(this, "Probe Launcher");
+        this.probeLauncher = new ProbeLauncher(this, this.terminal, clock);
 
         this.starChart = new StarChart(this, this.gameObject.galaxy, this.subspaceRadio);
         window.e = this;
