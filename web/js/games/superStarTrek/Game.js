@@ -1,5 +1,5 @@
 import Service from "./utils/Service.js";
-import {Galaxy} from "./Galaxy.js";
+import {Galaxy} from "./Space/Galaxy.js";
 import Enterprise from "./PlayerShips/Enterprise.js";
 import Star from "./Objects/Star.js";
 import StarBase from "./Objects/StarBase.js";
@@ -81,49 +81,10 @@ export default class Game {
 
         // place player in random quad and sector
         this.player = new Enterprise(this.terminal, this.clock, this.galaxy);
-        if (false && DEBUG) {
-            // testing torpedoes
-            let quad = this.galaxy.getQuadrant(0, 0);
-            let sector = quad.getSector(4, 4);
-            this.player.gameObject.placeIn(this.galaxy, quad, sector);
 
-            // place a klingon
-            // k 1
-            sector = quad.getSector(0, 0);
-            let klingon = new Klingon(this.galaxy, this.player, this);
-            klingon.gameObject.placeIn(this.galaxy, quad, sector);
-            // k 2
-            sector = quad.getSector(9, 0);
-            klingon = new Klingon(this.galaxy, this.player, this);
-            klingon.gameObject.placeIn(this.galaxy, quad, sector);
-            // k 3
-            sector = quad.getSector(9, 9);
-            klingon = new Klingon(this.galaxy, this.player, this);
-            klingon.gameObject.placeIn(this.galaxy, quad, sector);
-            // k 4
-            sector = quad.getSector(0, 9);
-            klingon = new Klingon(this.galaxy, this.player, this);
-            klingon.gameObject.placeIn(this.galaxy, quad, sector);
-            // top right bottom left
-            sector = quad.getSector(4, 0);
-            klingon = new Klingon(this.galaxy, this.player, this);
-            klingon.gameObject.placeIn(this.galaxy, quad, sector);
-            sector = quad.getSector(9, 4);
-            klingon = new Klingon(this.galaxy, this.player, this);
-            klingon.gameObject.placeIn(this.galaxy, quad, sector);
-            sector = quad.getSector(4, 9);
-            klingon = new Klingon(this.galaxy, this.player, this);
-            klingon.gameObject.placeIn(this.galaxy, quad, sector);
-            sector = quad.getSector(0, 4);
-            klingon = new Klingon(this.galaxy, this.player, this);
-            klingon.gameObject.placeIn(this.galaxy, quad, sector);
-
-
-        } else {
-            let quad = this.galaxy.getRandomQuadrant();
-            let sector = quad.getRandomSector();
-            this.player.gameObject.placeIn(this.galaxy, quad, sector);
-        }
+        let quad = this.galaxy.getRandomQuadrant();
+        let sector = quad.getRandomSector();
+        this.player.gameObject.placeIn(this.galaxy, quad, sector);
 
         if (DEBUG) {
             // this.player.deviceContainer.damageRandomDevices(2);
@@ -413,9 +374,10 @@ export default class Game {
 
         let starBases = this.galaxy.container.getGameObjectsOfType(StarBase);
         // quadrants are listed x - y
-        let sbq = starBases.map(base =>
-            [base.gameObject.quadrant.x + 1, base.gameObject.quadrant.y + 1].join(" - ")
-        );
+        let sbq = starBases.map(base => {
+            let {qX, qY} = base.gameObject.getLocation();
+            return `${qX} - ${qY}`;
+        });
 
         let baseStr = sbq.join("   ");
         // change terminal settings
@@ -427,7 +389,7 @@ The Klingons will overpower the Federation in ${this.timeRemaining} days, every 
 You will have ${starBases.length} supporting starbases.
 Starbase locations-   ${baseStr}
 
-The Enterprise is currently in ${this.player.gameObject.getLocation()}
+The Enterprise is currently in ${this.player.gameObject.printLocation()}
 
 TRY TYPING "COMMANDS"
 
@@ -460,7 +422,7 @@ Good Luck!
                     let response = await this.terminal.runUserCommand();
                     command = response.command;
                     await command.run();
-                    if(this.player.docked) this.player.rechargeEverything();
+                    if (this.player.docked) this.player.rechargeEverything();
                 } catch (e) {
                     this.terminal.printLine(e.message || `Can't do that, Captain!`);
                 }
@@ -675,7 +637,7 @@ With your starship confiscated by the Klingon High Command, you relocate to a mi
             // place in galaxy
             planet.gameObject.placeIn(this.galaxy, quadrant, sector);
 
-            console.log(`planet at ${planet.gameObject.getLocation()}`);
+            console.log(`planet at ${planet.gameObject.printLocation()}`);
         }
     }
 

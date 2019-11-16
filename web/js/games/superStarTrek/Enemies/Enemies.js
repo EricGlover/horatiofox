@@ -69,7 +69,7 @@ export class AbstractEnemy {
 
     die() {
         this.lifeSupport.kill();
-        this.terminal.printLine(`${this.name} at ${this.gameObject.getSectorLocation()} was destroyed.`);
+        this.terminal.printLine(`${this.name} at ${this.gameObject.printSectorLocation()} was destroyed.`);
         console.log("You killed ", this);
         this.gameObject.removeSelf();
         this.game.killEnemy(this);

@@ -14,7 +14,7 @@ import {
     subspaceRadioType,
     ProbeLauncher
 } from "../Devices.js";
-import {StarChart} from "../Galaxy.js";
+import {StarChart} from "../Space/StarChart";
 
 const CONDITION_GREEN = 1;
 const CONDITION_YELLOW = 2;

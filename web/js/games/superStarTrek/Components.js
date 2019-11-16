@@ -2,6 +2,7 @@
 // is something that can contain game objects
 import {terminal} from "./Terminal.js";
 import {DEVICE_DAMAGE_ENABLED} from "./Game.js";
+import {Coordinates, Vector} from "./Space/Coordinates";
 
 // these are treated as collider class variables
 let _colliderMaxHitToDamageDevices = 275.0;
@@ -15,7 +16,7 @@ let _colliderMinHitToDamageDevices = 50.0;
  */
 export class Component {
     constructor(_class, parent) {
-        if(!_class.propName || typeof _class.propName === 'function') {
+        if (!_class.propName || typeof _class.propName === 'function') {
             debugger;
             throw new Error("To inherit component you need to define a static propName");
         }
@@ -23,10 +24,12 @@ export class Component {
         this.parent[_class.propName] = this;
         this.parent.hasComponent = Component.hasComponent.bind(this.parent);
     }
+
     static hasComponent(_class) {
         return this[_class.propName];
     }
 }
+
 
 // can collide into other colliders
 // width and height are in units 1/100 * sector width
@@ -145,8 +148,8 @@ export class Collider extends Component {
         this.terminal.printLine(`${damage.toFixed(2)} unit hit on ${this.gameObject.name} at ${this.gameObject.getSectorLocation()}`)
 
         // damage devices
-        if(DEVICE_DAMAGE_ENABLED && this.hitWillDamageDevices(damage)) {
-            if(this.parent.deviceContainer) {
+        if (DEVICE_DAMAGE_ENABLED && this.hitWillDamageDevices(damage)) {
+            if (this.parent.deviceContainer) {
                 // determine amount of damage (for moment just the original damage)
                 let deviceDamage = damage / (75.0 * (25 * Math.random()));
                 this.parent.deviceContainer.damageRandomDevices(deviceDamage);
@@ -174,18 +177,37 @@ export class Mover extends Component {
         return "mover";
     }
 
-    calculateDisplacement(sector) {
-        // find delta x, delta y in global coordinates
-        let deltaX = sector.globalX - this.gameObject.sector.globalX;
-        let deltaY = sector.globalY - this.gameObject.sector.globalY;
-        return {x: deltaX, y: deltaY};
+    calculateDirectionTo(globalX, globalY) {
+        // let deltaX = globalX - this.gameObject./// calculate the direction to shoot the torpedo
+        //     // let
+        // quadrant = this.parent.gameObject.quadrant;
+        // // deltas are to - from, BUT because the y axis is inverted from
+        // // the normal math y axis you'll need to flip the y
+        // let deltaX = x - this.parent.gameObject.x;
+        // let deltaY = -1 * (y - this.parent.gameObject.y);
+        // let theta = Math.atan2(deltaY, deltaX);    // -PI , PI
     }
 
     calculateDestination(deltaQx = 0, deltaQy = 0, deltaSx = 0, deltaSy = 0) {
-        let sector = this.gameObject.sector;
-        let x = sector.globalX + (deltaQx * 10) + deltaSx;
-        let y = sector.globalY + (deltaQy * 10) + deltaSy;
-        return this.gameObject.galaxy.getSectorGlobal(x, y);
+        let move = Vector.make1(deltaQx, deltaQy, deltaSx, deltaSy);
+        return this.gameObject.coordinates.addVector(move);
+        // let sector = this.gameObject.sector;
+        // let deltaX = Coordinates.calculateDistanceX(deltaQx, deltaSx);
+        // let deltaY = Coordinates.calculateDistanceY(deltaQy, deltaSy);
+        // let destination = sector.center.add(deltaX, deltaY);
+        // return this.gameObject.galaxy.getSector(destination);
+    }
+
+    calculateTime(distance, warpFactor) {
+        return distance / Math.pow(warpFactor, 2);
+    }
+
+    calculateDistance(time, warpFactor) {
+        return Math.pow(warpFactor, 2) * time;
+    }
+
+    calculateWarpFactor(time, distance) {
+        return Math.sqrt(distance / time);
     }
 
     // @returns float
@@ -219,7 +241,7 @@ export class Mover extends Component {
     * moveTo(globalX, globalY, delta = .5) {
         debugger;
         // find total distance
-        let distance = Mover.calculateDistance(this.gameObject.x, this.gameObject.y, globalX, globalY);
+        // let distance = Mover.calculateDistance(this.gameObject.x, this.gameObject.y, globalX, globalY);
         let remaining = distance;
         // total x and y
         // let distanceX = Math.abs(this.gameObject.x - globalX);
@@ -275,9 +297,11 @@ export class GameObjectContainer extends Component {
         super(GameObjectContainer, parent);
         this.gameObjects = [];
     }
+
     static get propName() {
         return "container";
     }
+
     isEmpty() {
         return this.gameObjects.length === 0;
     }
@@ -308,24 +332,23 @@ export class GameObjectContainer extends Component {
 
 // a game object is simply a thing with a position in
 // the game
-export class GameObject  extends  Component {
+export class GameObject extends Component {
     constructor(parent, takesWholeSector = false, galaxy = null) {
         super(GameObject, parent);
         this.galaxy = galaxy;
         this.quadrant = null;
         this.sector = null;
-        // x and y are floats
-        this._x = null;
-        this._y = null;
+        this.coordinates = new Coordinates();
         this.takesWholeSector = takesWholeSector;
     }
 
     static get propName() {
         return "gameObject";
     }
+
     // if something was removed from the game...
     isInGame() {
-        if(!this.galaxy || !this.quadrant || !this.sector) {
+        if (!this.galaxy || !this.quadrant || !this.sector) {
             return false;
         }
         return true;
@@ -346,39 +369,13 @@ export class GameObject  extends  Component {
         this.galaxy = null;
         this.quadrant = null;
         this.sector = null;
-        // this._x = null;
-        // this._y = null;
-        this.x = null;
-        this.y = null;
-        this.userSectorX = null;
-        this.userSectorY = null;
-        this.userQuadrantX = null;
-        this.userQuadrantY = null;
+        this.coordinates = null;
     }
-    // global coordinates
-    // get x() {
-    //     return this._x;
-    // }
-    // set x(x) {
-    //     if(x === this._x) return;
-    //     this._x = x;
-    //     this.updateCoordinates();
-    // }
-    // get y() {
-    //     return this._y;
-    // }
-    // set y(y) {
-    //     if(y === this._y) return;
-    //     this._y = y;
-    //     this.updateCoordinates();
-    // }
 
-    // calculate coordinates
     // update our containers
-    // update our user coordinates
     updateCoordinates() {
         try {
-            let currentSector = this.galaxy.getSectorGlobal(this.x, this.y);
+            let currentSector = this.galaxy.getSector(this.coordinates);
             if (currentSector !== this.sector) {
                 if (!this.canMoveTo(currentSector)) {
                     throw new Error("Cant place object in non empty sector");
@@ -388,14 +385,7 @@ export class GameObject  extends  Component {
                 this.quadrant = currentSector.quadrant;
                 this.sector = currentSector;
             }
-            // locations
-            let x = ((this.x % this.quadrant.width) + .5).toFixed(1);
-            let y = ((this.y % this.quadrant.width) + .5).toFixed(1);
-            this.userSectorX = this.sector.x + 1;
-            this.userSectorY = this.sector.y + 1;
-            this.userQuadrantX = this.quadrant.x + 1;
-            this.userQuadrantY = this.quadrant.y + 1;
-        } catch(e) {
+        } catch (e) {
             // left galaxy
             this.removeSelf();
         }
@@ -415,7 +405,7 @@ export class GameObject  extends  Component {
         if (!this.canMoveTo(sector)) {
             throw new Error("Cant place object in non empty sector");
         }
-        if(!sector) {
+        if (!sector) {
             debugger;
         }
         this.galaxy = galaxy;
@@ -424,28 +414,35 @@ export class GameObject  extends  Component {
         this.galaxy.container.addGameObject(this.parent);
         this.quadrant.container.addGameObject(this.parent);
         this.sector.container.addGameObject(this.parent);
-
-        // set global x y
-        this.x = this.sector.globalX + x;
-        this.y = this.sector.globalY + y;
-        this.updateCoordinates();
-    }
-    // functions for printing out our location to the user
-    getSectorLocation(includeSector = true, float) {
-        return `${includeSector ? 'Sector ' : ''}${this.userSectorX} - ${this.userSectorY}`;
+        this.coordinates = sector.center.clone();
     }
 
     getSectorLocationFloat(includeSector = true) {
+        // todo::
         let x = ((this.x % this.quadrant.width) + .5).toFixed(1);
         let y = ((this.y % this.quadrant.width) + .5).toFixed(1);
         return `${includeSector ? 'Sector ' : ''}${x} - ${y}`
     }
 
-    getLocation() {
-        return `${this.getQuadrantLocation()}; ${this.getSectorLocation()}`;
+    printLocation() {
+        return `${this.printQuadrantLocation()}; ${this.printSectorLocation()}`;
     }
 
-    getQuadrantLocation() {
-        return `Quadrant ${this.userQuadrantX} - ${this.userQuadrantY}`;
+    // functions for printing out our location to the user
+    printSectorLocation(includeSector = true) {
+        return `${includeSector ? 'Sector ' : ''}${this.coordinates.userSectorX} - ${this.coordinates.userSectorY}`;
+    }
+
+    printQuadrantLocation() {
+        return `Quadrant ${this.coordinates.userQuadrantX} - ${this.coordinates.userQuadrantY}`;
+    }
+
+    getLocation() {
+        return {
+            qX: this.coordinates.userQuadrantX,
+            qY: this.coordinates.userQuadrantY,
+            sX: this.coordinates.userSectorX,
+            sY: this.coordinates.userSectorY
+        }
     }
 }

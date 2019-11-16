@@ -1,8 +1,8 @@
 import {terminal} from './Terminal.js';
 import {Component, GameObject, Mover, Collider} from "./Components.js";
 import clock from "./GameClock.js";
-import {Sector} from "./Galaxy.js";
 import {AbstractEnemy} from "./Enemies/Enemies";
+import {Sector} from "./Space/Sector";
 
 /**
  * Device Types, defined constants make it easier to check the type of device
@@ -465,7 +465,7 @@ export class Engines extends Device {
     }
 
     calculateTimeRequired(distance) {
-        return distance / Math.pow(this.warpFactor, 2);
+        return this.mover.calculateTime(distance, this.warpFactor);
     }
 
     calculateEnergyUsage(distance) {
@@ -727,10 +727,23 @@ export class Phasers extends Device {
 }
 
 class Probe {
-    constructor(armed) {
+    constructor(armed, clock, warpFactor = 10) {
         this.gameObject = new GameObject(this, false);
         this.mover = new Mover(this, this.gameObject);
         this.armed = armed;
+        this.clock = clock;
+        this.warpFactor = warpFactor;
+        this.destination = null;
+    }
+
+    launchToward(quadrant) {
+        this.destination = quadrant;
+        this.clock.register(this.onTimeElapse.bind(this));
+    }
+
+    onTimeElapse(days) {
+        let distanceToTravel = this.mover.calculateDistance(days, this.warpFactor);
+
     }
 
     die() {
@@ -739,12 +752,13 @@ class Probe {
 }
 
 export class ProbeLauncher extends Device {
-    constructor(parent, terminal, clock, count = 3) {
-        super(probeLauncherType, parent);
-        this.probes = count;
+    constructor(parent, terminal, clock, subspaceRadio, count = 3) {
+        super(parent, probeLauncherType);
+        this._probes = count;
         this.terminal = terminal;
         this.clock = clock;
-        // moves at warp 10
+        this.probeWarpFactor = 10;
+
         // reports back to ship with subspace radio
 
         // can be armed
@@ -755,7 +769,20 @@ export class ProbeLauncher extends Device {
 
     launchProbe(quadrant, armed) {
         this.checkDamage();
+        if(this._probes <= 0) return;
+
         // basically the same as the torpedo stuff
+        let probe = new Probe(armed, this.clock, this.probeWarpFactor);
+        // place probe
+        let go = this.parent.gameObject;
+        probe.gameObject.placeIn(go.galaxy, go.quadrant, go.sector);
+
+        probe.launchToward(quadrant);
+        this._probes--;
+    }
+
+    static get propName() {
+        return 'probeLauncher';
     }
 }
 
@@ -815,8 +842,9 @@ export class PhotonTorpedoLauncher extends Device {
         return this._torpedoes;
     }
 
+    // todo::
     // fire at sector x y , can be floats or ints
-    fire(sectorX, sectorY) {
+    fire(coordinates) {
         this.checkDamage();
         if (this.isDamaged()) {
             this.terminal.echo("Photon torpedoes are damaged and can't fire.");
@@ -828,8 +856,11 @@ export class PhotonTorpedoLauncher extends Device {
         }
         this._torpedoes--;
         // get global x y for target
-        let x = this.parent.gameObject.quadrant.globalX + sectorX;
-        let y = this.parent.gameObject.quadrant.globalY + sectorY;
+        // todo:: test
+        // let x = this.parent.gameObject.quadrant.globalX + sectorX;
+        let x = coordinates.x;
+        // let y = this.parent.gameObject.quadrant.globalY + sectorY;
+        let y = coordinates.y;
 
         // make torpedo
         let torpedo = new Torpedo(this.parent);

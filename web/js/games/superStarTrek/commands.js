@@ -26,7 +26,9 @@ import Star from "./Objects/Star.js";
 import Enterprise from "./PlayerShips/Enterprise.js";
 import Planet from "./Objects/Planet.js";
 import BlackHole from "./Objects/BlackHole.js";
-import {Sector, StarChart} from './Galaxy.js';
+import {Sector} from "./Space/Sector";
+import {StarChart} from "./Space/StarChart";
+import {Coordinates} from "./Space/Coordinates";
 
 // same thing as the regexifier but with the end of line character added
 // so that you when we break apart the command by \s it identifies it correctly
@@ -1372,6 +1374,7 @@ extra to move with the shields up.`;
 
             // calculate the destination
             try {
+                // convert to distance
                  destination = this.player.mover.calculateDestination(deltaQx, deltaQy, deltaSx, deltaSy);
             } catch (e) {
                 console.error(e);
@@ -1384,33 +1387,35 @@ extra to move with the shields up.`;
             // make sure to convert from the 1 based commands
             // to the 0 based coordinates
             let quadX, quadY, sectorX, sectorY;
+            let c;
             if (args.length === 4) {
-                quadX = args[0] - 1;
-                quadY = args[1] - 1;
-                sectorX = args[2] - 1;
-                sectorY = args[3] - 1;
+                quadX = args[0];
+                quadY = args[1];
+                sectorX = args[2];
+                sectorY = args[3];
+                c = Coordinates.convert(quadX, quadY, sectorX, sectorY, this.galaxy);
             } else if (args.length === 2) {
                 let quadrant = this.player.gameObject.quadrant;
-                quadX = quadrant.x;
-                quadY = quadrant.y;
-                sectorX = args[0] - 1;
-                sectorY = args[1] - 1;
+                sectorX = args[0];
+                sectorY = args[1];
+                c = Coordinates.convert1(quadrant, sectorX, sectorY, this.galaxy);
             } else {
                 this.terminal.printLine("Beg pardon, Captain?");
                 return;
             }
-            try {
-                // get sector
-                destination = this.galaxy.getSector(quadX, quadY, sectorX, sectorY);
-            } catch (e) {
-                console.error(e);
+            if(!this.galaxy.areValidCoordinates(c)) {
+                this.terminal.printLine("Beg pardon, Captain?");
+                return;
             }
+            destination = this.galaxy.getSector(c);
         }
 
         // now that we have a target destination check that it exists
         if(!destination || !(destination instanceof Sector)) {
             this.terminal.printLine('Beg pardon, Captain?');
         }
+
+        debugger;
         // now check that there's nothing already there
         // if there's something there, move us to an adjacent sector in the quadrant if possible
         // todo:: add ramming
@@ -1422,7 +1427,7 @@ extra to move with the shields up.`;
                 return;
             }
             let thing = destination.container.getAllGameObjects().filter(obj => obj.collider)[0];
-            this.terminal.printLine(`Sulu - "We managed to avoid the ${thing.name} at ${thing.gameObject.getSectorLocation()}."`);
+            this.terminal.printLine(`Sulu - "We managed to avoid the ${thing.name} at ${thing.gameObject.printSectorLocation()}."`);
             destination = newDestination;
         }
 
@@ -1513,16 +1518,12 @@ See REQUEST command for details.`;
      */
     getStatusText(format = true) {
         if (format) {
-            let date = `Stardate\t${this.game.clock.starDate.toFixed(1)}`
-            let condition = `Condition\t${this.player.printCondition()}`;
-
-            let playerQuad = this.player.gameObject.quadrant;
-            let playerSector = this.player.gameObject.sector;
             let collider = this.player.collider;
             let percent = collider.health * 100 / collider.maxHealth;
-            let hullIntegrity = `Hull Integrity\t${collider.health.toFixed(2)}, ${percent.toFixed(1)}%`;
-            let position = `Position\t${playerQuad.x + 1} - ${playerQuad.y + 1}, ${playerSector.x + 1} - ${playerSector.y + 1}`;
-            let lifeSupport = [`Life Support`, `NA`]
+
+            let {qX, qY, sX, sY} = this.player.gameObject.getLocation();
+            let position = `${qX} - ${qY}; ${sX} - ${sY}`;
+            let lifeSupport = [`Life Support`, `NA`];
             if (this.player.lifeSupport.isOk()) {
                 lifeSupport = [`Life Support`, `ACTIVE`];
             } else {
@@ -1540,7 +1541,7 @@ See REQUEST command for details.`;
                 ['Stardate', this.game.clock.starDate.toFixed(1)],
                 ['Condition', this.player.printCondition()],
                 ['Hull Integrity', `${collider.health.toFixed(2)}, ${percent.toFixed(1)}%`],
-                ['Position', `${playerQuad.x + 1} - ${playerQuad.y + 1}, ${playerSector.x + 1} - ${playerSector.y + 1}`],
+                ['Position', position],
                 lifeSupport,
                 warpFactor,
                 energy,
@@ -1553,13 +1554,11 @@ See REQUEST command for details.`;
         }
         let date = `Stardate\t${this.game.clock.starDate.toFixed(1)}`
         let condition = `Condition\t${this.player.printCondition()}`;
-
-        let playerQuad = this.player.gameObject.quadrant;
-        let playerSector = this.player.gameObject.sector;
         let collider = this.player.collider;
         let percent = collider.health * 100 / collider.maxHealth;
         let hullIntegrity = `Hull Integrity\t${collider.health.toFixed(2)}, ${percent.toFixed(1)}%`;
-        let position = `Position\t${playerQuad.x + 1} - ${playerQuad.y + 1}, ${playerSector.x + 1} - ${playerSector.y + 1}`;
+        let {qX, qY, sX, sY} = this.player.gameObject.getLocation();
+        let position = `${qX} - ${qY}; ${sX} - ${sY}`;
         let lifeSupport = `Life Support NA`;
         if (this.player.lifeSupport.isOk()) {
             lifeSupport = `Life Support\tACTIVE`;
@@ -1780,7 +1779,7 @@ ones digit:        stars
 period (.):        digit not known`);
         this.terminal.printLine();
         let q = this.player.gameObject.quadrant;
-        this.terminal.printLine(`Enterprise is currently in ${this.player.gameObject.getQuadrantLocation()}`);
+        this.terminal.printLine(`Enterprise is currently in ${this.player.gameObject.printQuadrantLocation()}`);
         if (this.addPadding) this.terminal.newLine();
     }
 }
@@ -2056,22 +2055,20 @@ export class LongRangeScanCommand extends Command {
         let matrix = [];
 
         // update star chart with the new info
-        let adjacentQuadrants = this.galaxy.getQuadrantsAdjacentTo(playerQuadrant, true);
-        this.player.starChart.longRangeScan(adjacentQuadrants);
-
+        let adjacentQuadrants = this.galaxy.getQuadrantsAdjacencyMatrix(playerQuadrant);
+        this.player.starChart.longRangeScan(adjacentQuadrants.flat().filter(q => q));
 
         // look at surronding quadrants, get the corresponding info from the chart
-        for (let y = playerQuadrant.y - 1; y <= playerQuadrant.y + 1; y++) {
+        for (let i = 0; i <  adjacentQuadrants.length; i++) {
+            let row = adjacentQuadrants[i];
             let textRow = [];
-
-            for (let x = playerQuadrant.x - 1; x <= playerQuadrant.x + 1; x++) {
-                // check for out of bounds
-                if(!this.galaxy.areValidCoordinates(x, y)) {
-                    textRow.push(`-1`); //out of bounds
+            for(let j = 0; j < row.length; j++) {
+                let quadrant = row[j];
+                if(!quadrant) {
+                    textRow.push('-1');
                     continue;
                 }
                 try {
-                    let quadrant = this.galaxy.getQuadrant(x, y);
                     let info = this.player.starChart.getInfo(quadrant);
                     textRow.push(info.print());
                 } catch (e) {
@@ -2080,8 +2077,28 @@ export class LongRangeScanCommand extends Command {
             }
             matrix.push(textRow);
         }
+
+        // for (let y = playerQuadrant.y - 1; y <= playerQuadrant.y + 1; y++) {
+        //     let textRow = [];
+        //
+        //     for (let x = playerQuadrant.x - 1; x <= playerQuadrant.x + 1; x++) {
+        //         // check for out of bounds
+        //         if(!this.galaxy.areValidCoordinates(x, y)) {
+        //             textRow.push(`-1`); //out of bounds
+        //             continue;
+        //         }
+        //         try {
+        //             let quadrant = this.galaxy.getQuadrant(x, y);
+        //             let info = this.player.starChart.getInfo(quadrant);
+        //             textRow.push(info.print());
+        //         } catch (e) {
+        //             textRow.push(`-1`); //out of bounds
+        //         }
+        //     }
+        //     matrix.push(textRow);
+        // }
         this.terminal.printLine('Digits: Thousands = # supernova; Hundreds = # klingon; Tens = # star bases; ones = # stars.');
-        this.terminal.printLine(`Long-range scan for ${this.player.gameObject.getQuadrantLocation()}`);
+        this.terminal.printLine(`Long-range scan for ${this.player.gameObject.printQuadrantLocation()}`);
         this.terminal.skipLine(1);
         this.terminal.printLine(this.terminal.printGrid(this.terminal.formatGrid(matrix), "    "));
     }
