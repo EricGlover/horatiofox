@@ -2,19 +2,19 @@ import {GameObject, Mover, Collider} from "../Components.js";
 import {AbstractEnemy} from "../Enemies/Enemies.js";
 import {
     Device,
-    Phasers,
-    Shields,
-    LifeSupport,
-    PhotonTorpedoLauncher,
     DeviceContainer,
-    PowerGrid,
     shortRangeSensorType,
     longRangeSensorType,
-    Engines,
-    subspaceRadioType,
-    ProbeLauncher
-} from "../Devices.js";
+    subspaceRadioType
+} from "../Devices/Devices.js";
 import {StarChart} from "../Space/StarChart";
+import {PhotonTorpedoLauncher} from "../Devices/Torpedoes";
+import {ProbeLauncher} from "../Devices/Probes";
+import {Phasers} from "../Devices/Phasers";
+import {Shields} from "../Devices/Shields";
+import {LifeSupport} from "../Devices/LifeSupport";
+import {Engines} from "../Devices/Engines";
+import {PowerGrid} from "../Devices/PowerGrid";
 
 const CONDITION_GREEN = 1;
 const CONDITION_YELLOW = 2;

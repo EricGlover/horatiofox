@@ -1,5 +1,5 @@
 import {Component} from "../Components";
-import {Device, subspaceRadioType} from "../Devices";
+import {Device, subspaceRadioType} from "../Devices/Devices";
 import {Quadrant} from "./Quadrant";
 import {AbstractKlingon} from "../Enemies/Enemies";
 import StarBase from "../Objects/StarBase";

@@ -1,6 +1,6 @@
 // todo:: make command classes
 import {Command, regexifier, optionRegexifier, INSTANT_SHIP_COMMAND} from "./Command.js";
-import {REPAIR_STRATEGY_EVEN, REPAIR_STRATEGY_LEAST, REPAIR_STRATEGY_MOST, REPAIR_STRATEGY_PRIORITY} from "../Devices.js";
+import {REPAIR_STRATEGY_EVEN, REPAIR_STRATEGY_LEAST, REPAIR_STRATEGY_MOST, REPAIR_STRATEGY_PRIORITY} from "../Devices/Devices.js";
 
 export class RepairCommand extends Command {
     constructor(terminal, player) {

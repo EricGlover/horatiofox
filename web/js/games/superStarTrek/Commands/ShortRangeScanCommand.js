@@ -1,5 +1,5 @@
 import {Command, regexifier, optionRegexifier, INFO_COMMAND} from "./Command.js";
-import {shortRangeSensorType} from "../Devices.js";
+import {shortRangeSensorType} from "../Devices/Devices.js";
 import {Klingon, KlingonCommander, KlingonSuperCommander, Romulan} from "../Enemies/Enemies.js";
 import Enterprise from "../PlayerShips/Enterprise.js";
 import Star from "../Objects/Star.js";
