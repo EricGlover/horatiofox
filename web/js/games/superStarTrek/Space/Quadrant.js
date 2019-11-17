@@ -1,6 +1,6 @@
 // or do what's in them know where they are ?
 import {Sector} from "./Sector.js";
-import {GameObjectContainer} from "../Components/GameObject";
+import {GameObjectContainer} from "../Components/GameObject.js";
 
 export class Quadrant {
     constructor(width, length, topLeftCoordinates, galaxy, x, y) {
@@ -101,17 +101,10 @@ export class Quadrant {
         return this._getSector(x, y);
     }
 
-    // todo::
-    // x and y may be floats
-    // internal coordinates
-    // _getSector(x, y) {
-    //     if (!this._areValidCoordinates(x, y)) {
-    //         throw new Error(`There is no sector ${x} - ${y}.`);
-    //     }
-    //     x = Math.trunc(x);
-    //     y = Math.trunc(y);
-    //     return this.sectors[y][x];
-    // }
+    supernova() {
+        this.container.killAll();
+        this.hasSupernova = true;
+    }
 
     // is there something in every sector ?
     isFull() {

@@ -57,7 +57,7 @@ export class ShipBuilder {
 
 export class AbstractEnemy {
     constructor(galaxy, player, game) {
-        this.powerGrid = new PowerGrid(200, this);
+
         this.galaxy = galaxy;
         this.player = player;
         this.game = game;
@@ -65,6 +65,7 @@ export class AbstractEnemy {
         this.collider = new Collider(this, this.gameObject, 80, 80);
 
         this.deviceContainer = new DeviceContainer(this);
+        this.powerGrid = new PowerGrid(200, this);
         this.phasers = new Phasers(this, this.powerGrid);
         // this.photons = new PhotonTorpedoLauncher(this);
         this.lifeSupport = new LifeSupport(this, 2.0, clock);
@@ -74,6 +75,7 @@ export class AbstractEnemy {
     }
 
     die() {
+        this.deviceContainer.die();
         this.lifeSupport.kill();
         this.terminal.printLine(`${this.name} at ${this.gameObject.printSectorLocation()} was destroyed.`);
         console.log("You killed ", this);

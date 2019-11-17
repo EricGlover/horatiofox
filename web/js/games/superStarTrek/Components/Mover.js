@@ -12,21 +12,21 @@ export class Mover extends Component {
         return "mover";
     }
 
-    calculateDirectionTo(globalX, globalY) {
-        // let deltaX = globalX - this.gameObject./// calculate the direction to shoot the torpedo
-        //     // let
-        // quadrant = this.parent.gameObject.quadrant;
-        // // deltas are to - from, BUT because the y axis is inverted from
-        // // the normal math y axis you'll need to flip the y
-        // let deltaX = x - this.parent.gameObject.x;
-        // let deltaY = -1 * (y - this.parent.gameObject.y);
-        // let theta = Math.atan2(deltaY, deltaX);    // -PI , PI
-    }
+    // calculateDirectionTo(globalX, globalY) {
+    //     // let deltaX = globalX - this.gameObject./// calculate the direction to shoot the torpedo
+    //     //     // let
+    //     // quadrant = this.parent.gameObject.quadrant;
+    //     // // deltas are to - from, BUT because the y axis is inverted from
+    //     // // the normal math y axis you'll need to flip the y
+    //     // let deltaX = x - this.parent.gameObject.x;
+    //     // let deltaY = -1 * (y - this.parent.gameObject.y);
+    //     // let theta = Math.atan2(deltaY, deltaX);    // -PI , PI
+    // }
 
-    calculateDestination(deltaQx = 0, deltaQy = 0, deltaSx = 0, deltaSy = 0) {
-        let move = Vector.make1(deltaQx, deltaQy, deltaSx, deltaSy);
-        return this.gameObject.coordinates.addVector(move);
-    }
+    // calculateDestination(deltaQx = 0, deltaQy = 0, deltaSx = 0, deltaSy = 0) {
+    //     let move = Vector.make1(deltaQx, deltaQy, deltaSx, deltaSy);
+    //     return this.gameObject.coordinates.addVector(move);
+    // }
 
     calculateTime(distance, warpFactor) {
         return distance / Math.pow(warpFactor, 2);
@@ -41,14 +41,31 @@ export class Mover extends Component {
     }
 
     // @returns float
-    static calculateDistance(x1, y1, x2, y2) {
-        let deltaX = Math.abs(x2 - x1);
-        let deltaY = Math.abs(y2 - y1);
-        return Math.hypot(deltaX, deltaY);
-    }
+    // static calculateDistance(x1, y1, x2, y2) {
+    //     let deltaX = Math.abs(x2 - x1);
+    //     let deltaY = Math.abs(y2 - y1);
+    //     return Math.hypot(deltaX, deltaY);
+    // }
 
-    *move(vector) {
+    *move(vector, delta = .5) {
+        if(!(vector instanceof Vector)) {
+            throw new Error("not vector");
+        }
+        let m = vector.scale(delta);
+        let i = 0;
+        let keepGoing = true;
+        let c = this.gameObject.coordinates;
+        while(keepGoing) {
+            if (i > 1000) return;
+            if(!this.gameObject.isInGame()) return;
+            c.x += m.deltaX;
+            c.y += m.deltaY;
 
+            this.gameObject.updateCoordinates();
+            keepGoing = yield;
+            i++;
+        }
+        return;
     }
 
     // theta is our direction, delta is our distance per move

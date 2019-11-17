@@ -49,6 +49,22 @@ export class Command {
         this.modes[name] = optionRegexifier(...matchingStrs);
     }
 
+    stripOptions(args) {
+        return args.filter(arg => {
+            return !Object.keys(this.options).some(prop => this.options[prop].test(arg));
+        });
+    }
+
+    stripModes(args) {
+        return args.filter(arg => {
+            return !Object.keys(this.modes).some(prop => this.modes[prop].test(arg));
+        });
+    }
+
+    stripModeAndOptions(args) {
+        return this.stripModes(this.stripOptions(args));
+    }
+
     // one of the arguments given matches some option regex then option
     // is true
     // returns map of options {optionName => found, ...}

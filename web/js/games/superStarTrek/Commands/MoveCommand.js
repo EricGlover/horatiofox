@@ -1,6 +1,7 @@
 import {Command, regexifier, MOVE_COMMAND} from "./Command.js";
 import {Coordinates} from "../Space/Coordinates.js";
 import {Sector} from "../Space/Sector.js";
+import {Vector} from "../Space/Coordinates";
 
 export class MoveCommand extends Command {
     constructor(game, terminal, player, galaxy) {
@@ -203,8 +204,10 @@ extra to move with the shields up.`;
         let {manual, automatic, impulse} = this.getOption(args);
         this.useImpulse = impulse;
         if (!manual && !automatic) automatic = true;    // set a default
+        debugger;
+        args = this.stripModeAndOptions(args);
 
-        let destination;
+        let coordinates;
         if (manual) {
             // parse args, only two arguments
             if (args.length !== 2) {
@@ -221,9 +224,13 @@ extra to move with the shields up.`;
             // calculate the destination
             try {
                 // convert to distance
-                destination = this.player.mover.calculateDestination(deltaQx, deltaQy, deltaSx, deltaSy);
+                debugger;
+                let move = Vector.make1(deltaQx, deltaQy, deltaSx, deltaSy, this.galaxy);
+                debugger;
+                coordinates =  this.player.gameObject.coordinates.addVector(move);
             } catch (e) {
                 console.error(e);
+                return;
             }
         } else if (automatic) {
             // parse args <quadY> <quadX> <sectorY> <sectorX>
@@ -233,32 +240,35 @@ extra to move with the shields up.`;
             // make sure to convert from the 1 based commands
             // to the 0 based coordinates
             let quadX, quadY, sectorX, sectorY;
-            let c;
             if (args.length === 4) {
                 quadX = args[0];
                 quadY = args[1];
                 sectorX = args[2];
                 sectorY = args[3];
-                c = Coordinates.convert(quadX, quadY, sectorX, sectorY, this.galaxy);
+                coordinates = Coordinates.convert(quadX, quadY, sectorX, sectorY, this.galaxy);
             } else if (args.length === 2) {
                 let quadrant = this.player.gameObject.quadrant;
                 sectorX = args[0];
                 sectorY = args[1];
-                c = Coordinates.convert1(quadrant, sectorX, sectorY, this.galaxy);
+                coordinates = Coordinates.convert1(quadrant, sectorX, sectorY, this.galaxy);
             } else {
                 this.terminal.printLine("Beg pardon, Captain?");
                 return;
             }
-            if (!this.galaxy.areValidCoordinates(c)) {
-                this.terminal.printLine("Beg pardon, Captain?");
-                return;
-            }
-            destination = this.galaxy.getSector(c);
         }
+
+        if (!this.galaxy.areValidCoordinates(coordinates)) {
+            this.terminal.printLine("Beg pardon, Captain?");
+            return;
+        }
+        let destination = this.galaxy.getSector(coordinates);
 
         // now that we have a target destination check that it exists
         if (!destination || !(destination instanceof Sector)) {
+            console.error(destination);
+            console.error("should be a Sector.");
             this.terminal.printLine('Beg pardon, Captain?');
+            return;
         }
 
         // now check that there's nothing already there

@@ -1,7 +1,7 @@
 /**
  *
  */
-class Terminal {
+export class Terminal {
     constructor(takesInput = true) {
         this.$el = null;
         this.$terminal = null;

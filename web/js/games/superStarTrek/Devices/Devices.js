@@ -66,7 +66,8 @@ export class Device extends Component {
         this._chanceOfBeingDamaged = chanceOfBeginDamaged;
 
         if (!this.parent.deviceContainer) {
-            this.parent.deviceContainer = new DeviceContainer(this.parent);
+            throw new Error("must be device container");
+            // this.parent.deviceContainer = new DeviceContainer(this.parent);
         }
         this.parent.deviceContainer.addDevices(this);
 
@@ -362,6 +363,13 @@ export class DeviceContainer {
 
     getDeviceRepairPriority(deviceType) {
         return this.repairPriorities.get(deviceType.name) || 0;
+    }
+
+    die() {
+        clock.unregister(this.onTimeElapse);
+        this.devices.forEach(d => {
+            if(d.die) d.die()
+        });
     }
 }
 

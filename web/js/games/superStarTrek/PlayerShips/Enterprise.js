@@ -6,17 +6,17 @@ import {
     longRangeSensorType,
     subspaceRadioType
 } from "../Devices/Devices.js";
-import {StarChart} from "../Space/StarChart";
-import {PhotonTorpedoLauncher} from "../Devices/Torpedoes";
-import {ProbeLauncher} from "../Devices/Probes";
-import {Phasers} from "../Devices/Phasers";
-import {Shields} from "../Devices/Shields";
-import {LifeSupport} from "../Devices/LifeSupport";
-import {Engines} from "../Devices/Engines";
-import {PowerGrid} from "../Devices/PowerGrid";
-import {Collider} from "../Components/Collider";
-import {GameObject} from "../Components/GameObject";
-import {Mover} from "../Components/Mover";
+import {StarChart} from "../Space/StarChart.js";
+import {PhotonTorpedoLauncher} from "../Devices/Torpedoes.js";
+import {ProbeLauncher} from "../Devices/Probes.js";
+import {Phasers} from "../Devices/Phasers.js";
+import {Shields} from "../Devices/Shields.js";
+import {LifeSupport} from "../Devices/LifeSupport.js";
+import {Engines} from "../Devices/Engines.js";
+import {PowerGrid} from "../Devices/PowerGrid.js";
+import {Collider} from "../Components/Collider.js";
+import {GameObject} from "../Components/GameObject.js";
+import {Mover} from "../Components/Mover.js";
 
 const CONDITION_GREEN = 1;
 const CONDITION_YELLOW = 2;
@@ -57,9 +57,8 @@ export default class Enterprise {
         // this.transporter = new Device(this, "Transporter");
         // this.shieldControl = new Device(this, "Shield Control");
         // this.probesLauncher = new Device(this, "Probe Launcher");
-        this.probeLauncher = new ProbeLauncher(this, this.terminal, clock);
-
         this.starChart = new StarChart(this, this.gameObject.galaxy, this.subspaceRadio);
+        this.probeLauncher = new ProbeLauncher(this, this.terminal, clock, this.starChart);
         window.e = this;
     }
 

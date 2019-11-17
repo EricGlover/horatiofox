@@ -55,6 +55,7 @@ import {ShortRangeScanCommand} from "./Commands/ShortRangeScanCommand";
 import {LongRangeScanCommand} from "./Commands/LongRangeScanCommand";
 import {DockCommand} from "./Commands/DockCommand";
 import {Collider} from "./Components/Collider";
+import {ProbeCommand} from "./Commands/ProbeCommand";
 
 /**
  *
@@ -536,6 +537,7 @@ With your starship confiscated by the Klingon High Command, you relocate to a mi
 
     makeCommands() {
         this.commands = [];
+        this.commands.push(new ProbeCommand(this.terminal, this.player, this.galaxy));
         this.commands.push(new RepairCommand(this.terminal, this.player));
         this.chartCommand = new ChartCommand(this, this.terminal, this.player, this.galaxy);
         let commandsCommand = new CommandsCommand(this, this.terminal);

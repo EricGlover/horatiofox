@@ -8,4 +8,8 @@ export default class Star {
         this.collider.makeIndestructible();
         this.name = "Star";
     }
+
+    goSupernova() {
+        this.gameObject.quadrant.supernova();
+    }
 }

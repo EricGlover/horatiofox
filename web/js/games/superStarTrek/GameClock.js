@@ -1,6 +1,6 @@
 import mitt from "../../../lib/dist/mitt.es.js";
 
-class GameClock {
+export class GameClock {
     constructor() {
         this.emitter = new mitt();
         this._initialStarDate = null;

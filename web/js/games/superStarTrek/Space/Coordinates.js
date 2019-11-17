@@ -2,8 +2,12 @@ export class Vector {
     constructor(distance, theta) {
         this._distance = distance;
         this._angle = theta;
-        this._deltaX = Math.sin(this._angle) * this._distance;
-        this._deltaY = Math.cos(this._angle) * this._distance;
+        this._deltaX = Math.cos(this._angle) * this._distance;
+        this._deltaY = Math.sin(this._angle) * this._distance;
+    }
+
+    scale(newDistance) {
+        return new Vector(newDistance, this._angle);
     }
 
     get distance() {
@@ -14,6 +18,10 @@ export class Vector {
         return this._angle;
     }
 
+    get angleDegrees() {
+        return Vector.toDegrees(this.angle);
+    }
+
     get deltaX() {
         return this._deltaX;
     }
@@ -21,15 +29,25 @@ export class Vector {
     get deltaY() {
         return this._deltaY;
     }
+    static calcAngleDegrees(x, y) {
+        return Math.atan2(y, x) * 180 / Math.PI;
+    }
+    static toDegrees(rad) {
+        return rad * 180 / Math.PI;
+    }
 
+    // todo:::::::
     static make(deltaX, deltaY) {
         let d = Math.hypot(deltaX, deltaY);
         let theta = Math.atan2(deltaY, deltaX);
+        console.log(theta);
+        console.log(Vector.toDegrees(theta));
+        debugger;
         return new Vector(d, theta);
     }
-    static make1(deltaQx, deltaQy, deltaSx, deltaSy) {
-        let deltaX = Coordinates.calculateDistanceX(deltaQx, deltaSx);
-        let deltaY = Coordinates.calculateDistanceY(deltaQy, deltaSy);
+    static make1(deltaQx, deltaQy, deltaSx, deltaSy, galaxy) {
+        let deltaX = Coordinates.calculateDistanceX(deltaQx, deltaSx, galaxy);
+        let deltaY = -1 * Coordinates.calculateDistanceY(deltaQy, deltaSy, galaxy);
         return Vector.make(deltaX, deltaY);
     }
 }
@@ -90,7 +108,7 @@ export class Coordinates {
     }
 
     addVector(v) {
-        return new Coordinates(this._galaxy, this.x + v._deltaX, this.y + v._deltaY)
+        return new Coordinates(this._galaxy, this.x + v.deltaX, this.y + v.deltaY)
     }
 
     distanceTo(c) {
@@ -100,6 +118,13 @@ export class Coordinates {
         let deltaX = Math.abs(this.x - c.x);
         let deltaY = Math.abs(this.y - c.y);
         return Math.hypot(deltaX, deltaY);
+    }
+
+    angleTo(c) {
+        if (!(c instanceof Coordinates)) {
+            throw new Error("not coordinates");
+        }
+        return Math.atan2(c.y - this.y, c.x - this.x);
     }
 
     getVectorTo(c) {

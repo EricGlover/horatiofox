@@ -1,9 +1,9 @@
-import {Component} from "../Components/Component";
-import {Device, subspaceRadioType} from "../Devices/Devices";
-import {Quadrant} from "./Quadrant";
-import {AbstractKlingon} from "../Enemies/Enemies";
-import StarBase from "../Objects/StarBase";
-import Star from "../Objects/Star";
+import {Component} from "../Components/Component.js";
+import {Device, subspaceRadioType} from "../Devices/Devices.js";
+import {Quadrant} from "./Quadrant.js";
+import {AbstractKlingon} from "../Enemies/Enemies.js";
+import StarBase from "../Objects/StarBase.js";
+import Star from "../Objects/Star.js";
 
 class ChartInfo {
     constructor() {
@@ -108,6 +108,13 @@ export class StarChart extends Component {
     _deployTelemetrySensors(quadrant, info) {
         info.hasTelemetrySensors = true;
         this.hasSensors[quadrant._y].add(quadrant._x);
+    }
+
+    probeScan(quadrant) {
+        if(this.subspaceRadio.isDamaged()) {
+           return;
+        }
+        this.shortRangeScan(quadrant);
     }
 
     shortRangeScan(quadrant) {

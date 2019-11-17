@@ -38,6 +38,15 @@ export class GameObjectContainer extends Component {
     removeGameObject(obj) {
         this.gameObjects = this.gameObjects.filter(o => o !== obj);
     }
+
+    killAll() {
+        this.gameObjects.forEach(o => {
+            o.removeSelf();
+            if(o.parent && o.parent.die) {
+                o.parent.die();
+            }
+        })
+    }
 }
 
 // a game object is simply a thing with a position in
@@ -73,12 +82,20 @@ export class GameObject extends Component {
     }
 
     removeSelf() {
-        this.galaxy.container.removeGameObject(this.parent);
-        this.quadrant.container.removeGameObject(this.parent);
-        this.sector.container.removeGameObject(this.parent);
-        this.galaxy = null;
-        this.quadrant = null;
-        this.sector = null;
+        if(this.galaxy) {
+            this.galaxy.container.removeGameObject(this.parent);
+            this.galaxy = null;
+        }
+
+        if(this.quadrant) {
+            this.quadrant.container.removeGameObject(this.parent);
+            this.quadrant = null;
+        }
+
+        if(this.sector) {
+            this.sector.container.removeGameObject(this.parent);
+            this.sector = null;
+        }
         this.coordinates = null;
     }
 

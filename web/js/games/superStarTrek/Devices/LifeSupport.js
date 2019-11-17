@@ -36,4 +36,8 @@ export class LifeSupport extends Device {
             this.recharge();
         }
     }
+
+    die() {
+        this.clock.unregister(this.onTimeElapsed);
+    }
 }
