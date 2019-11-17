@@ -15,21 +15,8 @@ import {
     ShipBuilder
 } from "./Enemies/Enemies.js";
 
-import {
-    PhotonsCommand,
-    DockCommand,
-    PhasersCommand,
-    ShieldsCommand,
-    CommandsCommand,
-    MoveCommand,
-    GetHelpCommand,
-    ChartCommand,
-    LongRangeScanCommand, ReportCommand, ScoreCommand,
-    RequestCommand, ShortRangeScanCommand, StatusCommand
-} from "./commands.js";
 import {DEBUG} from './superStarTrek.js';
 
-import {DamageReportCommand, RepairCommand, RestCommand, WarpFactorCommand} from "./commands";
 import {Collider} from "./Components";
 
 /** Game length options **/
@@ -51,6 +38,24 @@ export const GAME_MODE_FROZEN = 3;
 
 export const DEVICE_DAMAGE_ENABLED = true;
 import clock from "./GameClock.js";
+import {RepairCommand} from "./Commands/RepairCommand";
+import {RestCommand} from "./Commands/RestCommand";
+import {WarpFactorCommand} from "./Commands/WarpFactorCommand";
+import {DamageReportCommand} from "./Commands/DamageReportCommand";
+import {ScoreCommand} from "./Commands/ScoreCommand";
+import {ReportCommand} from "./Commands/ReportCommand";
+import {PhotonsCommand} from "./Commands/PhotonsCommand";
+import {PhasersCommand} from "./Commands/PhasersCommand";
+import {ShieldsCommand} from "./Commands/ShieldsCommand";
+import {CommandsCommand} from "./Commands/CommandsCommand";
+import {GetHelpCommand} from "./Commands/GetHelpCommand";
+import {MoveCommand} from "./Commands/MoveCommand";
+import {StatusCommand} from "./Commands/StatusCommand";
+import {RequestCommand} from "./Commands/RequestCommand";
+import {ChartCommand} from "./Commands/ChartCommand";
+import {ShortRangeScanCommand} from "./Commands/ShortRangeScanCommand";
+import {LongRangeScanCommand} from "./Commands/LongRangeScanCommand";
+import {DockCommand} from "./Commands/DockCommand";
 
 /**
  *

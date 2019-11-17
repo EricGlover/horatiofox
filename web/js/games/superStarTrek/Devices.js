@@ -892,7 +892,7 @@ export class PhotonTorpedoLauncher extends Device {
                 moveGenerator.next(false);
                 break;
             }
-            trackingLocations.push(torpedo.gameObject.getSectorLocationFloat(false));
+            trackingLocations.push(torpedo.gameObject.printSectorLocation(false));
             // check for collisions, could do a better job of broad sweeping here...
             // get stuff in the torpedo's current sector, and the adjacent ones
             // and nearby sectors

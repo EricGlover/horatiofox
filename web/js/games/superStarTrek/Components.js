@@ -400,8 +400,7 @@ export class GameObject extends Component {
     }
 
     // the x and y in the sector 0 - 0 is top left
-    // .5 - .5 is center
-    placeIn(galaxy, quadrant, sector, x = .5, y = .5) {
+    placeIn(galaxy, quadrant, sector) {
         if (!this.canMoveTo(sector)) {
             throw new Error("Cant place object in non empty sector");
         }
