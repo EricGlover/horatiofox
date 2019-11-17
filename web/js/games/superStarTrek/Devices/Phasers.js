@@ -1,7 +1,7 @@
 import {terminal} from "../Terminal.js";
-import {Collider} from "../Components.js";
 import {Device, phaserType} from "./Devices.js";
 import {Shields} from "./Shields";
+import {Collider} from "../Components/Collider";
 
 export class Phasers extends Device {
     constructor(parent, energySystem) {

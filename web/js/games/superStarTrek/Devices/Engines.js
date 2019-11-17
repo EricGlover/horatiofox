@@ -1,7 +1,8 @@
-import {GameObject, Mover} from "../Components.js";
 import {Sector} from "../Space/Sector.js";
 import {Device, EngineDeviceType, impulseEngineType, warpEngineType} from "./Devices.js";
 import {PowerGrid} from "./PowerGrid";
+import {GameObject} from "../Components/GameObject";
+import {Mover} from "../Components/Mover";
 /**
  * Warp Engines and Impulse Engines are both instances of Engines but they have different types
  * Controls setting the warpFactor (impulse can't, warp has a range)

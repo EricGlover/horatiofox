@@ -17,8 +17,6 @@ import {
 
 import {DEBUG} from './superStarTrek.js';
 
-import {Collider} from "./Components";
-
 /** Game length options **/
 export const GAME_LENGTH_SHORT = 1;
 export const GAME_LENGTH_MEDIUM = 2;
@@ -56,6 +54,7 @@ import {ChartCommand} from "./Commands/ChartCommand";
 import {ShortRangeScanCommand} from "./Commands/ShortRangeScanCommand";
 import {LongRangeScanCommand} from "./Commands/LongRangeScanCommand";
 import {DockCommand} from "./Commands/DockCommand";
+import {Collider} from "./Components/Collider";
 
 /**
  *

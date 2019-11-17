@@ -1,4 +1,4 @@
-import {Component} from "./Components.js";
+import {Component} from "./Components/Component.js";
 
 export default class AI extends Component {
     constructor(parent, galaxy, player) {

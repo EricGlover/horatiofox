@@ -1,6 +1,6 @@
 // or do what's in them know where they are ?
-import {GameObjectContainer} from "../Components.js";
 import {Sector} from "./Sector.js";
+import {GameObjectContainer} from "../Components/GameObject";
 
 export class Quadrant {
     constructor(width, length, topLeftCoordinates, galaxy, x, y) {

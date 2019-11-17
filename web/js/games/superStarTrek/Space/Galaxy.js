@@ -1,6 +1,6 @@
-import {GameObjectContainer} from "../Components.js";
 import {Quadrant} from "./Quadrant";
 import {Coordinates} from "./Coordinates";
+import {GameObjectContainer} from "../Components/GameObject";
 
 /**
  Coordinate System

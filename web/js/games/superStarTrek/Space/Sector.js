@@ -1,4 +1,4 @@
-import {GameObjectContainer} from "../Components.js";
+import {GameObjectContainer} from "../Components/GameObject";
 
 export class Sector {
     constructor(quadrant, topLeftCoordinates, x, y) {

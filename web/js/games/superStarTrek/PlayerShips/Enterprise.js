@@ -1,4 +1,3 @@
-import {GameObject, Mover, Collider} from "../Components.js";
 import {AbstractEnemy} from "../Enemies/Enemies.js";
 import {
     Device,
@@ -15,6 +14,9 @@ import {Shields} from "../Devices/Shields";
 import {LifeSupport} from "../Devices/LifeSupport";
 import {Engines} from "../Devices/Engines";
 import {PowerGrid} from "../Devices/PowerGrid";
+import {Collider} from "../Components/Collider";
+import {GameObject} from "../Components/GameObject";
+import {Mover} from "../Components/Mover";
 
 const CONDITION_GREEN = 1;
 const CONDITION_YELLOW = 2;

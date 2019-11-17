@@ -1,4 +1,4 @@
-import {Component} from "../Components";
+import {Component} from "../Components/Component";
 import {Device, subspaceRadioType} from "../Devices/Devices";
 import {Quadrant} from "./Quadrant";
 import {AbstractKlingon} from "../Enemies/Enemies";

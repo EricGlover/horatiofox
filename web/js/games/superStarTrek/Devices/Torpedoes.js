@@ -1,7 +1,9 @@
 import {terminal} from "../Terminal.js";
 import {Device, photonTorpedoLauncherType} from "./Devices.js";
-import {Collider, GameObject, Mover} from "../Components.js";
 import {AbstractEnemy} from "../Enemies/Enemies.js";
+import {Collider} from "../Components/Collider";
+import {GameObject} from "../Components/GameObject";
+import {Mover} from "../Components/Mover";
 
 class Torpedo {
     constructor(firedFrom) {

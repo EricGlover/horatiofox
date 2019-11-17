@@ -1,4 +1,3 @@
-import {GameObject, Collider} from "../Components.js";
 import {terminal} from '../Terminal.js';
 import AI from '../AI.js';
 import {DeviceContainer} from "../Devices/Devices.js";
@@ -8,6 +7,8 @@ import {Phasers} from "../Devices/Phasers";
 import {Shields} from "../Devices/Shields";
 import {LifeSupport} from "../Devices/LifeSupport";
 import {PowerGrid} from "../Devices/PowerGrid";
+import {Collider} from "../Components/Collider";
+import {GameObject} from "../Components/GameObject";
 
 // todo:: redo the ship classes as types
 export class ShipBuilder {

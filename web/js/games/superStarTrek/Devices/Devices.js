@@ -1,5 +1,5 @@
 import {terminal} from '../Terminal.js';
-import {Component} from "../Components.js";
+import {Component} from "../Components/Component.js";
 import clock from "../GameClock.js";
 
 /**

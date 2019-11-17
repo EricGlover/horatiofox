@@ -1,5 +1,6 @@
 import {Device, probeLauncherType} from "./Devices.js";
-import {GameObject, Mover} from "../Components.js";
+import {GameObject} from "../Components/GameObject";
+import {Mover} from "../Components/Mover";
 
 
 class Probe {

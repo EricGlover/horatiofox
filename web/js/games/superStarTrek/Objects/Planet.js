@@ -1,4 +1,5 @@
-import {GameObject, Collider} from "../Components.js";
+import {Collider} from "../Components/Collider";
+import {GameObject} from "../Components/GameObject";
 
 /**
  Class A Geothermal (Gothos)
