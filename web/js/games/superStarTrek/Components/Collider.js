@@ -10,6 +10,7 @@ let _colliderMinHitToDamageDevices = 50.0;
 
 
 // can collide into other colliders
+// width and length seem to be in terms of 100 / sector (width or length)
 export class Collider extends Component {
     constructor(parent, gameObject, width = 0, length = 0, health = 1) {
         super(Collider, parent);
@@ -47,35 +48,20 @@ export class Collider extends Component {
         this._indestructible = true;
     }
 
-    getCoordinates() {
-        let topLeft = {x: this.gameObject.x, y: this.gameObject.y};
-        let bottomLeft = {x: topLeft.x, y: topLeft.y + this.length};
-        let topRight = {x: topLeft.x + this.width, y: topLeft.y};
-        let bottomRight = {x: topRight.x, y: bottomLeft.y};
-        let center = {x: topLeft.x + this.width / 2, y: topLeft.y + this.width / 2};
-        return {
-            topLeft,
-            bottomLeft,
-            topRight,
-            bottomRight,
-            center
-        }
-    }
-
     getLeftSideX() {
-        return this.gameObject.x;
+        return this.gameObject.coordinates.x;
     }
 
     getRightSideX() {
-        return this.gameObject.x + (this.width / 100);
+        return this.gameObject.coordinates.x + (this.width / 100);
     }
 
     getTopSideY() {
-        return this.gameObject.y;
+        return this.gameObject.coordinates.y;
     }
 
     getBottomSideY() {
-        return this.gameObject.y + (this.length / 100);
+        return this.gameObject.coordinates.y + (this.length / 100);
     }
 
     collision(a) {
@@ -117,12 +103,12 @@ export class Collider extends Component {
 
     takeHit(damage) {
         if (this._indestructible) {
-            this.terminal.printLine(`Consumed by ${this.gameObject.name} at ${this.gameObject.getSectorLocation()}`)
+            this.terminal.printLine(`Consumed by ${this.gameObject.name} at ${this.gameObject.printSectorLocation()}`);
             return;
         }
 
         this.health -= damage;
-        this.terminal.printLine(`${damage.toFixed(2)} unit hit on ${this.gameObject.name} at ${this.gameObject.getSectorLocation()}`)
+        this.terminal.printLine(`${damage.toFixed(2)} unit hit on ${this.gameObject.name} at ${this.gameObject.printSectorLocation()}`);
 
         // damage devices
         if (DEVICE_DAMAGE_ENABLED && this.hitWillDamageDevices(damage)) {

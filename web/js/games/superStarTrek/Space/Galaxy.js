@@ -80,6 +80,7 @@ export class Galaxy {
         return this._getQuadrant(qX, qY);
     }
 
+    // convert coordinates to the galaxy's internals indexes
     _convertCoordinates(c) {
         return {
             qX: Math.floor(c.x / this.quadrantWidth),

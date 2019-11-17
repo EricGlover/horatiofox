@@ -1,4 +1,5 @@
 import {Command, ATTACK_COMMAND, regexifier} from "./Command.js";
+import {Coordinates} from "../Space/Coordinates";
 
 export class PhotonsCommand extends Command {
     constructor(game, terminal, player) {
@@ -115,14 +116,14 @@ inclusive.
         }
 
         // convert coordinates
-        targets = targets.map(target => Galaxy.convertUserCoordinates(target.x, target.y));
+        targets = targets.map(target => {
+            return Coordinates.convert1(this.player.gameObject.quadrant, target.x, target.y);
+        });
 
-        // fire photon torpedoes (translate coordinates)
-        // this makes no sense
-        // coordinate system changes incoming .....
+        // fire photon torpedoes
         targets.forEach((target, i) => {
             this.terminal.echo(`\nTrack for torpedo number ${i + 1}:  `);
-            this.player.photons.fire(target.x, target.y)
+            this.player.photons.fire(target)
         });
     }
 }

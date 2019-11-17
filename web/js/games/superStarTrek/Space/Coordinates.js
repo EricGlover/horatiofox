@@ -5,9 +5,26 @@ export class Vector {
         this._deltaX = Math.sin(this._angle) * this._distance;
         this._deltaY = Math.cos(this._angle) * this._distance;
     }
+
+    get distance() {
+        return this._distance;
+    }
+
+    get angle() {
+        return this._angle;
+    }
+
+    get deltaX() {
+        return this._deltaX;
+    }
+
+    get deltaY() {
+        return this._deltaY;
+    }
+
     static make(deltaX, deltaY) {
         let d = Math.hypot(deltaX, deltaY);
-        let theta = Math.atan2(deltaY, deltaX)
+        let theta = Math.atan2(deltaY, deltaX);
         return new Vector(d, theta);
     }
     static make1(deltaQx, deltaQy, deltaSx, deltaSy) {
@@ -34,6 +51,8 @@ export class Coordinates {
         this._userSectorY = null;
         this._userQuadrantX = null;
         this._userQuadrantY = null;
+        this._userSectorXFloat = null;
+        this._userSectorYFloat = null;
     }
 
     static calculateDistanceX(deltaQ, deltaS, galaxy) {
@@ -83,6 +102,15 @@ export class Coordinates {
         return Math.hypot(deltaX, deltaY);
     }
 
+    getVectorTo(c) {
+        if (!(c instanceof Coordinates)) {
+            throw new Error("not coordinates");
+        }
+        let deltaX = c.x - this.x;
+        let deltaY = c.y - this.y;
+        return Vector.make(deltaX, deltaY);
+    }
+
     get x() {
         return this._x;
     }
@@ -99,6 +127,16 @@ export class Coordinates {
     set y(val) {
         this._dirty = true;
         this._y = val;
+    }
+
+    get userSectorXFloat() {
+        if (this._dirty) this.update();
+        return this._userSectorXFloat;
+    }
+
+    get userSectorYFloat() {
+        if (this._dirty) this.update();
+        return this._userSectorYFloat;
     }
 
     get userSectorX() {
@@ -121,12 +159,34 @@ export class Coordinates {
         return this._userQuadrantY;
     }
 
+    // update all the computed values after something modified x or y
     update() {
-        let {qX, qY, sX, sY} = this._galaxy._convertCoordinates(this);
+        let qX = Math.floor(this.x / this._galaxy.quadrantWidth);
+        let qY = Math.floor(this.y / this._galaxy.quadrantLength);
+        let sX = this.x % this._galaxy.quadrantWidth;
+        let sY = this.y % this._galaxy.quadrantLength;
+        // quadrant 0 0, topLeft point is x = 0; y = 0
+        // users see this quadrant as 1 - 1
         this._userQuadrantX = qX + 1;
         this._userQuadrantY = qY + 1;
-        this._userSectorX = sX + 1;
-        this._userSectorY = sY + 1;
+        // sector 0 0, have five points corners and center but users
+        // will always refer to the center , so for them this same sector
+        // topLeft x = .5, y = .5; center x = 1 y = 1; bottom right x = 1.5 1.5
+        // sector 0 0, points 1 > x >= 0, 1 > y >= 0 should show the user 1 1
+        // for the int, and 1.5 > x > .5, 1.5 > y >= .5 for the float
+        this._userSectorX = Math.round(sX + .5);
+        this._userSectorY = Math.round(sY + .5);
+        this._userSectorXFloat = sX + .5;
+        this._userSectorYFloat = sY + .5;
+        this._dirty = false;
+    }
+
+    copy(c) {
+        if (!(c instanceof Coordinates)) {
+            throw new Error("not coordinates");
+        }
+        this.x = c.x;
+        this.y = c.y;
     }
 
     clone() {

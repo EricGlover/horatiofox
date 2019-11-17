@@ -84,20 +84,25 @@ export class GameObject extends Component {
 
     // update our containers
     updateCoordinates() {
+        let currentSector;
         try {
-            let currentSector = this.galaxy.getSector(this.coordinates);
-            if (currentSector !== this.sector) {
-                if (!this.canMoveTo(currentSector)) {
-                    throw new Error("Cant place object in non empty sector");
-                }
-                this.quadrant.container.removeGameObject(this.parent);
-                this.sector.container.removeGameObject(this.parent);
-                this.quadrant = currentSector.quadrant;
-                this.sector = currentSector;
-            }
+            currentSector = this.galaxy.getSector(this.coordinates);
         } catch (e) {
             // left galaxy
+            console.error(e);
             this.removeSelf();
+            return;
+        }
+        if (currentSector !== this.sector) {
+            if (!this.canMoveTo(currentSector)) {
+                // place it back where it was, update to the old coordinates
+                this.coordinates.copy(this.sector.center);
+                throw new Error("Cant place object in non empty sector");
+            }
+            this.quadrant.container.removeGameObject(this.parent);
+            this.sector.container.removeGameObject(this.parent);
+            this.quadrant = currentSector.quadrant;
+            this.sector = currentSector;
         }
     }
 
@@ -126,13 +131,6 @@ export class GameObject extends Component {
         this.coordinates = sector.center.clone();
     }
 
-    getSectorLocationFloat(includeSector = true) {
-        // todo::
-        let x = ((this.x % this.quadrant.width) + .5).toFixed(1);
-        let y = ((this.y % this.quadrant.width) + .5).toFixed(1);
-        return `${includeSector ? 'Sector ' : ''}${x} - ${y}`
-    }
-
     printLocation() {
         return `${this.printQuadrantLocation()}; ${this.printSectorLocation()}`;
     }
@@ -151,7 +149,9 @@ export class GameObject extends Component {
             qX: this.coordinates.userQuadrantX,
             qY: this.coordinates.userQuadrantY,
             sX: this.coordinates.userSectorX,
-            sY: this.coordinates.userSectorY
+            sY: this.coordinates.userSectorY,
+            sXFl: this.coordinates.userSectorXFloat,
+            sYFl: this.coordinates.userSectorYFloat
         }
     }
 }

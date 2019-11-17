@@ -62,7 +62,6 @@ export class PhotonTorpedoLauncher extends Device {
         return this._torpedoes;
     }
 
-    // todo::
     // fire at sector x y , can be floats or ints
     fire(coordinates) {
         this.checkDamage();
@@ -75,15 +74,10 @@ export class PhotonTorpedoLauncher extends Device {
             return;
         }
         this._torpedoes--;
-        // get global x y for target
-        // todo:: test
-        // let x = this.parent.gameObject.quadrant.globalX + sectorX;
-        let x = coordinates.x;
-        // let y = this.parent.gameObject.quadrant.globalY + sectorY;
-        let y = coordinates.y;
 
         // make torpedo
         let torpedo = new Torpedo(this.parent);
+
         // place torpedo at our current position
         torpedo.gameObject.placeIn(this.parent.gameObject.galaxy,
             this.parent.gameObject.quadrant,
@@ -91,14 +85,10 @@ export class PhotonTorpedoLauncher extends Device {
 
         /// calculate the direction to shoot the torpedo
         let quadrant = this.parent.gameObject.quadrant;
-        // deltas are to - from, BUT because the y axis is inverted from
-        // the normal math y axis you'll need to flip the y
-        let deltaX = x - this.parent.gameObject.x;
-        let deltaY = -1 * (y - this.parent.gameObject.y);
-        let theta = Math.atan2(deltaY, deltaX);    // -PI , PI
+        let vectorTo = this.parent.gameObject.coordinates.getVectorTo(coordinates);
 
         //
-        let moveGenerator = torpedo.mover.moveInDirection(theta, .5, Math.hypot(deltaX, deltaY));
+        let moveGenerator = torpedo.mover.moveInDirection(vectorTo.angle);
         let ret;
         let keepGoing = true;
         let hit = false;
@@ -112,7 +102,8 @@ export class PhotonTorpedoLauncher extends Device {
                 moveGenerator.next(false);
                 break;
             }
-            trackingLocations.push(torpedo.gameObject.printSectorLocation(false));
+            let {sXFl, sYFl} = torpedo.gameObject.getLocation();
+            trackingLocations.push(`${sXFl.toFixed(1)} - ${sYFl.toFixed(1)}`);
             // check for collisions, could do a better job of broad sweeping here...
             // get stuff in the torpedo's current sector, and the adjacent ones
             // and nearby sectors

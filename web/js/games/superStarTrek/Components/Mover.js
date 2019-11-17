@@ -26,11 +26,6 @@ export class Mover extends Component {
     calculateDestination(deltaQx = 0, deltaQy = 0, deltaSx = 0, deltaSy = 0) {
         let move = Vector.make1(deltaQx, deltaQy, deltaSx, deltaSy);
         return this.gameObject.coordinates.addVector(move);
-        // let sector = this.gameObject.sector;
-        // let deltaX = Coordinates.calculateDistanceX(deltaQx, deltaSx);
-        // let deltaY = Coordinates.calculateDistanceY(deltaQy, deltaSy);
-        // let destination = sector.center.add(deltaX, deltaY);
-        // return this.gameObject.galaxy.getSector(destination);
     }
 
     calculateTime(distance, warpFactor) {
@@ -52,19 +47,24 @@ export class Mover extends Component {
         return Math.hypot(deltaX, deltaY);
     }
 
+    *move(vector) {
+
+    }
+
     // theta is our direction, delta is our distance per move
-    * moveInDirection(theta, delta = .5, dist) {
+    * moveInDirection(theta, delta = .5) {
         // find deltaX and deltaY (amount to move each move)
         // this finds the x and y of the right triangle using delta as hypotenuse
         let deltaX = delta * Math.cos(theta);
-        let deltaY = -1 * (delta * Math.sin(theta));  // y axis is inverted
+        let deltaY = delta * Math.sin(theta);  // y axis is inverted
         let i = 0;  // failsafe
         let keepGoing = true;
+        let c = this.gameObject.coordinates;
         while (keepGoing) {
             if (i > 1000) return;
-            // todo:: check bounds
-            this.gameObject.x += deltaX;
-            this.gameObject.y += deltaY;
+            c.x += deltaX;
+            c.y += deltaY;
+
             this.gameObject.updateCoordinates();
             keepGoing = yield;
             i++;
