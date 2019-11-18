@@ -15,26 +15,6 @@ import {
     ShipBuilder
 } from "./Enemies/Enemies.js";
 
-import {DEBUG} from './superStarTrek.js';
-
-/** Game length options **/
-export const GAME_LENGTH_SHORT = 1;
-export const GAME_LENGTH_MEDIUM = 2;
-export const GAME_LENGTH_LONG = 4;
-
-/** Difficulty options **/
-export const SKILL_NOVICE = 1;
-export const SKILL_FAIR = 2;
-export const SKILL_GOOD = 3;
-export const SKILL_EXPERT = 4;
-export const SKILL_EMERITUS = 5;
-
-/** Game Mode **/
-export const GAME_MODE_REGULAR = 1;
-export const GAME_MODE_TOURNAMENT = 2;
-export const GAME_MODE_FROZEN = 3;
-
-export const DEVICE_DAMAGE_ENABLED = true;
 import clock from "./GameClock.js";
 import {RepairCommand} from "./Commands/RepairCommand";
 import {RestCommand} from "./Commands/RestCommand";
@@ -56,6 +36,28 @@ import {LongRangeScanCommand} from "./Commands/LongRangeScanCommand";
 import {DockCommand} from "./Commands/DockCommand";
 import {Collider} from "./Components/Collider";
 import {ProbeCommand} from "./Commands/ProbeCommand";
+
+import {DEBUG} from './superStarTrek.js';
+
+/** Game length options **/
+export const GAME_LENGTH_SHORT = 1;
+export const GAME_LENGTH_MEDIUM = 2;
+export const GAME_LENGTH_LONG = 4;
+
+/** Difficulty options **/
+export const SKILL_NOVICE = 1;
+export const SKILL_FAIR = 2;
+export const SKILL_GOOD = 3;
+export const SKILL_EXPERT = 4;
+export const SKILL_EMERITUS = 5;
+
+/** Game Mode **/
+export const GAME_MODE_REGULAR = 1;
+export const GAME_MODE_TOURNAMENT = 2;
+export const GAME_MODE_FROZEN = 3;
+
+export const DEVICE_DAMAGE_ENABLED = true;
+
 
 /**
  *
