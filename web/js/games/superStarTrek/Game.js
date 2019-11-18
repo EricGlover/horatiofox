@@ -551,10 +551,7 @@ With your starship confiscated by the Klingon High Command, you relocate to a mi
         this.commands.push(this.chartCommand);
         this.scanCommand = new ShortRangeScanCommand(this, this.terminal, this.player, this.chartCommand, statusCommand);
         this.commands.push(this.scanCommand);
-        if (DEBUG) {
-            this.commands.push(new LongRangeScanCommand(this, this.terminal, this.player, this.galaxy));
-        }
-
+        this.commands.push(new LongRangeScanCommand(this, this.terminal, this.player, this.galaxy));
         this.commands.push(new GetHelpCommand(this, this.terminal, commandsCommand));
         this.commands.push(new MoveCommand(this, this.terminal, this.player, this.galaxy));
         this.commands.push(new PhasersCommand(this, this.terminal, this.player));
