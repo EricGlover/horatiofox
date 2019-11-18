@@ -29,15 +29,20 @@ export class Quadrant {
         }
     }
 
-    getSectorsAdjacentTo(sector, includeSelf = false) {
+    getSectorsAdjacentTo(sector, includeSelf = false, includeDiagonals = false) {
         if (!sector instanceof Sector) return [];
         let sectorX = sector._x;
         let sectorY = sector._y;
         let sectors = [];
+
         for (let y = sectorY - 1; y <= sectorY + 1; y++) {
             for (let x = sectorX - 1; x <= sectorX + 1; x++) {
+                let n = sectorX + sectorY;
+                let n2 = x + y;
+                let distance = Math.abs(n2 - n);
+                if (!includeDiagonals && distance > 1) continue;
                 if (this._areValidCoordinates(x, y)) {
-                    if (includeSelf || x !== sectorX && y !== sectorY) {
+                    if (includeSelf || distance > 0) {
                         sectors.push(this._getSector(x, y));
                     }
                 }

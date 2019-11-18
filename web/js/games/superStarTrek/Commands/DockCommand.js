@@ -2,11 +2,12 @@ import {Command, regexifier, INFO_COMMAND} from "./Command.js";
 import StarBase from "../Objects/StarBase.js";
 
 export class DockCommand extends Command {
-    constructor(game, terminal, player) {
+    constructor(game, terminal, player, galaxy) {
         super();
         this.game = game;
         this.terminal = terminal;
         this.player = player;
+        this.galaxy = galaxy;
         this.abbreviation = "d";
         this.name = "dock";
         this.fullName = "dock at starbase";
@@ -35,22 +36,14 @@ torpedoes.`;
         let quadrant = this.player.gameObject.quadrant;
 
         let found = false;
-        for (let x = sector.x - 1; x <= sector.x + 1; x++) {
-            for (let y = sector.y - 1; y <= sector.y + 1; y++) {
-                try {
-                    let nearbySector = quadrant.getSector(x, y);
-                    let starbase = nearbySector.container.getGameObjectsOfType(StarBase)[0];
-                    if (starbase) {
-                        found = true;
-                        this.player.dock(starbase);
-                        this.terminal.echo("Docked.");
-                        break;
-                    }
-                } catch (e) {
-                    // not found
-                }
-            }
-            if (found) {
+        let adjacent = quadrant.getSectorsAdjacentTo(sector);
+        for(let i = 0; i < adjacent.length; i++) {
+            let sector = adjacent[i];
+            let starbase = sector.container.getGameObjectsOfType(StarBase)[0];
+            if (starbase) {
+                found = true;
+                this.player.dock(starbase);
+                this.terminal.echo("Docked.");
                 break;
             }
         }

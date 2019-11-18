@@ -110,7 +110,6 @@ export default class Enterprise {
     }
 
     undock() {
-        debugger;
         this.docked = false;
         this.dockedAt = null;
         this.deviceContainer.setRepairSpeed(this.undockedRepairSpeed);
@@ -118,11 +117,13 @@ export default class Enterprise {
 
     impulseTo(sector) {
         if (this.docked) this.undock();
+        // todo:: check can mover.canMoveTo
         this.impulseEngines.moveTo(sector);
     }
 
     warpTo(sector) {
         if (this.docked) this.undock();
+        // todo:: check can mover.canMoveTo
         this.warpEngines.moveTo(sector);
     }
 

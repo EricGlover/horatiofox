@@ -35,7 +35,6 @@ export class PowerGrid extends Device {
     useEnergy(e) {
         this.checkDamage();
         if (this._energy - e < -0.01) {
-            debugger;
             throw new Error("Not enough energy!");
         }
         this._energy -= e;

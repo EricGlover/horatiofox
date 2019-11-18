@@ -36,18 +36,14 @@ export class Vector {
         return rad * 180 / Math.PI;
     }
 
-    // todo:::::::
     static make(deltaX, deltaY) {
         let d = Math.hypot(deltaX, deltaY);
         let theta = Math.atan2(deltaY, deltaX);
-        console.log(theta);
-        console.log(Vector.toDegrees(theta));
-        debugger;
         return new Vector(d, theta);
     }
     static make1(deltaQx, deltaQy, deltaSx, deltaSy, galaxy) {
         let deltaX = Coordinates.calculateDistanceX(deltaQx, deltaSx, galaxy);
-        let deltaY = -1 * Coordinates.calculateDistanceY(deltaQy, deltaSy, galaxy);
+        let deltaY = Coordinates.calculateDistanceY(deltaQy, deltaSy, galaxy);
         return Vector.make(deltaX, deltaY);
     }
 }
@@ -87,8 +83,8 @@ export class Coordinates {
     static convert(quadX, quadY, sectorX, sectorY, galaxy) {
         quadX--;
         quadY--;
-        sectorX--;
-        sectorY--;
+        sectorX -= .5;
+        sectorY -= .5;
         let x = Coordinates.calculateDistanceX(quadX, sectorX, galaxy);
         let y = Coordinates.calculateDistanceY(quadY, sectorY, galaxy);
         return new Coordinates(galaxy, x, y);
@@ -98,8 +94,8 @@ export class Coordinates {
     // user coordinates are 1 based and centered
     // could be floats ???
     static convert1(quadrant, sectorX, sectorY) {
-        sectorX--;
-        sectorY--;
+        sectorX -= .5;
+        sectorY -= .5;
         return quadrant.topLeft.add(sectorX, sectorY);
     }
 

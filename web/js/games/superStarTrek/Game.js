@@ -556,7 +556,7 @@ With your starship confiscated by the Klingon High Command, you relocate to a mi
         this.commands.push(new GetHelpCommand(this, this.terminal, commandsCommand));
         this.commands.push(new MoveCommand(this, this.terminal, this.player, this.galaxy));
         this.commands.push(new PhasersCommand(this, this.terminal, this.player));
-        this.commands.push(new DockCommand(this, this.terminal, this.player));
+        this.commands.push(new DockCommand(this, this.terminal, this.player, this.galaxy));
         this.commands.push(new PhotonsCommand(this, this.terminal, this.player));
         this.commands.push(new ReportCommand(this, this.terminal, this.galaxy, this.player));
         this.commands.push(new ScoreCommand(this, this.terminal, this.player));
@@ -609,7 +609,9 @@ With your starship confiscated by the Klingon High Command, you relocate to a mi
                 for (let s = 0; s < numStars; s++) {
                     let star = new Star();
                     let sector = quadrant.getRandomEmptySector();
-                    if (!sector.container.isEmpty()) debugger;
+                    if (!sector.container.isEmpty()) {
+                        continue;
+                    }
                     star.gameObject.placeIn(this.galaxy, sector.quadrant, sector);
                 }
             });

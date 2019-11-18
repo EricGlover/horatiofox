@@ -11,7 +11,6 @@
 export class Component {
     constructor(_class, parent) {
         if (!_class.propName || typeof _class.propName === 'function') {
-            debugger;
             throw new Error("To inherit component you need to define a static propName");
         }
         this.parent = parent;

@@ -64,8 +64,15 @@ the sector in the current quadrant!
         }
         qx = nums[0];
         qy = nums[1];
-        //get quadrant
+
         let c = Coordinates.convert(qx, qy, 5, 5, this.galaxy);
-        this.player.probeLauncher.launchProbe(c, armed);
+        // check validity
+        if(!this.galaxy.areValidCoordinates(c)) {
+            this.terminal.printLine("Beg pardon, Captain?");
+            return;
+        }
+        //get quadrant
+        let dest = this.galaxy.getQuadrant(c);
+        this.player.probeLauncher.launchProbe(c, dest, armed);
     }
 }

@@ -197,6 +197,7 @@ extra to move with the shields up.`;
     }
 
     async run() {
+        // todo:: if args.length = 0 then interactive mode
         // sort out our target Sector to move to depending on the chosen mode
         // modes : manual and automatic
         // remove mode option from arguments, if provided
@@ -204,38 +205,36 @@ extra to move with the shields up.`;
         let {manual, automatic, impulse} = this.getOption(args);
         this.useImpulse = impulse;
         if (!manual && !automatic) automatic = true;    // set a default
-        debugger;
         args = this.stripModeAndOptions(args);
+
+        // validate ints
+        args = args.map(str => Number.parseInt(str)).filter(num => !Number.isNaN(num));
 
         let coordinates;
         if (manual) {
-            // parse args, only two arguments
-            if (args.length !== 2) {
-                throw new Error("need y and x");
-            }
-            let [argX, argY] = args;
-            // quadrant based args <deltaX> <deltaY>
-            // fuck that I'm making them <deltaY> <deltaX> so that they're consistent
-            let deltaQx = Math.trunc(argX);
-            let deltaQy = Math.trunc(argY);
-            let deltaSx = Math.trunc((argX * 10) % 10);
-            let deltaSy = Math.trunc((argY * 10) % 10);
-
-            // calculate the destination
-            try {
-                // convert to distance
-                debugger;
-                let move = Vector.make1(deltaQx, deltaQy, deltaSx, deltaSy, this.galaxy);
-                debugger;
-                coordinates =  this.player.gameObject.coordinates.addVector(move);
-            } catch (e) {
-                console.error(e);
+            if(args.length === 0) {
+                this.terminal.printLine("Beg pardon, Captain?");
                 return;
             }
+            let deltaX, deltaY;
+            if(args.length === 1) {
+                deltaX = args[0];
+                deltaY = 0;
+            } else {
+                deltaX = args[0];
+                deltaY = args[1];
+            }
+            // args are in terms of sectors
+            if(deltaX === 0 && deltaY === 0) {
+                return;
+            }
+
+            // calculate the destination
+            let move = Vector.make(deltaX, deltaY);
+            coordinates =  this.player.gameObject.coordinates.addVector(move);
         } else if (automatic) {
             // parse args <quadY> <quadX> <sectorY> <sectorX>
             // or just <sectorY> <sectorX>
-            args = args.map(str => Number.parseInt(str)).filter(num => !Number.isNaN(num));
 
             // make sure to convert from the 1 based commands
             // to the 0 based coordinates

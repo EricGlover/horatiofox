@@ -212,7 +212,6 @@ export class DeviceContainer {
     }
 
     onTimeElapse(days) {
-        // debugger;
         // todo:: check for repair priority
         let repairAmount = days * this.repairSpeed;
         let damagedDevices = this.devices.filter(d => d.isDamaged());

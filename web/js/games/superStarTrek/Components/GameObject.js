@@ -41,10 +41,10 @@ export class GameObjectContainer extends Component {
 
     killAll() {
         this.gameObjects.forEach(o => {
-            o.removeSelf();
-            if(o.parent && o.parent.die) {
-                o.parent.die();
+            if(o.die) {
+                o.die();
             }
+            o.gameObject.removeSelf();
         })
     }
 }

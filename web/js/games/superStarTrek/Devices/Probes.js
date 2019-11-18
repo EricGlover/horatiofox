@@ -39,7 +39,6 @@ class Probe {
     }
 
     launchToward(c, quadrant) {
-        debugger;
         this.destination = c;
         this.direction = this.gameObject.coordinates.angleTo(this.destination);
         this.destinationQuadrant = quadrant;
@@ -84,6 +83,8 @@ class Probe {
                 if(stars.length > 0) {
                     stars[0].goSupernova();
                 }
+                this.die();
+                break;
             }
         } while (!ret.done);
 
@@ -93,14 +94,14 @@ class Probe {
         // make announcements
         this.visited.forEach(q => {
             let c = q.center;
-            this.terminal.printLine(`Lt. Uhura- "The deep space probe is now in Quadrant ${c.userQuadrantX} - ${c.userQuadrantY}.`);
+            this.terminal.printLine(`Lt. Uhura- "The deep space probe is now in Quadrant ${c.userQuadrantX} - ${c.userQuadrantY}."`);
         });
         this.clearVisited();
         if(leftGalaxy) {
-            this.terminal.printLine(`Lt. Uhura- "The deep space probe has left the Galaxy.`);
+            this.terminal.printLine(`Lt. Uhura- "The deep space probe has left the Galaxy."`);
         } else if (destroyed && quadrantWithSupernova && quadrantWithSupernova instanceof Quadrant) {
             let c = quadrantWithSupernova.center;
-            this.terminal.printLine(`Lt. Uhura- "The deep space probe was destroyed in a supernova at Quadrant ${c.userQuadrantX} - ${c.userQuadrantX}`);
+            this.terminal.printLine(`Lt. Uhura- "The deep space probe was destroyed in a supernova at Quadrant ${c.userQuadrantX} - ${c.userQuadrantY}"`);
         }
     }
 
@@ -126,7 +127,7 @@ export class ProbeLauncher extends Device {
         // possibly launches telemetry probes (?)
     }
 
-    launchProbe(coordinates, armed) {
+    launchProbe(coordinates, destinationQuadrant, armed) {
         this.checkDamage();
         if (this._probes <= 0) return;
 
@@ -135,8 +136,7 @@ export class ProbeLauncher extends Device {
         // place probe
         let go = this.parent.gameObject;
         probe.gameObject.placeIn(go.galaxy, go.quadrant, go.sector);
-
-        probe.launchToward(coordinates, go.quadrant);
+        probe.launchToward(coordinates, destinationQuadrant);
         this._probes--;
     }
 

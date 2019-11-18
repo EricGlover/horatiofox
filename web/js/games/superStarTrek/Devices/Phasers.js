@@ -77,7 +77,7 @@ export class Phasers extends Device {
         }
         if (!this.parent.gameObject) {
             console.error('derp a lerp.');
-            debugger;
+            throw new Error("derp a lerp.");
             return;
         }
 
