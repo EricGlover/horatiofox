@@ -1,68 +1,105 @@
 import {Command, regexifier, INFO_COMMAND} from "./Command.js";
+import {ATTACK_COMMAND, MOVE_COMMAND} from "./Command";
 
 export class CommandsCommand extends Command {
     constructor(game, terminal) {
-        super();
+        super('com', 'commands', 'show commands');
         this.game = game;
         this.terminal = terminal;
-        this.name = "commands";
-        this.regex = regexifier("commands");
         this.type = INFO_COMMAND;
-        this.info = `
- ABBREV    FULL COMMAND                             DEVICE USED
- ------    ------------                             -----------
- C         CHART                                    (none)
- D         DOCK                                     (none)
- L         LRSCAN                                   long-range sensors
- M         MOVE [MANUAL] [DISPLACEMENT]             warp engines
-           MOVE AUTOMATIC [DESTINATION]             warp engines and computer
- P         PHASERS [TOTAL AMOUNT]                   phasers and computer
-           PHASERS AUTOMATIC [TOTAL AMOUNT]         phasers, computer, sr sensors
-           PHASERS MANUAL [AMT1] [AMT2] ...         phasers
- PHO       PHOTONS [NUMBER] [TARGETS]               torpedo tubes 
- REP       REPORT                                   (none)
- REQ       REQUEST                                  (none)
- S         SRSCAN [NO or CHART]                     short-range sensors
- SH        SHIELDS [UP, DOWN, or TRANSFER]          deflector shields
- ST        STATUS                                   (none)
+        this.addOption('alias', 'a', 'alias');
+        this._info = `
+Prints a chart of the commands sorted by types. 
+Adding the 'alias' option shows you a chart of all the commands, their names, and aliases. 
+`
+    }
 
- L. R. Scan:   thousands digit:   supernova
-               hundreds digit:    Klingons
-               tens digit:        starbases
-               ones digit:        stars
-               period (.):        digit not known (star chart only)
+    printAliases() {
+        let infoMatrix = [
+            ['Abbreviation', 'Name', 'Full Name'],
+            ['============', '====', '=========']
+        ];
 
-Courses are given in manual mode in X - Y displacements; in automatic
-    mode as destination quadrant and/or sector.  Manual mode is default.
-Distances are given in quadrants.  A distance of one sector is 0.1 quadrant.
-Ordinary Klingons have about 400 units of energy, Commanders about
-    1200.  Romulans normally have about 800 units of energy, and the
-    (GULP) "Super-Commander" has about 1800.
-Phaser fire diminishes to about 60 percent at 5 sectors.  Up to 1500
-    units may be fired in a single burst without danger of overheat.`
+        let commands = this.game.getActiveCommands().sort((a, b) => {
+            if(a.name === b.name) return 0;
+            return a.name < b.name ? -1 : 1;
+        });
+        commands.forEach(c => {
+            infoMatrix.push([c.abbreviation, c.name, c.fullName])
+        });
+        let formattted = this.terminal.formatGrid(infoMatrix, false, null, true);
+        this.terminal.printLine(this.terminal.joinGrid(formattted, "    "));
+    }
+
+    getSortedCommands() {
+        return this.game.getActiveCommands().sort((a, b) => {
+            if(a.name === b.name) return 0;
+            return a.name < b.name ? -1 : 1;
+        });
+    }
+
+    printCommandsByType() {
+        let moveCommands = [];
+        let weaponCommands = [];
+        let infoCommands = [];
+        let otherCommands = [];
+        this.getSortedCommands().forEach(c => {
+            switch(c.type) {
+                case ATTACK_COMMAND:
+                    weaponCommands.push(c.name);
+                    break;
+                case INFO_COMMAND:
+                    infoCommands.push(c.name);
+                    break;
+                case MOVE_COMMAND:
+                    moveCommands.push(c.name);
+                    break;
+                default:
+                    otherCommands.push(c.name);
+            }
+        });
+        let matrix = [
+            ['Move Commands', 'Weapon Commands'],
+            ['=============', '==============='],
+            [moveCommands.join(', '), weaponCommands.join(', ')],
+            ['', ''],
+            ['Info Commands', ''],
+            ['=============', ''],
+            [infoCommands.join(", "), ''],
+            ['', ''],
+            ['Other Commands', ''],
+            ['==============', ''],
+            [otherCommands.join(', '), '']
+        ];
+        let formatted = this.terminal.formatGrid(matrix, false, null, true);
+        let txt = this.terminal.joinGrid(formatted, "   ");
+        this.terminal.printLine(txt);
     }
 
     printCommands() {
         let matrix = [];
-        let row = [];
         let rowLength = 4;
-        this.game.commands.map(c => c.name).sort().forEach(name => {
-            // make a new row
-            if (row.length === rowLength) {
-                matrix.push(row);
+        let names = this.getSortedCommands().map(c => c.name);
+        let row = [];
+        matrix.push(row);
+        for(let i = 0; i < names.length; i++) {
+            row.push('' + names[i]);
+            if(row.length === rowLength) {
                 row = [];
+                matrix.push(row);
             }
-            row.push(`${name}`);
-        });
-        if (row.length > 0) {
-            matrix.push(row);
         }
         let formatted = this.terminal.formatGrid(matrix, false);
-        return this.terminal.printGrid(formatted, "   ");
+        return this.terminal.joinGrid(formatted, "   ");
     }
 
     run() {
-        this.terminal.newLine();
-        this.terminal.echo(this.printCommands());
+        let {alias} = this.getOption(this.terminal.getArguments());
+        if(alias) {
+            this.printAliases();
+        } else {
+            this.printCommandsByType();
+        }
+        this.terminal.skipLine(1);
     }
 }

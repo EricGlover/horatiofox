@@ -3,23 +3,16 @@ import {AbstractKlingon, Klingon, KlingonCommander, KlingonSuperCommander, Romul
 
 export class ScoreCommand extends Command {
     constructor(game, terminal, player) {
-        super();
+        super('sc', 'score', 'show score', INFO_COMMAND);
         this.game = game;
         this.terminal = terminal;
         this.player = player;
-        this.abbreviation = "sc";
-        this.name = "score";
-        this.regex = regexifier(this.abbreviation, this.name);
-        this.type = INFO_COMMAND;
-        this.info = `
-  Mnemonic:  SCORE
-  Shortest abbreviation: SC
-
+        this._info = `
+        
 Shows what the score would be if the game were to end naturally at
 this point. Since the game hasn't really ended and you lose points if
 you quit, this is perhaps a meaningless command, but it gives you a
-general idea of how well you are performing.
-        `
+general idea of how well you are performing.`;
     }
 
     run() {

@@ -286,13 +286,25 @@ export default class Game {
         // depending on screen size
         // then render
         if (this.screen.isSmallScreen || this.screen.isTinyScreen) {
+            this.scanCommand.active = true;
+            this.chartCommand.active = true;
+            this.statusCommand.active = true;
             this.terminal.registerCommand(this.scanCommand);
             this.terminal.registerCommand(this.chartCommand);
+            this.terminal.registerCommand(this.statusCommand);
         } else if (this.screen.isMediumScreen) {
+            this.scanCommand.active = false;
+            this.statusCommand.active = false;
+            this.chartCommand.active = true;
             this.terminal.registerCommand(this.chartCommand);
+            this.terminal.unregisterCommand(this.statusCommand);
             this.terminal.unregisterCommand(this.scanCommand);
         } else if (this.screen.isLargeScreen) {
+            this.scanCommand.active = false;
+            this.chartCommand.active = false;
+            this.statusCommand.active = false;
             this.terminal.unregisterCommand(this.scanCommand);
+            this.terminal.unregisterCommand(this.statusCommand);
             this.terminal.unregisterCommand(this.chartCommand);
         }
         await this.render();
@@ -312,6 +324,10 @@ export default class Game {
             // assume tiny screen
             // render only main pane
         }
+    }
+
+    getActiveCommands() {
+        return this.commands.filter(c => c.active);
     }
 
     hideInfoPanes() {
@@ -398,7 +414,7 @@ Starbase locations-   ${baseStr}
 
 The Enterprise is currently in ${this.player.gameObject.printLocation()}
 
-TRY TYPING "COMMANDS"
+[TRY TYPING "COMMANDS" and "HELP HELP" TO LEARN HOW TO PLAY]
 
 Good Luck!
 `;
@@ -543,13 +559,13 @@ With your starship confiscated by the Klingon High Command, you relocate to a mi
         this.commands.push(new RepairCommand(this.terminal, this.player));
         this.chartCommand = new ChartCommand(this, this.terminal, this.player, this.galaxy);
         let commandsCommand = new CommandsCommand(this, this.terminal);
-        let statusCommand = new StatusCommand(this, this.terminal, this.player, this.galaxy);
+        this.statusCommand = new StatusCommand(this, this.terminal, this.player, this.galaxy);
         this.commands.push(new ShieldsCommand(this, this.terminal, this.player));
         this.commands.push(commandsCommand);
-        this.commands.push(statusCommand);
-        this.commands.push(new RequestCommand(this, this.terminal, statusCommand));
+        this.commands.push(this.statusCommand);
+        this.commands.push(new RequestCommand(this, this.terminal, this.statusCommand));
         this.commands.push(this.chartCommand);
-        this.scanCommand = new ShortRangeScanCommand(this, this.terminal, this.player, this.chartCommand, statusCommand);
+        this.scanCommand = new ShortRangeScanCommand(this, this.terminal, this.player, this.chartCommand, this.statusCommand);
         this.commands.push(this.scanCommand);
         this.commands.push(new LongRangeScanCommand(this, this.terminal, this.player, this.galaxy));
         this.commands.push(new GetHelpCommand(this, this.terminal, commandsCommand));

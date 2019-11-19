@@ -9,17 +9,12 @@ import BlackHole from "../Objects/BlackHole.js";
 
 export class ShortRangeScanCommand extends Command {
     constructor(game, terminal, player, chartCommand, statusCommand) {
-        super();
+        super('s', 'srscan', 'short range scan', INFO_COMMAND);
         this.terminal = terminal;
         this.game = game;
         this.player = player;
         this.chartCommand = chartCommand;
         this.statusCommand = statusCommand;
-        this.abbreviation = "s";
-        this.name = "srscan";
-        this.regex = regexifier("s", "srscan", "short range scan");
-        this.fullName = "short range scan";
-        this.type = INFO_COMMAND;
         this.options = {
             no: {
                 abbreviation: "n",
@@ -34,49 +29,48 @@ export class ShortRangeScanCommand extends Command {
         };
         this.deviceUsed = [shortRangeSensorType];
         this.addPadding = false;
-        this.info = `Mnemonic:  SRSCAN
-    Shortest abbreviation:  S
-    Full commands:  SRSCAN
-                    SRSCAN NO
-                    SRSCAN CHART
-    The short-range scan gives you a considerable amount of information
-    about the quadrant your starship is in.  A short-range scan is best
-    described by an example.
+        this._info = `
+Full commands:  SRSCAN
+                SRSCAN NO
+                SRSCAN CHART
+The short-range scan gives you a considerable amount of information
+about the quadrant your starship is in.  A short-range scan is best
+described by an example.
 
-             1 2 3 4 5 6 7 8 9 10
-          1  * . . . . R . . . .  Stardate      2516.3
-          2  . . . E . . . . . .  Condition     RED
-          3  . . . . . * . B . .  Position      1 - 5, 4 - 2
-          4  . . . S . . . . . .  Life Support  DAMAGED, Reserves=2.30
-          5  . . . . . . . K . .  Warp Factor   5.0
-          6  . K .   . . . . * .  Energy        2176.24
-          7  . . . . . P . . . .  Torpedoes     3
-          8  . . . . * . . . . .  Shields       UP, 42% 1050.0 units
-          9  . * . . * . . . C .  Klingons Left 12
-         10  . . . . . . . . . .  Time Left     3.72
+         1 2 3 4 5 6 7 8 9 10
+      1  * . . . . R . . . .  Stardate      2516.3
+      2  . . . E . . . . . .  Condition     RED
+      3  . . . . . * . B . .  Position      1 - 5, 4 - 2
+      4  . . . S . . . . . .  Life Support  DAMAGED, Reserves=2.30
+      5  . . . . . . . K . .  Warp Factor   5.0
+      6  . K .   . . . . * .  Energy        2176.24
+      7  . . . . . P . . . .  Torpedoes     3
+      8  . . . . * . . . . .  Shields       UP, 42% 1050.0 units
+      9  . * . . * . . . C .  Klingons Left 12
+     10  . . . . . . . . . .  Time Left     3.72
 
 
-    The left part is a picture of the quadrant.  The E at sector 4 - 2
-    represents the Enterprise; the B at sector 8 - 3 is a starbase.
-    There are ordinary Klingons (K) at sectors 8 - 5 and 2 - 6, and a
-    Klingon Commander (C) at 9 - 9.  The (GULP) "Super-commander" (S) is
-    occupies sector 4 - 4, and a Romulan (R) is at 6 - 1.  A planet (P)
-    is at sector 6 - 7.  There are also a large number of stars (*). The
-    periods (.) are just empty space--they are printed to help you get
-    your bearings.  Sector 6 - 4 contains a black hole ( ).
+The left part is a picture of the quadrant.  The E at sector 4 - 2
+represents the Enterprise; the B at sector 8 - 3 is a starbase.
+There are ordinary Klingons (K) at sectors 8 - 5 and 2 - 6, and a
+Klingon Commander (C) at 9 - 9.  The (GULP) "Super-commander" (S) is
+occupies sector 4 - 4, and a Romulan (R) is at 6 - 1.  A planet (P)
+is at sector 6 - 7.  There are also a large number of stars (*). The
+periods (.) are just empty space--they are printed to help you get
+your bearings.  Sector 6 - 4 contains a black hole ( ).
 
-    The information on the right is assorted status information. You can
-    get this alone with the STATUS command.  The status information will
-    be absent if you type "N" after SRSCAN.  Otherwise status information
-    will be presented.
+The information on the right is assorted status information. You can
+get this alone with the STATUS command.  The status information will
+be absent if you type "N" after SRSCAN.  Otherwise status information
+will be presented.
 
-    If you type "C" after SRSCAN, you will be given a short-range scan
-    and a Star Chart.
+If you type "C" after SRSCAN, you will be given a short-range scan
+and a Star Chart.
 
-    Short-range scans are free.  That is, they use up no energy and no
-    time.  If you are in battle, doing a short-range scan does not give
-    the enemies another chance to hit you.  You can safely do a
-    short-range scan anytime you like.`;
+Short-range scans are free.  That is, they use up no energy and no
+time.  If you are in battle, doing a short-range scan does not give
+the enemies another chance to hit you.  You can safely do a
+short-range scan anytime you like.`;
     }
 
     objectToText(obj) {
@@ -188,7 +182,8 @@ export class ShortRangeScanCommand extends Command {
             // this.terminal.echo(text);
             this.terminal.echo(text);
         } else {
-            this.terminal.printGrid(this.terminal.formatGrid(matrix), " ", "", true);
+            let txt = this.terminal.joinGrid(this.terminal.formatGrid(matrix), " ");
+            this.terminal.printLine(txt);
         }
         // print out the star chart if requested
         if (printChart) {

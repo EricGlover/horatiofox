@@ -4,20 +4,13 @@ import {Coordinates} from "../Space/Coordinates";
 
 export class ProbeCommand  extends Command {
     constructor(terminal, player, galaxy) {
-        super();
+        super('pr', 'probe', 'launch probe', TIME_EXPENDING_SHIP_COMMAND);
         this.galaxy = galaxy;
         this.terminal = terminal;
         this.player = player;
-        this.abbreviation = "pr";
-        this.name = "probe";
-        this.fullName = "launch deep space probe";
-        this.regex = regexifier(this.abbreviation, this.name, this.fullName);
-        this.type = TIME_EXPENDING_SHIP_COMMAND;
         this.addOption('armed', 'armed', 'a');
-        this.info = `
-  Mnemonic:  PROBE
-  Shortest abbreviation:  PR
-  Full command:  PROBE [ARMED] [quadrant x] [quadrant y]
+        this._info = `
+Full command:  PROBE [ARMED] [quadrant x] [quadrant y]
 
 The Enterprise carries a limited number of Long Range Probes. These
 fly to the end of the galaxy and report back a count of the number of
@@ -34,13 +27,7 @@ quadrant. It then flies no further. There must be a star in the
 target quadrant for the NOVAMAX to function.
 
 The probe can fly around objects in a galaxy, but is destroyed if it
-enters a quadrant containing a supernova, or if it leaves the galaxy.
-
-The target location is specified in the same manner as the MOVE
-command, however for automatic movement, if only one pair of
-coordinates are specified they are assumed to be the quadrant and not
-the sector in the current quadrant!
-`
+enters a quadrant containing a supernova, or if it leaves the galaxy.`
     }
 
     run() {

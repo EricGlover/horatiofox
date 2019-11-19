@@ -1,5 +1,7 @@
 // same thing as the regexifier but with the end of line character added
 // so that you when we break apart the command by \s it identifies it correctly
+import {Terminal} from "../Terminal";
+
 export function optionRegexifier(...strings) {
     strings = strings.sort((a, b) => b.length - a.length);
     strings = strings.map(str => str + "\\s*"); // 0 or more white space characters
@@ -26,38 +28,48 @@ export const TIME_EXPENDING_SHIP_COMMAND = "not instant ship command";
 export const INSTANT_SHIP_COMMAND = "instant ship command";
 
 export class Command {
-    constructor() {
+    constructor(abbreviation, name, fullName, type) {
         // defaults
-        this.abbreviation = null;
-        this.name = null;
-        this.regex = null;
-        this.fullName = null;
+        this.abbreviation = abbreviation;
+        this.name = name;
+        this.fullName = fullName.split(" ").join("-");
+        this.regex = regexifier(this.abbreviation, this.name, this.fullName);
+        this.type = type;
         this.deviceUsed = "";
-        this.info = "No info.";
-        this.type = null;
-        this.options = {};
-        this.modes = {};
+        this._info = "No info.";
+        this.options = {};  // name => {regex: /regex/, matches: string[]}
+        this.modes = {};    // name => {regex: /regex/, matches: string[]}
+        this.active = true;
+        this.syntax = [];
     }
 
     // makes an option for you
     addOption(name, ...matchingStrs) {
-        this.options[name] = optionRegexifier(...matchingStrs);
+        this.options[name] = {
+            regex: optionRegexifier(...matchingStrs),
+            matches: matchingStrs
+        };
+
     }
 
     // makes a mode for you
     addMode(name, ...matchingStrs) {
-        this.modes[name] = optionRegexifier(...matchingStrs);
+        this.modes[name] = {
+            regex: optionRegexifier(...matchingStrs),
+            matches: matchingStrs
+        };
+
     }
 
     stripOptions(args) {
         return args.filter(arg => {
-            return !Object.keys(this.options).some(prop => this.options[prop].test(arg));
+            return !Object.keys(this.options).some(prop => this.options[prop].regex.test(arg));
         });
     }
 
     stripModes(args) {
         return args.filter(arg => {
-            return !Object.keys(this.modes).some(prop => this.modes[prop].test(arg));
+            return !Object.keys(this.modes).some(prop => this.modes[prop].regex.test(arg));
         });
     }
 
@@ -71,7 +83,7 @@ export class Command {
     getOption(args) {
         let matched = {};
         Object.keys(this.options).forEach(prop => {
-            matched[prop] = args.some(str => this.options[prop].test(str));
+            matched[prop] = args.some(str => this.options[prop].regex.test(str));
         });
         return matched;
     }
@@ -81,7 +93,7 @@ export class Command {
     getMode(args) {
         let matched = {};
         Object.keys(this.modes).forEach(prop => {
-            matched[prop] = this.modes[prop].test(args[0])
+            matched[prop] = this.modes[prop].regex.test(args[0])
         });
         return matched;
     }
@@ -103,8 +115,41 @@ export class Command {
         return this.type === MOVE_COMMAND;
     }
 
+    get info() {
+        return this.makeInfo() + this._info;
+    }
+
     makeInfo() {
-        // set mnemonic shortest abbrev full name text
+        let arr = [
+            ['Abbreviation', this.abbreviation],
+            ['Name', this.name],
+            ['Full Name', this.fullName]
+        ];
+        if(Object.keys(this.modes).length > 0) {
+            let rows = [
+                ['Modes', '']
+            ];
+            Object.entries(this.modes).forEach(([k, v], i) => {
+                rows.push([`  ${i + 1}) ${k}`, v.matches.join(", ")]);
+            });
+            arr.push(...rows);
+            // let row = ['Modes', Object.keys(this.modes).join(", ")];
+            // arr.push(row);
+        }
+
+        if(Object.keys(this.options).length > 0) {
+            let rows = [
+                ['Options', '']
+            ];
+            Object.entries(this.options).forEach(([k, v], i) => {
+                rows.push([`  ${i + 1}) ${k}`, v.matches.join(", ")]);
+            });
+            arr.push(...rows);
+            // let row = ['Options', Object.keys(this.options).join(", ")];
+            // arr.push(row);
+        }
+        let grid = Terminal.formatGrid(arr, false, null, true);
+        return Terminal.joinGrid(grid, "    ");
     }
 
     /**

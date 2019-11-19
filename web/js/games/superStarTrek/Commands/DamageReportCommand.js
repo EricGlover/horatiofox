@@ -2,31 +2,23 @@ import {Command, regexifier, INFO_COMMAND} from "./Command.js";
 
 export class DamageReportCommand extends Command {
     constructor(game, terminal, player) {
-        super();
+        super('da', 'damages', 'damage report', INFO_COMMAND);
         this.game = game;
         this.terminal = terminal;
         this.player = player;
-        this.abbreviation = "da";
-        this.name = "damages";
-        this.fullName = "damage report";
         this.regex = regexifier(this.abbreviation, this.name, "damage", this.fullName);
-        this.type = INFO_COMMAND;
         this.addOption("alpha", "a", "alpha", "alphabetically");
         this.addOption("all", "all");
-        this.info = `
-  Mnemonic:  DAMAGES
-  Shortest abbreviation:  DA 
-  Syntax: [command] [options]
-  Options: all, alpha 
-  
-    example usage : 
+        this._info = ` 
+Syntax: [command] (options)
+example usage : 
     COMMAND> damage alpha    
     - sorted by alphabetically by device name
     COMMAND> da
     - sorted by time 
     COMMAND> da all
     - show all devices, sort by default (damage descending)
-    
+
 ========    DETAILS =========    
 At any time you may ask for a damage report to find out what devices
 are damaged and how long it will take to repair them.  Naturally,
@@ -78,7 +70,7 @@ safely even in the midst of battle.`;
             })
         ];
 
-        this.terminal.printLine(this.terminal.printGrid(this.terminal.formatGrid(report, false, null, true), "  ", ""));
+        this.terminal.printLine(this.terminal.joinGrid(this.terminal.formatGrid(report, false, null, true), "  "));
         this.terminal.skipLine(1);
     }
 }

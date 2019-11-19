@@ -5,63 +5,39 @@ import {Vector} from "../Space/Coordinates";
 
 export class MoveCommand extends Command {
     constructor(game, terminal, player, galaxy) {
-        super();
+        super('m', 'move', 'move', MOVE_COMMAND);
         this.game = game;
         this.terminal = terminal;
         this.player = player;
         this.galaxy = galaxy;
-        this.abbreviation = "m";
-        this.name = "move";
-        this.fullName = "move under warp drive";
         this.regex = regexifier(this.abbreviation, this.name);
-        this.type = MOVE_COMMAND;
-        this.addOption('manual', 'm', 'manual');
-        this.addOption('automatic', 'a', 'automatic');
+        this.addMode('manual', 'm', 'manual');
+        this.addMode('automatic', 'a', 'automatic');
         this.addOption('impulse', 'i', 'impulse');
         this.useImpulse = false;
-        this.info = `  Mnemonic:  MOVE
-  Shortest abbreviation:  M
-  Full command:  MOVE MANUAL [displacement] [impulse]
-                 MOVE AUTOMATIC [destination] [impulse]
+        this._info = `
+  Full command:  MOVE MANUAL [displacement] (impulse)
+                 MOVE AUTOMATIC [destination] (impulse)
 
-This command is the usual way to move from one place to another
-within the galaxy.  You move under warp drive, according to the
-current warp factor (see "WARP FACTOR").
+This command is the usual way to move from one place to another within the galaxy.
+Passing the impulse option uses Impulse Engines instead of Warp Engines. 
+You warp according to the current warp factor (see "WARP FACTOR").
 
-There are two command modes for movement: MANUAL and AUTOMATIC.  The
+There are two command modes for movement: MANUAL and AUTOMATIC. Automatic is assumed. The
 manual mode requires the following format:
 
         MOVE MANUAL [deltax] [deltay]
 
 [deltax] and [deltay] are the horizontal and vertical displacements
-for your starship, in quadrants; a displacement of one sector is 0.1
-quadrants.  Specifying [deltax] and [deltay] causes your ship to move
-in a straight line to the specified destination. If [deltay] is
-omitted, it is assumed zero. For example, the shortest possible
-command to move one sector to the right would be
-
-        M M .1
-
-The following examples of manual movement refer to the short-range
-scan shown earlier.
-
-  Destination Sector    Manual Movement command
-        3 - 1                   M M -.3 -.1
-        2 - 1                   M M -.3
-        1 - 2                   M M -.2 .1
-        1 - 4                   M M 0 .1
-  (leaving quadrant)            M M 0 .2
-
+for your starship, in sectors.  Specifying [deltax] and [deltay] causes your ship to move
+in a straight line to the specified destination. If [deltay] is omitted, it is assumed zero. 
 
 The automatic mode is as follows:
 
-        MOVE AUTOMATIC [qrow] [qcol] [srow] [scol]
+        MOVE AUTOMATIC [quadrant x] [quadrant y] [sector x] [sector y]
 
-where [qrow] and [qcol] are the row and column numbers of the
-destination quadrant, and [srow] and [scol] are the row and column
-numbers of the destination sector in that quadrant.  This command also
-moves your ship in a straight line path to the destination.  For
-moving within a quadrant, [qrow] and [qcol] may be omitted. For
+This command also moves your ship in a straight line path to the destination.  For
+moving within a quadrant, quadrant x and quadrant y may be omitted. For
 example, to move to sector 2 - 9 in the current quadrant, the
 shortest command would be
 
@@ -73,20 +49,13 @@ To move to quadrant 3 - 7, sector 5 - 8, type
 
 and it will be done.  In automatic mode, either two or four numbers
 must be supplied.
-\f                                                                       10
-Automatic mode utilizes the ship's "battle computer."  If the
-computer is damaged, manual movement must be used.
-
-If warp engines are damaged less than 10 stardates (undocked) you can
-still go warp 4.
 
 It uses time and energy to move.  How much time and how much energy
 depends on your current warp factor, the distance you move, and
 whether your shields are up.  The higher the warp factor, the faster
 you move, but higher warp factors require more energy.  Specifically, 
-    energy required = distance in terms of quadrants * (warpFactor ^ 3)
+energy required = distance in terms of quadrants * (warpFactor ^ 3)
 You may move with your shields up, but this doubles the energy required. 
-
 
 You can move within a quadrant without being attacked if you just
 entered the quadrant or have bee attacked since your last move
@@ -97,13 +66,7 @@ retaliate.
 The impulse engines give you a way to move when your warp engines are
 damaged.  They move you at a speed of 0.95 sectors per stardate,
 which is the equivalent of a warp factor of about 0.975, so they are
-much too slow to use except in emergencies.
-
-Movement commands are indicated just as in the "MOVE" command.
-
-The impulse engines require 20 units of energy to engage, plus 10
-units per sector (100 units per quadrant) traveled. It does not cost
-extra to move with the shields up.`;
+much too slow to use except in emergencies.`;
     }
 
     async moveTo(sector) {
@@ -202,7 +165,8 @@ extra to move with the shields up.`;
         // modes : manual and automatic
         // remove mode option from arguments, if provided
         let args = this.terminal.getArguments();
-        let {manual, automatic, impulse} = this.getOption(args);
+        let {manual, automatic} = this.getMode(args);
+        let {impulse} = this.getOption(args);
         this.useImpulse = impulse;
         if (!manual && !automatic) automatic = true;    // set a default
         args = this.stripModeAndOptions(args);

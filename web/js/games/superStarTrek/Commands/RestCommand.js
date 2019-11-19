@@ -2,16 +2,11 @@ import {Command, regexifier, TIME_EXPENDING_SHIP_COMMAND} from "./Command.js";
 
 export class RestCommand extends Command {
     constructor(game, terminal) {
-        super();
+        super('r', 'rest', 'rest', TIME_EXPENDING_SHIP_COMMAND);
         this.game = game;
         this.terminal = terminal;
-        this.name = "rest";
-        this.regex = regexifier(this.name);
-        this.type = TIME_EXPENDING_SHIP_COMMAND;
-        this.info = `
-  Mnemonic:  REST
-  Shortest abbreviation:  R
-  Full command:  REST <NUMBER OF STARDATES>
+        this._info = `
+Full command:  REST [NUMBER OF STARDATES]
 
 This command simply allows the specified number of stardates to go
 by.  This is useful if you have suffered damages and wish to wait

@@ -5,21 +5,15 @@ import Star from "../Objects/Star.js";
 
 export class ChartCommand extends Command {
     constructor(game, terminal, player, galaxy) {
-        super();
+        super("c", "chart", "star chart", INFO_COMMAND);
         this.terminal = terminal;
         this.game = game;
         this.player = player;
         this.galaxy = galaxy;
-        this.abbreviation = "c";
-        this.name = "chart";
         this.regex = regexifier("c", "chart", "star chart");
-        this.fullName = "star chart";
-        this.type = INFO_COMMAND;
         this.addPadding = false;
         this.showAll = false;
-        this.info = `
-      Mnemonic:  ${this.name}
-      Shortest abbreviation:  ${this.abbreviation}
+        this._info = `
     The chart looks like an 8 by 8 array of numbers.  These numbers are
     interpreted exactly as they are on a long-range scan. A period (.) in
     place of a digit means you do not know that information yet.  For

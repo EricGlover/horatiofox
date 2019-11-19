@@ -3,7 +3,7 @@ import StarBase from "../Objects/StarBase.js";
 
 export class DockCommand extends Command {
     constructor(game, terminal, player, galaxy) {
-        super();
+        super('d', 'dock', 'dock at starbase');
         this.game = game;
         this.terminal = terminal;
         this.player = player;
@@ -15,13 +15,10 @@ export class DockCommand extends Command {
         this.deviceUsed = "";
         this.options = {};
         this.type = INFO_COMMAND;
-        this.info = `
-  Mnemonic:  DOCK
-  Shortest abbreviation:  D
-
+        this._info = `
 You may dock your starship whenever you are in one of the eight
 sector positions immediately adjacent to a starbase.  When you dock,
-your starship is resupplied with energy, shield energy photon
+your starship is resupplied with energy, shield energy, and photon
 torpedoes.`;
     }
 

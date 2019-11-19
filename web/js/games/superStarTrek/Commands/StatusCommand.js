@@ -3,19 +3,12 @@ import {AbstractKlingon} from "../Enemies/Enemies.js";
 
 export class StatusCommand extends Command {
     constructor(game, terminal, player, galaxy) {
-        super();
+        super('st', 'status', 'status report', INFO_COMMAND);
         this.game = game;
         this.terminal = terminal;
         this.player = player;
         this.galaxy = galaxy;
-        this.abbreviation = 'st';
-        this.name = 'status';
-        this.regex = regexifier("st", "status", "status report");
-        this.fullName = 'status report';
-        this.type = INFO_COMMAND;
-        this.info = `Mnemonic:  STATUS
-  Shortest abbreviation: ST
-
+        this._info = `
 This command gives you information about the current state of your
 starship as follows:
 

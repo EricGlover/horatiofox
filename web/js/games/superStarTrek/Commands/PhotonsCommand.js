@@ -3,21 +3,15 @@ import {Coordinates} from "../Space/Coordinates";
 
 export class PhotonsCommand extends Command {
     constructor(game, terminal, player) {
-        super();
+        super('pho', 'photon', 'photon torpedoes', ATTACK_COMMAND);
         this.game = game;
         this.terminal = terminal;
         this.player = player;
-        this.abbreviation = "pho";
-        this.name = "photon";
-        this.fullName = "photon torpedoes";
         this.regex = regexifier(this.abbreviation, this.name, this.fullName, "photons", "photon torpedo");
         this.deviceUsed = "";
         this.maxPerBurst = 3;
         this.options = {};
-        this.type = ATTACK_COMMAND;
-        this.info = `
-Mnemonic:  PHOTONS
-Shortest abbreviation:  PHO
+        this._info = `
 Full commands:  PHOTONS (NUMBER) [coordinate 1] [coordinate 2] [coordinate 3]
 
 Launches photon torpedoes at coordinates in the current quadrant.

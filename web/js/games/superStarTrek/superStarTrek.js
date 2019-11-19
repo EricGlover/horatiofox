@@ -12,7 +12,7 @@ import Tests from './Tests.js';
 
 export const DEBUG = false;
 const RUN_TESTS = false;
-export const LAST_UPDATED_AT = "Oct 27 2019";
+export const LAST_UPDATED_AT = "Nov 18 2019";
 import Screen from "./utils/Screen.js";
 
 $(document).ready(function () {

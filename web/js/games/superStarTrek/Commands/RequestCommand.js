@@ -2,24 +2,18 @@ import {Command, regexifier, optionRegexifier, INFO_COMMAND} from "./Command.js"
 
 export class RequestCommand extends Command {
     constructor(game, terminal, statusCommand) {
-        super();
+        super('req', 'request', 'request info', INFO_COMMAND);
         this.terminal = terminal;
         this.game = game;
         this.statusCommand = statusCommand;
-        this.name = "request";
-        this.abbreviation = "req";
-        this.regex = regexifier("req", "request", "request information");
-        this.fullName = "request information";
         this.arguments = 1;
-        this.type = INFO_COMMAND;
-        this.info = `Mnemonic:  REQUEST
-  Shortest abbreviation:  REQ
-  Full command:  REQUEST [ITEM]
+        this._info = `
+Full command:  REQUEST [ITEM]
 
 This command allows you to get any single piece of information from
 the [STATUS] command.  [ITEM] specifies which information as follows:
 
- INFORMATION       MNEMONIC FOR [ITEM]           SHORTEST ABBREVIATION
+ INFORMATION       NAME OF [ITEM]           SHORTEST ABBREVIATION
 
  STARDATE              DATE                                D
  CONDITION             CONDITION                           C

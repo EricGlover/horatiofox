@@ -2,20 +2,25 @@ import {Command,regexifier, INFO_COMMAND} from "./Command.js";
 
 export class GetHelpCommand extends Command {
     constructor(game, terminal, commandsCommand) {
-        super();
+        super('help', 'help', 'ask for help', INFO_COMMAND);
         this.game = game;
         this.terminal = terminal;
         this.commandsCommand = commandsCommand;
-        this.abbreviation = "help";
-        this.name = "help";
         this.regex = regexifier("help");
-        this.fullName = "ask for help";
         this.type = INFO_COMMAND;
-        this.info = `  Mnemonic:  HELP
-  Full command:  HELP [command]
+        this._info = `
+Syntax:  HELP [command]
 
-This command reads the appropriate section from the SST.DOC file,
-providing the file is in the current directory.`;
+To get information about a command, just type help and the command name.
+If the command has modes, options, or other arguments that you need to provide 
+you can find all that info in the help information for the command.
+To get a list of commands try the "commands" command.
+
+Info about commands:
+To run the command you can type the command's abbreviation, name or full name.
+Some commands have modes and these modes are the first argument you provide.
+Some commands have options which can be provided anyway in the command.
+`;
     }
 
     async run() {

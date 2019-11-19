@@ -2,20 +2,20 @@ import {Command, optionRegexifier, regexifier} from "./Command.js";
 
 export class ShieldsCommand extends Command {
     constructor(game, terminal, player) {
-        super();
+        super('sh', 'shields', 'shields');
         this.game = game;
         this.terminal = terminal;
         this.player = player;
-        this.name = "shields";
-        this.abbreviation = "sh";
-        this.fullName = "deflector shields";
         this.regex = regexifier(this.abbreviation, this.name, this.fullName);
-        this.info = `  Mnemonic:  SHIELDS
-  Shortest abbreviation:  SH
-  Full commands:  SHIELDS UP
-                  SHIELDS DOWN
-                  SHIELDS CHARGE <amount of energy to put into the shields>
-                  SHIELDS DRAIN  <amount of energy to take from the shields>
+        this.addMode("up", "up");
+        this.addMode("down", "down", "do", "d");
+        this.addMode("charge", "charge", "ch", "c");
+        this.addMode("drain", "drain", "dr");
+        this._info = `  
+Full commands:  SHIELDS UP
+                SHIELDS DOWN
+                SHIELDS CHARGE [amount of energy to put into the shields]
+                SHIELDS DRAIN  [amount of energy to take from the shields]
 
 Your deflector shields are a defensive device to protect you from
 Klingon attacks (and nearby novas).  As the shields protect you, they
@@ -28,10 +28,7 @@ You may move with your shields up; this costs nothing under impulse
 power, but doubles the energy required for warp drive.
 
 Each time you raise or lower your shields, the Klingons have another
-chance to attack.  Since shields do not raise and lower
-instantaneously, the hits you receive will be intermediate between
-what they would be if the shields were completely up or completely
-down.
+chance to attack.
 
 You may not fire phasers through your shields.  However you may use
 the "high-speed shield control" to lower shields, fire phasers, and
@@ -44,35 +41,16 @@ deflected considerably from their intended course as they pass
 through the shields (depending on shield strength).
 
 You may transfer energy between the ship's energy (given as "Energy"
-in the status) and the shields.  Thee word "TRANSFER" may be
-abbreviated "T".  The amount of energy to transfer is the number of
-units of energy you wish to take from the ship's energy and put into
-the shields.  If you specify an negative number, energy is drained
-from the shields to the ship.  Transferring energy constitutes a turn.
-If you transfer energy to the shields while you are under attack,
-they will be at the new energy level when you are next hit.
+in the status) and the shields. To transfer energy from your ship to your shields 
+use the charge mode. The drain mode does the opposite.
 
 Enemy torpedoes hitting your ship explode on your shields (if they
 are up) and have essentially the same effect as phaser hits.`;
     }
 
-    getMode(arg) {
-        let upOption = optionRegexifier("up", "u");
-        let downOption = optionRegexifier("down", "d");
-        let drainOption = optionRegexifier("drain", "dr");
-        let chargeOption = optionRegexifier("charge", "c");
-
-        return {
-            up: upOption.test(arg),
-            down: downOption.test(arg),
-            drain: drainOption.test(arg),
-            charge: chargeOption.test(arg)
-        };
-    }
-
     run() {
         // get mode : up/down or charge/drain
-        let {up, down, charge, drain} = this.getMode(this.terminal.getArguments()[0]);
+        let {up, down, charge, drain} = this.getMode(this.terminal.getArguments());
 
         if (!up && !down && !charge && !drain) {
             this.terminal.printLine("Beg pardon, Captain?");

@@ -3,23 +3,15 @@ import {AbstractKlingon, Klingon, KlingonCommander, KlingonSuperCommander} from 
 import StarBase from "../Objects/StarBase.js";
 
 export class ReportCommand extends Command {
-    constructor(game, terminal, galaxy, player) {
-        super();
+    constructor(game, terminal, galaxy) {
+        super('repo', 'report', 'game report', INFO_COMMAND);
         this.game = game;
         this.terminal = terminal;
         this.galaxy = galaxy;
-        this.abbreviation = "rep";
-        this.name = "report";
-        this.regex = regexifier(this.abbreviation, this.name);
-        this.type = INFO_COMMAND;
-        this.info = `
-    Mnemonic:  REPORT
-    Shortest abbreviation: REP
-
+        this._info = `
 This command supplies you with information about the state of the
 current game.  Its purpose is to remind you of things that you have
-learned during play, but may have forgotten, and cannot otherwise
-retrieve if you are not playing at a hard-copy terminal.
+learned during play, but may have forgotten.
 
      You are told the following things:
 
@@ -28,15 +20,7 @@ retrieve if you are not playing at a hard-copy terminal.
        . How many Klingons you have destroyed
        . Whether the Super-Commander has been destroyed
        . How many bases have been destroyed
-       . How many bases are left
-       . What bases (if any) are under attack; your subspace radio
-         must have been working since the attack to get this 
-         information.
-       . How many casualties you have suffered
-       . How many times you have called for help.
-
-This same information is automatically given to you when you start to
-play a frozen game.`
+       . How many bases are left`
     }
 
     run() {

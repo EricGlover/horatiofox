@@ -36,7 +36,7 @@ export class Terminal {
                 error_bad_methdo: "Command malformed. Try 'help'."
             }
         });
-        if(!this.takesInput) {
+        if (!this.takesInput) {
             this.hideInput();
         }
     }
@@ -49,23 +49,23 @@ export class Terminal {
     }
 
     echo(str) {
-        if(this.silent) return;
+        if (this.silent) return;
         this._out += str;
     }
 
     newLine() {
-        if(this.silent) return;
+        if (this.silent) return;
         this._out += "\n";
     }
 
     printLine(str = '') {
-        if(this.silent) return;
+        if (this.silent) return;
         this._out += str + "\n";
     }
 
     skipLine(n = 1) {
-        if(this.silent) return;
-        for(let i = 0; i < n; i++) {
+        if (this.silent) return;
+        for (let i = 0; i < n; i++) {
             this._out += "\n";
         }
     }
@@ -75,7 +75,7 @@ export class Terminal {
     }
 
     clear() {
-        if(this.silent) return;
+        if (this.silent) return;
         this._out = "";
     }
 
@@ -88,8 +88,8 @@ export class Terminal {
      * Print my output
      */
     print() {
-        if(this.silent) return;
-        if(!this._out) return;
+        if (this.silent) return;
+        if (!this._out) return;
         this.$terminal.echo(this._out);
         this._out = "";
     }
@@ -103,18 +103,18 @@ export class Terminal {
     registerCommand(command) {
         // check that we don't already have the command
         let has = this.commands.find(c => command.name === c.name);
-        if(has) return;
+        if (has) return;
         this.commands.push(command);
         this.$terminal.register("command", {
             name: command.name,
-            method:  commandObj => this.runCommand(command.name, commandObj),
+            method: commandObj => this.runCommand(command.name, commandObj),
             regex: command.regex
         });
     }
 
     unregisterCommand(command) {
         let idx = this.commands.findIndex(c => command.name === c.name);
-        if(idx === -1) return;
+        if (idx === -1) return;
         this.commands.splice(idx, 1);
         this.$terminal.unregister("command", command.name);
     }
@@ -150,7 +150,7 @@ export class Terminal {
         this.parseCommand(commandObj, command);
         try {
             this.resolveUserCommand({command});
-        } catch(e) {
+        } catch (e) {
             console.error(e);
             this.printLine("OOOF, that went really wrong. Try that again.");
             this.print();
@@ -178,7 +178,7 @@ export class Terminal {
         return new Promise((resolve, reject) => {
             this.answer = (commandObj) => {
                 let userInput = this.$terminal.get_input();
-                this.$terminal.unregister('command','answer');
+                this.$terminal.unregister('command', 'answer');
                 this.$terminal.change_settings({ps: oldPrompt});
                 this.$terminal.set_command_option({next: null});
                 resolve(userInput);
@@ -193,6 +193,10 @@ export class Terminal {
         })
     }
 
+    formatGrid(...args) {
+        return Terminal.formatGrid(...args);
+    }
+
     /**
      *
      * Specify a column width or defaults to the largest
@@ -202,17 +206,29 @@ export class Terminal {
      * @param individualWidths bool (set the column widths individually or use the widest column)
      * @returns array<array<string>>
      */
-    formatGrid(grid, padLeft = true, columnWidth = null, individualWidths = false) {
-        if(!individualWidths) {
+    static formatGrid(grid, padLeft = true, columnWidth = null, individualWidths = false) {
+        // double check that there's non string values
+        for (let i = 0; i < grid.length; i++) {
+            for (let j = 0; j < grid[i].length; j++) {
+                let val = grid[i][j];
+                if (typeof val !== 'string') {
+                    if (val === null || val === undefined) {
+                        grid[i][j] = '';
+                    } else {
+                        grid[i][j] = '' + grid[i][j];
+                    }
+                }
+            }
+        }
+        if (!individualWidths) {
             if (columnWidth === null) {
                 // get longest string that we'll use for data
-                var longest = grid.reduce((l, row) => {
-                    var l2 = row.reduce((carry, d) => {
+                columnWidth = grid.reduce((l, row) => {
+                    let l2 = row.reduce((carry, d) => {
                         return carry > d.length ? carry : d.length;
                     }, 0);
                     return l > l2 ? l : l2;
                 }, 0);
-                columnWidth = longest;
             }
             return grid.map(row => {
                 return row.map(str => {
@@ -227,13 +243,13 @@ export class Terminal {
             let widths = [];
             grid.forEach(row => {
                 row.forEach((str, i) => {
-                    if(!widths[i]) {
-                        widths[i] = str.length;
+                    if (!widths[i]) {
+                        widths[i] = str.length || 0;
                         return;
                     }
                     let prev = widths[i];
-                    if(str.length > prev) {
-                        widths[i] = str.length;
+                    if (str.length > prev) {
+                        widths[i] = str.length || 0;
                     }
                 })
             });
@@ -249,24 +265,24 @@ export class Terminal {
         }
     }
 
+    joinGrid(...args) {
+        return Terminal.joinGrid(...args);
+    }
+
     /**
      * @param grid
      * @param columnSeparator
      * @param rowSeparator
      */
-    printGrid(grid, columnSeparator = " ", rowSeparator = "\n", echo = false) {
-        var rows = [];
-        for (var i = 0; i < grid.length; i++) {
+    static joinGrid(grid, columnSeparator = " ", rowSeparator = "\n") {
+        let rows = [];
+        for (let i = 0; i < grid.length; i++) {
             // make line of text for row
-            var row = grid[i];
-            var line = row.join(columnSeparator);
-            rows.push(line + "\n");
+            let row = grid[i];
+            let line = row.join(columnSeparator);
+            rows.push(line);
         }
-        var text = rows.join(rowSeparator);
-        if (echo) {
-            this.$terminal.echo(text);
-        }
-        return text;
+        return rows.join(rowSeparator);
     };
 }
 

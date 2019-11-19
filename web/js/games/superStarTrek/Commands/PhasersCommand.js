@@ -4,29 +4,24 @@ import {AbstractEnemy} from "../Enemies/Enemies.js";
 
 export class PhasersCommand extends Command {
     constructor(game, terminal, player) {
-        super();
+        super('p', 'phasers', 'fire phasers', ATTACK_COMMAND);
         this.game = game;
         this.terminal = terminal;
         this.player = player;
-        this.name = "phasers";
-        this.abbreviation = "p";
-        this.fullName = "phasers";
-        this.regex = regexifier(this.name, this.abbreviation, this.fullName);
-        this.type = ATTACK_COMMAND;
         this.addOption("no", "n", "no");
         this.addMode("auto", "a", "auto", "automatic");
         this.addMode("manual", "m", "man", "manual");
-        this.info = `
-  Mnemonic:  PHASERS
-  Shortest abbreviation:  P
-  Full commands:  PHASERS AUTOMATIC <AMOUNT TO FIRE> <NO>
-                  PHASERS <AMOUNT TO FIRE> <NO>
-                  PHASERS MANUAL <NO> <AMOUNT 1> <AMOUNT 2>...<AMOUNT N>
+        this._info = `
+Full commands:  PHASERS AUTOMATIC [AMOUNT TO FIRE] (NO)
+                PHASERS [AMOUNT TO FIRE] (NO)
+                PHASERS MANUAL (NO) [AMOUNT 1] [AMOUNT 2]...[AMOUNT N]
 
 Phasers are energy weapons. As you fire phasers at Klingons, you
 specify an "amount to fire" which is drawn from your energy reserves.
-The amount of total hit required to kill an enemy is partly random.
+The amount of total hit required to kill an enemy is partly random,
 but also depends on skill level.
+
+Phaser fire diminishes to about 60 percent at 5 sectors.
 
 The average hit required to kill an ordinary Klingon varies from 200
 units in the Novice game to 250 units in the Emeritus game.
@@ -50,7 +45,7 @@ at once. Firing up to 1500 units is safe.  From 1500 on up the
 probability of overheat increases with the amount fired.
 
 If phaser firing is automatic, the computer decides how to divide up
-your <amount to fire> among the Klingons present.  If phaser firing
+your [amount to fire] among the Klingons present.  If phaser firing
 is manual, you specify how much energy to fire at each Klingon
 present (nearest first), rather than just specifying a total amount.
 You can abbreviate "MANUAL" and "AUTOMATIC" to one or more letters; if
@@ -65,7 +60,7 @@ parentheses prior to the prompt for each enemy.  SInce the amount is
 computed from sensor data, if either the computer or the S.R. sensors
 are damaged, this information will be unavailable, and phasers must
 be fired manually.
-\f                                                                       13
+
 A safety interlock prevents phasers from being fired through the
 shields.  If this were not so, the shields would contain your fire
 and you would fry yourself.  However, you may utilize the
@@ -74,7 +69,7 @@ shields before the enemy can react.  Since it takes more energy to
 work the shields rapidly with a shot, it costs you 200 units of
 energy each time you activate this control.  It is automatically
 activated when you fire phasers while the shields are up. By
-specifying the <no> option, shields are not raised after firing.
+specifying the (no) option, shields are not raised after firing.
 
 Phasers have no effect on starbases (which are shielded) or on stars.`;
     }
