@@ -165,8 +165,8 @@ much too slow to use except in emergencies.`;
         // modes : manual and automatic
         // remove mode option from arguments, if provided
         let args = this.terminal.getArguments();
-        let {manual, automatic} = this.getMode(args);
-        let {impulse} = this.getOption(args);
+        let {manual, automatic} = this.parseMode(args);
+        let {impulse} = this.parseOption(args);
         this.useImpulse = impulse;
         if (!manual && !automatic) automatic = true;    // set a default
         args = this.stripModeAndOptions(args);

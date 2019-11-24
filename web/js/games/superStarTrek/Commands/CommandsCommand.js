@@ -94,7 +94,7 @@ Adding the 'alias' option shows you a chart of all the commands, their names, an
     }
 
     run() {
-        let {alias} = this.getOption(this.terminal.getArguments());
+        let {alias} = this.parseOption(this.terminal.getArguments());
         if(alias) {
             this.printAliases();
         } else {

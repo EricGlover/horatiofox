@@ -1,6 +1,7 @@
 // same thing as the regexifier but with the end of line character added
 // so that you when we break apart the command by \s it identifies it correctly
-import {Terminal} from "../Terminal";
+import {Terminal} from "../Terminal.js";
+import {Device} from "../Devices/Devices.js";
 
 export function optionRegexifier(...strings) {
     strings = strings.sort((a, b) => b.length - a.length);
@@ -27,6 +28,34 @@ export const MOVE_COMMAND = "move";
 export const TIME_EXPENDING_SHIP_COMMAND = "not instant ship command";
 export const INSTANT_SHIP_COMMAND = "instant ship command";
 
+class Mode {
+    constructor(name, regex, matches, requiredDevices = []) {
+        this.name = name;
+        this.regex = regex;
+        this.matches = matches;
+        this.requiredDevices = requiredDevices;
+    }
+
+    addRequiredDevice(...devices) {
+        if(devices.some(d => !(d instanceof Device))) throw new Error('Mode requires devices be passed in.');
+        this.requiredDevices.push(...devices);
+    }
+
+    areRequiredDevicesFunctional() {
+        return this.requiredDevices.every(d => !d.isDamaged());
+    }
+
+    getDamagedDeviceError() {
+        let damaged = this.requiredDevices.filter(d => d.isDamaged());
+        if(damaged.length > 1) {
+            return `Required devices are damaged : ${damaged.map(d => d.name).join(", ")} .`;
+        } else if (damaged.length === 1) {
+            return `Required device is damaged : ${damaged[0].name}.`;
+        }
+        return '';
+    }
+}
+
 export class Command {
     constructor(abbreviation, name, fullName, type) {
         // defaults
@@ -35,12 +64,39 @@ export class Command {
         this.fullName = fullName.split(" ").join("-");
         this.regex = regexifier(this.abbreviation, this.name, this.fullName);
         this.type = type;
-        this.deviceUsed = "";
         this._info = "No info.";
         this.options = {};  // name => {regex: /regex/, matches: string[]}
         this.modes = {};    // name => {regex: /regex/, matches: string[]}
+        this.requiredDevices = [];
         this.active = true;
         this.syntax = [];
+    }
+
+    addRequiredDevice(...devices) {
+        if(devices.some(d => !(d instanceof Device))) throw new Error('Command requires devices be passed in.');
+        this.requiredDevices.push(...devices);
+    }
+
+    areRequiredDevicesFunctional() {
+        return this.requiredDevices.every(d => !d.isDamaged());
+    }
+
+    getDamagedDeviceError() {
+        let damaged = this.requiredDevices.filter(d => d.isDamaged());
+        if(damaged.length > 1) {
+            return `Required devices are damaged : ${damaged.map(d => d.name).join(", ")} .`;
+        } else if (damaged.length === 1) {
+            return `Required device is damaged : ${damaged[0].name}.`;
+        }
+        return '';
+    }
+
+    getMode(name) {
+        return this.modes[name];
+    }
+
+    getActiveMode() {
+        return this.modes.find(m => m.active);
     }
 
     // makes an option for you
@@ -49,16 +105,12 @@ export class Command {
             regex: optionRegexifier(...matchingStrs),
             matches: matchingStrs
         };
-
     }
 
     // makes a mode for you
     addMode(name, ...matchingStrs) {
-        this.modes[name] = {
-            regex: optionRegexifier(...matchingStrs),
-            matches: matchingStrs
-        };
-
+        this.modes[name] = new Mode(name, optionRegexifier(...matchingStrs), matchingStrs);
+        return this.modes[name];
     }
 
     stripOptions(args) {
@@ -80,7 +132,7 @@ export class Command {
     // one of the arguments given matches some option regex then option
     // is true
     // returns map of options {optionName => found, ...}
-    getOption(args) {
+    parseOption(args) {
         let matched = {};
         Object.keys(this.options).forEach(prop => {
             matched[prop] = args.some(str => this.options[prop].regex.test(str));
@@ -90,10 +142,12 @@ export class Command {
 
     // the first argument given matches a mode regex then mode is true
     // returns map of modes {modeName => found, ...}
-    getMode(args) {
+    parseMode(args) {
         let matched = {};
         Object.keys(this.modes).forEach(prop => {
-            matched[prop] = this.modes[prop].regex.test(args[0])
+            let isMatch = this.modes[prop].regex.test(args[0])
+            matched[prop] = isMatch;
+            this.modes[prop].active = isMatch;
         });
         return matched;
     }
@@ -125,7 +179,7 @@ export class Command {
             ['Name', this.name],
             ['Full Name', this.fullName]
         ];
-        if(Object.keys(this.modes).length > 0) {
+        if (Object.keys(this.modes).length > 0) {
             let rows = [
                 ['Modes', '']
             ];
@@ -137,7 +191,7 @@ export class Command {
             // arr.push(row);
         }
 
-        if(Object.keys(this.options).length > 0) {
+        if (Object.keys(this.options).length > 0) {
             let rows = [
                 ['Options', '']
             ];
@@ -169,4 +223,13 @@ export class Command {
         } while (!yes.test(response) && !no.test(response));
         return yes.test(response);
     }
+
+    // async ask(terminal, question, validator) {
+    //     if(typeof validator !== 'function') throw new Error("ask requires a validator function.");
+    //     let response;
+    //     do {
+    //         response = await terminal.ask(question);
+    //     } while (!validator(response));
+    //     return response;
+    // }
 }

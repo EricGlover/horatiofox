@@ -86,8 +86,8 @@ Phasers have no effect on starbases (which are shielded) or on stars.`;
 
         // figure out the mode
         let args = this.terminal.getArguments();
-        let {auto, manual} = this.getMode(args);
-        let {no} = this.getOption(args);
+        let {auto, manual} = this.parseMode(args);
+        let {no} = this.parseOption(args);
         let noOption = no;
 
         // automatic is assumed

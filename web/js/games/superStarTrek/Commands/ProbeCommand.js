@@ -36,7 +36,7 @@ enters a quadrant containing a supernova, or if it leaves the galaxy.`
             return;
         }
         let args = this.terminal.getArguments();
-        let {armed} = this.getOption(args);
+        let {armed} = this.parseOption(args);
         let qx, qy;
         let nums = [];
         for(let i = 0; i < args.length; i++) {

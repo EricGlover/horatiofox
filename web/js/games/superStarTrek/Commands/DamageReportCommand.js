@@ -35,7 +35,7 @@ safely even in the midst of battle.`;
 
     run() {
         // get sort option if any
-        let {alpha, all} = this.getOption(this.terminal.getArguments());
+        let {alpha, all} = this.parseOption(this.terminal.getArguments());
 
         let sortedDevices = this.player.deviceContainer.devices.slice();
         if (alpha) { // sort alphabetically

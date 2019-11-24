@@ -10,6 +10,10 @@ export class Shields extends Device {
         this.terminal = terminal;
     }
 
+    remainingCapacity() {
+        return this.capacity - this.units;
+    }
+
     printInfo() {
         return `${this.up ? "UP" : "DOWN"}, ${this.units.toFixed(2)} ${(this.units * 100 / this.capacity).toFixed(1)}%`;
     }

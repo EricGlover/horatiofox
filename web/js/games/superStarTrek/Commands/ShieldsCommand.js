@@ -7,10 +7,15 @@ export class ShieldsCommand extends Command {
         this.terminal = terminal;
         this.player = player;
         this.regex = regexifier(this.abbreviation, this.name, this.fullName);
-        this.addMode("up", "up");
-        this.addMode("down", "down", "do", "d");
-        this.addMode("charge", "charge", "ch", "c");
-        this.addMode("drain", "drain", "dr");
+        this.addRequiredDevice(this.player.shields);
+        this.upMode = this.addMode("up", "up");
+        this.upMode.addRequiredDevice(this.player.shields);
+        this.downMode = this.addMode("down", "down", "do", "d");
+        this.downMode.addRequiredDevice(this.player.shields);
+        this.chargeMode = this.addMode("charge", "charge", "ch", "c");
+        this.chargeMode.addRequiredDevice(this.player.shields, this.player.powerGrid);
+        this.drainMode = this.addMode("drain", "drain", "dr");
+        this.drainMode.addRequiredDevice(this.player.shields, this.player.powerGrid);
         this._info = `  
 Full commands:  SHIELDS UP
                 SHIELDS DOWN
@@ -48,81 +53,231 @@ Enemy torpedoes hitting your ship explode on your shields (if they
 are up) and have essentially the same effect as phaser hits.`;
     }
 
-    run() {
-        // get mode : up/down or charge/drain
-        let {up, down, charge, drain} = this.getMode(this.terminal.getArguments());
+    async runInteractive() {
+        let shields = this.player.shields;
+        let powerGrid = this.player.powerGrid;
+        // check for damage
+        if(!this.areRequiredDevicesFunctional()) {
+            this.terminal.printLine(this.getDamagedDeviceError());
+            return;
+        }
+        // print shields status
+        this.terminal.printLine(`Shields are currently ${this.player.shields.up ? 'UP' : 'DOWN'}`);
+        let up = false;
+        let down = false;
+        let charge = false;
+        let drain = false;
+        let amount;
 
-        if (!up && !down && !charge && !drain) {
-            this.terminal.printLine("Beg pardon, Captain?");
-            this.terminal.printLine("Valid options are : 'up', 'down', 'charge', or 'drain'.");
+
+        if(shields.up) {
+            up = false;
+            down = await this.getConfirmation(this.terminal, `Would you like to lower shields?`);
+        } else {
+            up = await this.getConfirmation(this.terminal, `Would you like to raise shields?`);
+            down = false;
+        }
+        // if charge or drain get the amount
+        if(!up && !down) {
+            charge = await this.getConfirmation(this.terminal, `Would you like to charge the shields from ship energy?`);
+            if(charge) {
+                // check damage
+                let chargeMode = this.getMode("charge");
+                if(!chargeMode.areRequiredDevicesFunctional()) {
+                    this.terminal.printLine(chargeMode.getDamagedDeviceError());
+                    return;
+                }
+                // calculate the max you can transfer (capacity left or ship energy, whichever's smaller)
+                let rem = shields.remainingCapacity();
+                let gridEnergy = powerGrid.energy;
+                let maxAmount = Math.min(rem, gridEnergy);
+                this.terminal.echo(`Shields can be charged ${rem.toFixed(2)} units. `);
+                this.terminal.echo(`Ship energy is currently ${gridEnergy.toFixed(2)} units.\n`);
+                this.terminal.printLine(`The maximum amount of energy you can transfer to shields is ${maxAmount.toFixed(2)} units.`);
+                let response;
+                let valid = false;
+                do {
+                    response = await this.terminal.ask(`How much energy would you like to charge shields with? `);
+                    response = Number.parseFloat(response);
+                    if(Number.isNaN(response)) {
+                        let cancel = await this.getConfirmation(this.terminal, `Cancel command? `);
+                        if(cancel) return {cancel};
+                    } else if (response <= 0) {
+                        let cancel = await this.getConfirmation(this.terminal, `Cancel command? `);
+                        if(cancel) return {cancel};
+                    } else if (response > maxAmount) {
+                        this.terminal.printLine(`We can only transfer ${maxAmount.toFixed(2)} units.`);
+                        let yes = await this.getConfirmation(this.terminal, `Transfer ${maxAmount.toFixed(2)} units? `);
+                        if(yes) {
+                            valid = true;
+                            amount = response;
+                        }
+                    } else {
+                        valid = true;
+                        amount = response;
+                    }
+                } while (!valid);
+            } else {
+                drain = await this.getConfirmation(this.terminal, `Would you like to drain power from the shields (transfer power to the ship)?`);
+                if(drain) {
+                    // check damage
+                    let drainMode = this.getMode("drain");
+                    if(!drainMode.areRequiredDevicesFunctional()) {
+                        this.terminal.printLine(drainMode.getDamagedDeviceError());
+                        return;
+                    }
+                    // calculate the max you can transfer (remaining capacity, or shield energy, whichever's smaller)
+                    let remainingCap = powerGrid.capacity - powerGrid.energy;
+                    let shieldEnergy = shields.energy;
+                    let maxAmount = Math.min(remainingCap, shieldEnergy);
+                    this.terminal.printLine(`Ship can be charged ${remainingCap.toFixed(2)} units. Shield energy is currently ${shieldEnergy.toFixed(2)} units.`);
+                    this.terminal.printLine(`The maximum amount of energy you can transfer to the ship is ${maxAmount.toFixed(2)}.`);
+                    let response;
+                    let valid = false;
+                    do {
+                        response = await this.terminal.ask(`How much energy would you like to charge the ship with? `);
+                        response = Number.parseFloat(response);
+                        if(Number.isNaN(response)) {
+                            let cancel = await this.getConfirmation(this.terminal, `Cancel command? `);
+                            if(cancel) return {cancel};
+                        } else if (response <= 0) {
+                            let cancel = await this.getConfirmation(this.terminal, `Cancel command? `);
+                            if(cancel) return {cancel};
+                        } else if (response > maxAmount) {
+                            this.terminal.printLine(`We can only transfer ${maxAmount.toFixed(2)} units.`);
+                            let yes = await this.getConfirmation(this.terminal, `Transfer ${maxAmount.toFixed(2)} units? `);
+                            if(yes) {
+                                valid = true;
+                                amount = response;
+                            }
+                        } else {
+                            valid = true;
+                            amount = response;
+                        }
+                    } while(!valid);
+                }
+            }
+        }
+
+        if(!up && !down && !charge && !drain) { // loop de loop
+            let cancel = await this.getConfirmation(this.terminal, `Cancel command? `);
+            if(cancel) return {cancel};
+            return await this.runInteractive();
+        }
+
+        return {up, down, charge, drain, amount};
+    }
+
+    shieldsUp() {
+        this.player.shieldsUp();
+    }
+
+    shieldsDown() {
+        this.player.shieldsDown();
+    }
+
+    charge(amount) {
+        let chargeMode = this.getMode("charge");
+        if(!chargeMode.areRequiredDevicesFunctional()) {
+            this.terminal.printLine(chargeMode.getDamagedDeviceError());
+            return;
+        }
+        let playerPowerGrid = this.player.powerGrid;
+        let playerShields = this.player.shields;
+        // need the energy
+        if (playerPowerGrid.energy < amount) {
+            this.terminal.printLine("Not enough energy, Captain.");
+            return;
+        }
+        // ignore if shields at max
+        if (playerShields.units === playerShields.capacity) {
+            this.terminal.printLine("Shields already at max, Captain.");
             return;
         }
 
-        if (up) {
-            this.player.shieldsUp();
-        } else if (down) {
-            this.player.shieldsDown();
-        } else if (charge || drain) {
-            let playerShields = this.player.shields;
-            let playerPowerGrid = this.player.powerGrid;
+        // don't overflow
+        let sh = playerShields.units + amount;
+        if (sh > playerShields.capacity) {
+            this.terminal.printLine("That would exceed our shield energy capacity. Setting shields to max.");
+            amount = playerShields.capacity - playerShields.units;
+        }
+
+        // do the transfer
+        this.terminal.printLine("Charging shields.");
+        playerPowerGrid.useEnergy(amount);
+        playerShields.charge(amount);
+    }
+
+    drain(amount) {
+        let drainMode = this.getMode("drain");
+        if(!drainMode.areRequiredDevicesFunctional()) {
+            this.terminal.printLine(drainMode.getDamagedDeviceError());
+            return;
+        }
+        let playerPowerGrid = this.player.powerGrid;
+        let playerShields = this.player.shields;
+
+        // check shield energy
+        if (amount > playerShields.units) {
+            this.terminal.printLine("Not enough energy in shields. Draining what we have.");
+            amount = playerShields.units;
+        }
+        // check ship energy not already maxed out
+        if (playerPowerGrid.atMax()) {
+            this.terminal.printLine("Ship energy already at max.");
+            return;
+        }
+        // check that we don't exceed ship energy capacity
+        if (playerPowerGrid.energy + amount > playerPowerGrid.capacity) {
+            this.terminal.printLine("That would exceed our ship energy capacity. Setting ship energy to maximum.");
+            amount = playerPowerGrid.capacity - playerPowerGrid.energy;
+        }
+
+        playerShields.drain(amount);
+        playerPowerGrid.addEnergy(amount);
+    }
+
+    async run() {
+        // get mode : up/down or charge/drain
+        let {up, down, charge, drain} = this.parseMode(this.terminal.getArguments());
+        let amount;
+        let runInteractive = !up && !down && !charge && !drain;
+
+        // get the amount
+        if (charge || drain) {
             // get the amount to transfer
-            let amount = this.terminal.getArguments()[1];
+            amount = this.terminal.getArguments()[1];
             amount = Number.parseInt(amount);
             if (Number.isNaN(amount)) {
                 // parse error
                 this.terminal.printLine(`${amount} is an gibberish amount to transfer captain.`);
-                return;
+                runInteractive = true;
             } else if (amount === 0) {
                 this.terminal.printLine("Beg pardon Captain?");
-                return;
+                runInteractive = true;
             }
-            // check that you can do the transfer
-            if (playerShields.isDamaged()) {
-                this.terminal.echo("Shields damaged.");
-                return;
-            }
-            if (charge) {
-                // need the energy
-                if (playerPowerGrid.energy < amount) {
-                    this.terminal.printLine("Not enough energy, Captain.");
-                    return;
-                }
-                // ignore if shields at max
-                if (playerShields.units === playerShields.capacity) {
-                    this.terminal.printLine("Shields already at max, Captain.");
-                    return;
-                }
+        }
 
-                // don't overflow
-                let sh = playerShields.units + amount;
-                if (sh > playerShields.capacity) {
-                    amount = playerShields.capacity - playerShields.units;
-                }
+        // run interactive mode if they can't figure text commands
+        if (runInteractive) {
+            let response = await this.runInteractive();
+            if(response.cancel) return;
+            up = response.up;
+            down = response.down;
+            charge = response.charge;
+            amount = response.amount;
+        }
 
-                // do the transfer
-                this.terminal.printLine("Charging shields.");
-                playerPowerGrid.useEnergy(amount);
-                playerShields.charge(amount);
-            } else if (drain) {
-                // check shield energy
-                if (amount > playerShields.units) {
-                    this.terminal.printLine("Not enough energy in shields. Draining what we have.");
-                    amount = playerShields.units;
-                }
-                // check ship energy not already maxed out
-                if (playerPowerGrid.atMax()) {
-                    this.terminal.printLine("Ship energy already at max.");
-                    return;
-                }
-                // check that we don't exceed ship energy capacity
-                if (playerPowerGrid.energy + amount > playerPowerGrid.capacity) {
-                    this.terminal.printLine("That would exceed our ship energy capacity. Setting ship energy to maximum.");
-                    amount = playerPowerGrid.capacity - playerPowerGrid.energy;
-                }
 
-                playerShields.drain(amount);
-                playerPowerGrid.addEnergy(amount);
-            }
+        // run mode
+        if (up) {
+            this.shieldsUp();
+        } else if (down) {
+            this.shieldsDown();
+        } else if (charge) {
+            this.charge(amount);
+        } else if (drain) {
+            this.drain(amount);
         }
     }
 }

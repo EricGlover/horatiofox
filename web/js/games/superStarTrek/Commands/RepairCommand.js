@@ -84,7 +84,7 @@ Syntax 2) REPAIR set priority
 
     async run() {
         let args = this.terminal.getArguments();
-        let {setRepairMode, setRepairPriority} = this.getMode(args);
+        let {setRepairMode, setRepairPriority} = this.parseMode(args);
         if (setRepairMode) {
             this.setRepairMode();
         } else if (setRepairPriority) {
