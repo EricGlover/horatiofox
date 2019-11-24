@@ -5,7 +5,7 @@ import {Device, powerGridType} from "./Devices.js";
  */
 export class PowerGrid extends Device {
     constructor(capacity, parent) {
-        super(parent, powerGridType, .12);
+        super(parent, powerGridType, .01);
         this.capacity = capacity;
         this._energy = capacity;
     }

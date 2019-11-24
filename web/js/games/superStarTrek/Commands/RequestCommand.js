@@ -1,4 +1,4 @@
-import {Command, regexifier, optionRegexifier, INFO_COMMAND} from "./Command.js";
+import {Command, optionRegexifier, INFO_COMMAND} from "./Command.js";
 
 export class RequestCommand extends Command {
     constructor(game, terminal, statusCommand) {

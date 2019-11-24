@@ -7,8 +7,8 @@ export class DamageReportCommand extends Command {
         this.terminal = terminal;
         this.player = player;
         this.regex = regexifier(this.abbreviation, this.name, "damage", this.fullName);
-        this.addOption("alpha", "a", "alpha", "alphabetically");
-        this.addOption("all", "all");
+        this.options.addOption("alpha", "a", "alpha", "alphabetically");
+        this.options.addOption("all", "all");
         this._info = ` 
 Syntax: [command] (options)
 example usage : 
@@ -35,7 +35,7 @@ safely even in the midst of battle.`;
 
     run() {
         // get sort option if any
-        let {alpha, all} = this.parseOption(this.terminal.getArguments());
+        let {alpha, all} = this.options.parseOption(this.terminal.getArguments());
 
         let sortedDevices = this.player.deviceContainer.devices.slice();
         if (alpha) { // sort alphabetically

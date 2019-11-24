@@ -73,7 +73,7 @@ export class Collider extends Component {
     }
 
     static collision(a, b) {
-        if (!a instanceof Collider || !b instanceof Collider) {
+        if (!(a instanceof Collider) || !(b instanceof Collider)) {
             console.error('both a and b need to be colliders, ', a, b);
             return false;
         }

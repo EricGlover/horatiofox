@@ -30,7 +30,7 @@ export class Quadrant {
     }
 
     getSectorsAdjacentTo(sector, includeSelf = false, includeDiagonals = false) {
-        if (!sector instanceof Sector) return [];
+        if (!(sector instanceof Sector)) return [];
         let sectorX = sector._x;
         let sectorY = sector._y;
         let sectors = [];
@@ -52,7 +52,7 @@ export class Quadrant {
     }
 
     getNearestEmptySectorAdjacentTo(sector) {
-        if (!sector instanceof Sector) return;
+        if (!(sector instanceof Sector)) return;
         let sectorX = sector._x;
         let sectorY = sector._y;
 

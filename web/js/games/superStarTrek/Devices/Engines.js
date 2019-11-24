@@ -63,7 +63,7 @@ export class Engines extends Device {
     }
 
     moveTo(sector) {
-        if (!sector instanceof Sector) {
+        if (!(sector instanceof Sector)) {
             throw new Error("Can't move there");
         }
         this.checkDamage();

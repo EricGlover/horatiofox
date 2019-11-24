@@ -130,7 +130,7 @@ export class Galaxy {
     }
 
     getQuadrantsAdjacencyMatrix(quadrant) {
-        if (!quadrant instanceof Quadrant) return [];
+        if (!(quadrant instanceof Quadrant)) return [];
         let quadrantX = quadrant._x;
         let quadrantY = quadrant._y;
         let matrix = [];
@@ -151,7 +151,7 @@ export class Galaxy {
     //
     // internal coordinates x y
     getQuadrantsAdjacentTo(quadrant, includeSelf = false) {
-        if (!quadrant instanceof Quadrant) return [];
+        if (!(quadrant instanceof Quadrant)) return [];
         let quadrantX = quadrant._x;
         let quadrantY = quadrant._y;
         let quadrants = [];

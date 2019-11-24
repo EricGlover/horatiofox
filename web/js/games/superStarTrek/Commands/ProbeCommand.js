@@ -8,7 +8,7 @@ export class ProbeCommand  extends Command {
         this.galaxy = galaxy;
         this.terminal = terminal;
         this.player = player;
-        this.addOption('armed', 'armed', 'a');
+        this.options.addOption('armed', 'armed', 'a');
         this._info = `
 Full command:  PROBE [ARMED] [quadrant x] [quadrant y]
 
@@ -36,7 +36,7 @@ enters a quadrant containing a supernova, or if it leaves the galaxy.`
             return;
         }
         let args = this.terminal.getArguments();
-        let {armed} = this.parseOption(args);
+        let {armed} = this.options.parseOption(args);
         let qx, qy;
         let nums = [];
         for(let i = 0; i < args.length; i++) {

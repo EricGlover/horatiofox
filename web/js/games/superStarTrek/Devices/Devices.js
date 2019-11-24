@@ -82,7 +82,7 @@ export class Device extends Component {
     }
 
     isType(deviceType) {
-        if (!deviceType instanceof DeviceType) return false;
+        if (!(deviceType instanceof DeviceType)) return false;
         return this.type.name === deviceType.name;
     }
 
@@ -143,7 +143,8 @@ export const REPAIR_STRATEGY_EVEN = 'even';
 export const REPAIR_STRATEGY_LEAST = 'least';
 export const REPAIR_STRATEGY_MOST = 'most';
 export const REPAIR_STRATEGY_PRIORITY = 'priority';
-const REPAIR_MODES = [REPAIR_STRATEGY_EVEN, REPAIR_STRATEGY_LEAST, REPAIR_STRATEGY_MOST, REPAIR_STRATEGY_PRIORITY];
+export const REPAIR_STRATEGY_IMMEDIATE = 'immediate'; // hidden from user, used to repair specific devices once
+const REPAIR_MODES = [REPAIR_STRATEGY_EVEN, REPAIR_STRATEGY_LEAST, REPAIR_STRATEGY_MOST, REPAIR_STRATEGY_PRIORITY, REPAIR_STRATEGY_IMMEDIATE];
 const DEVICE_REPAIR_SPEED_DOCKED = 1;
 const DEVICE_REPAIR_SPEED_IN_FLIGHT = .3;
 
@@ -157,8 +158,10 @@ export class DeviceContainer {
         this.parent = parent;
         this.parent.deviceContainer = this;
         this.devices = [];
+        this._immediateRepairDevices = [];
         this.repairSpeed = DEVICE_REPAIR_SPEED_IN_FLIGHT;   //speed at which devices are repaired (docked = 1)
         this.repairMode = REPAIR_STRATEGY_EVEN;
+        this._previousRepairMode = this.repairMode;
         this.onTimeElapse = this.onTimeElapse.bind(this);
         clock.register(this.onTimeElapse);
         // <int> priority # => List <device>
@@ -171,11 +174,26 @@ export class DeviceContainer {
         this.repairSpeed = n;
     }
 
+    getRepairMode() {
+        return this.repairMode;
+    }
+
     setRepairMode(mode) {
         if (!REPAIR_MODES.some(m => mode === m)) {
             throw new Error(`${mode} is not a valid repair mode.`);
         }
         this.repairMode = mode;
+    }
+
+    repairDevicesNext(devices) {
+        devices = devices.filter(d => d instanceof Device);
+        // hopefully we actually have those devices....
+        devices = devices.filter(d => {
+            return this.devices.some(device => d === device);
+        });
+        this._immediateRepairDevices = devices;
+        this._previousRepairMode = this.repairMode;
+        this.setRepairMode(REPAIR_STRATEGY_IMMEDIATE);
     }
 
     _repairDevicesEvenly(devices, totalAmount) {
@@ -216,6 +234,17 @@ export class DeviceContainer {
         let repairAmount = days * this.repairSpeed;
         let damagedDevices = this.devices.filter(d => d.isDamaged());
         switch (this.repairMode) {
+            case REPAIR_STRATEGY_IMMEDIATE:
+                this._repairDevicesEvenly(this._immediateRepairDevices, repairAmount);
+
+                // if all done
+                let allDone = this._immediateRepairDevices.every(d => !d.isDamaged());
+                if(allDone) {
+                    this._immediateRepairDevices = [];
+                    this.setRepairMode(this._previousRepairMode);
+                    this._previousRepairMode = null;
+                }
+                break;
             case REPAIR_STRATEGY_EVEN:
                 // spread repairs across damaged devices evenly
                 this._repairDevicesEvenly(damagedDevices, repairAmount);

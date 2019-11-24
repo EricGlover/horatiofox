@@ -28,12 +28,50 @@ export const MOVE_COMMAND = "move";
 export const TIME_EXPENDING_SHIP_COMMAND = "not instant ship command";
 export const INSTANT_SHIP_COMMAND = "instant ship command";
 
+class OptionsComponent {
+    constructor(parent) {
+        this.parent = parent;
+        this.parent.options = this;
+        this.options = {}; // name => {regex: /regex/, matches: string[]}
+    }
+    // makes an option for you
+    addOption(name, ...matchingStrs) {
+        this.options[name] = {
+            regex: optionRegexifier(...matchingStrs),
+            matches: matchingStrs
+        };
+    }
+
+    // one of the arguments given matches some option regex then option
+    // is true
+    // returns map of options {optionName => found, ...}
+    parseOption(args) {
+        if(typeof args === 'string') args = args.split(" ");
+        let matched = {};
+        Object.keys(this.options).forEach(prop => {
+            matched[prop] = args.some(str => this.options[prop].regex.test(str));
+        });
+        return matched;
+    }
+
+    stripOptions(args) {
+        return args.filter(arg => {
+            return !Object.keys(this.options).some(prop => this.options[prop].regex.test(arg));
+        });
+    }
+
+    getOptionNames() {
+        return Object.keys(this.options);
+    }
+}
+
 class Mode {
     constructor(name, regex, matches, requiredDevices = []) {
         this.name = name;
         this.regex = regex;
         this.matches = matches;
         this.requiredDevices = requiredDevices;
+        this.options = new OptionsComponent(this);
     }
 
     addRequiredDevice(...devices) {
@@ -65,7 +103,7 @@ export class Command {
         this.regex = regexifier(this.abbreviation, this.name, this.fullName);
         this.type = type;
         this._info = "No info.";
-        this.options = {};  // name => {regex: /regex/, matches: string[]}
+        this.options = new OptionsComponent(this);
         this.modes = {};    // name => {regex: /regex/, matches: string[]}
         this.requiredDevices = [];
         this.active = true;
@@ -99,24 +137,13 @@ export class Command {
         return this.modes.find(m => m.active);
     }
 
-    // makes an option for you
-    addOption(name, ...matchingStrs) {
-        this.options[name] = {
-            regex: optionRegexifier(...matchingStrs),
-            matches: matchingStrs
-        };
-    }
-
     // makes a mode for you
-    addMode(name, ...matchingStrs) {
+    // name <string> name to display to user in help menu
+    // propName <string> propName to be returned with this.getMode()
+    // ...matchingStrings strings that match this mode
+    addMode(name, propName, ...matchingStrs) {
         this.modes[name] = new Mode(name, optionRegexifier(...matchingStrs), matchingStrs);
         return this.modes[name];
-    }
-
-    stripOptions(args) {
-        return args.filter(arg => {
-            return !Object.keys(this.options).some(prop => this.options[prop].regex.test(arg));
-        });
     }
 
     stripModes(args) {
@@ -126,18 +153,7 @@ export class Command {
     }
 
     stripModeAndOptions(args) {
-        return this.stripModes(this.stripOptions(args));
-    }
-
-    // one of the arguments given matches some option regex then option
-    // is true
-    // returns map of options {optionName => found, ...}
-    parseOption(args) {
-        let matched = {};
-        Object.keys(this.options).forEach(prop => {
-            matched[prop] = args.some(str => this.options[prop].regex.test(str));
-        });
-        return matched;
+        return this.stripModes(this.options.stripOptions(args));
     }
 
     // the first argument given matches a mode regex then mode is true
@@ -145,7 +161,7 @@ export class Command {
     parseMode(args) {
         let matched = {};
         Object.keys(this.modes).forEach(prop => {
-            let isMatch = this.modes[prop].regex.test(args[0])
+            let isMatch = this.modes[prop].regex.test(args[0]);
             matched[prop] = isMatch;
             this.modes[prop].active = isMatch;
         });
@@ -191,11 +207,11 @@ export class Command {
             // arr.push(row);
         }
 
-        if (Object.keys(this.options).length > 0) {
+        if (Object.keys(this.options.options).length > 0) {
             let rows = [
                 ['Options', '']
             ];
-            Object.entries(this.options).forEach(([k, v], i) => {
+            Object.entries(this.options.options).forEach(([k, v], i) => {
                 rows.push([`  ${i + 1}) ${k}`, v.matches.join(", ")]);
             });
             arr.push(...rows);

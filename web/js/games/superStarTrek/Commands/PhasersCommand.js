@@ -8,9 +8,9 @@ export class PhasersCommand extends Command {
         this.game = game;
         this.terminal = terminal;
         this.player = player;
-        this.addOption("no", "n", "no");
-        this.addMode("auto", "a", "auto", "automatic");
-        this.addMode("manual", "m", "man", "manual");
+        this.options.addOption("no", "n", "no");
+        this.addMode("automatic", 'auto', "a", "auto", "automatic");
+        this.addMode("manual", 'manual',"m", "man", "manual");
         this._info = `
 Full commands:  PHASERS AUTOMATIC [AMOUNT TO FIRE] (NO)
                 PHASERS [AMOUNT TO FIRE] (NO)
@@ -87,7 +87,7 @@ Phasers have no effect on starbases (which are shielded) or on stars.`;
         // figure out the mode
         let args = this.terminal.getArguments();
         let {auto, manual} = this.parseMode(args);
-        let {no} = this.parseOption(args);
+        let {no} = this.options.parseOption(args);
         let noOption = no;
 
         // automatic is assumed

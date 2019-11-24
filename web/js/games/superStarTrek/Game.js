@@ -283,26 +283,34 @@ export default class Game {
 
     async onScreenSizeChange() {
         // unregister / register commands from or to the main terminal
+        // the status and request command only show info that's incorporated
+        // into the scan command, so if the scan command has a pane then they're disabled
         // depending on screen size
         // then render
-        if (this.screen.isSmallScreen || this.screen.isTinyScreen) {
+        if (this.screen.isSmallScreen || this.screen.isTinyScreen) {    // only one pane visible
             this.scanCommand.active = true;
             this.chartCommand.active = true;
             this.statusCommand.active = true;
+            this.requestCommand.active = true;
+            this.terminal.registerCommand(this.requestCommand);
             this.terminal.registerCommand(this.scanCommand);
             this.terminal.registerCommand(this.chartCommand);
             this.terminal.registerCommand(this.statusCommand);
-        } else if (this.screen.isMediumScreen) {
+        } else if (this.screen.isMediumScreen) {                        // 2 panes visible
             this.scanCommand.active = false;
             this.statusCommand.active = false;
             this.chartCommand.active = true;
+            this.requestCommand.active = false;
+            this.terminal.unregisterCommand(this.requestCommand);
             this.terminal.registerCommand(this.chartCommand);
             this.terminal.unregisterCommand(this.statusCommand);
             this.terminal.unregisterCommand(this.scanCommand);
-        } else if (this.screen.isLargeScreen) {
+        } else if (this.screen.isLargeScreen) {                         // 3 panes visible
             this.scanCommand.active = false;
             this.chartCommand.active = false;
             this.statusCommand.active = false;
+            this.requestCommand.active = false;
+            this.terminal.unregisterCommand(this.requestCommand);
             this.terminal.unregisterCommand(this.scanCommand);
             this.terminal.unregisterCommand(this.statusCommand);
             this.terminal.unregisterCommand(this.chartCommand);
@@ -556,14 +564,15 @@ With your starship confiscated by the Klingon High Command, you relocate to a mi
     makeCommands() {
         this.commands = [];
         this.commands.push(new ProbeCommand(this.terminal, this.player, this.galaxy));
-        this.commands.push(new RepairCommand(this.terminal, this.player));
+        this.commands.push(new RepairCommand(this.terminal, this.player, this));
         this.chartCommand = new ChartCommand(this, this.terminal, this.player, this.galaxy);
         let commandsCommand = new CommandsCommand(this, this.terminal);
         this.statusCommand = new StatusCommand(this, this.terminal, this.player, this.galaxy);
         this.commands.push(new ShieldsCommand(this, this.terminal, this.player));
         this.commands.push(commandsCommand);
         this.commands.push(this.statusCommand);
-        this.commands.push(new RequestCommand(this, this.terminal, this.statusCommand));
+        this.requestCommand = new RequestCommand(this, this.terminal, this.statusCommand);
+        this.commands.push(this.requestCommand);
         this.commands.push(this.chartCommand);
         this.scanCommand = new ShortRangeScanCommand(this, this.terminal, this.player, this.chartCommand, this.statusCommand);
         this.commands.push(this.scanCommand);

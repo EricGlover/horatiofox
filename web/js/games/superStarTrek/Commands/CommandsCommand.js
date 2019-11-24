@@ -7,7 +7,7 @@ export class CommandsCommand extends Command {
         this.game = game;
         this.terminal = terminal;
         this.type = INFO_COMMAND;
-        this.addOption('alias', 'a', 'alias');
+        this.options.addOption('alias', 'a', 'alias');
         this._info = `
 Prints a chart of the commands sorted by types. 
 Adding the 'alias' option shows you a chart of all the commands, their names, and aliases. 
@@ -94,7 +94,7 @@ Adding the 'alias' option shows you a chart of all the commands, their names, an
     }
 
     run() {
-        let {alias} = this.parseOption(this.terminal.getArguments());
+        let {alias} = this.options.parseOption(this.terminal.getArguments());
         if(alias) {
             this.printAliases();
         } else {

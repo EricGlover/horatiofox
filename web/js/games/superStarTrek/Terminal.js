@@ -7,14 +7,9 @@ export class Terminal {
         this.$terminal = null;
         this._out = "";
         this.silent = false;
-        this._command = null;
-        this._input = null;
         this._argumentStr = null;
         this._arguments = null;
-        this.questionMode = false;
-        this.question = "";
         this.commands = [];
-        window.terminal = this;
         this.paging = true;
         this.takesInput = takesInput;
     }
@@ -136,8 +131,7 @@ export class Terminal {
         return regex.test(this._argumentStr);
     }
 
-    // the only hitch here is question mode
-    // in question mode we have the
+    //
     async runCommand(commandName, commandObj) {
         // find a command by name
         let command = this.commands.find(c => c.name === commandName);
@@ -171,8 +165,6 @@ export class Terminal {
     async ask(question) {
         // print existing stuff ?
         this.print();
-        // this.questionMode = true;
-        // this.question = question;
         let oldPrompt = this.$terminal.get_settings().ps;
         this.setPrompt(question);
         return new Promise((resolve, reject) => {

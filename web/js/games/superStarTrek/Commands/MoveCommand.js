@@ -11,9 +11,9 @@ export class MoveCommand extends Command {
         this.player = player;
         this.galaxy = galaxy;
         this.regex = regexifier(this.abbreviation, this.name);
-        this.addMode('manual', 'm', 'manual');
-        this.addMode('automatic', 'a', 'automatic');
-        this.addOption('impulse', 'i', 'impulse');
+        this.addMode('manual', 'manual',  'm', 'manual');
+        this.addMode('automatic', 'automatic',  'a', 'automatic');
+        this.options.addOption('impulse', 'i', 'impulse');
         this.useImpulse = false;
         this._info = `
   Full command:  MOVE MANUAL [displacement] (impulse)
@@ -166,7 +166,7 @@ much too slow to use except in emergencies.`;
         // remove mode option from arguments, if provided
         let args = this.terminal.getArguments();
         let {manual, automatic} = this.parseMode(args);
-        let {impulse} = this.parseOption(args);
+        let {impulse} = this.options.parseOption(args);
         this.useImpulse = impulse;
         if (!manual && !automatic) automatic = true;    // set a default
         args = this.stripModeAndOptions(args);
@@ -193,6 +193,7 @@ much too slow to use except in emergencies.`;
                 return;
             }
 
+            debugger;
             // calculate the destination
             let move = Vector.make(deltaX, deltaY);
             coordinates =  this.player.gameObject.coordinates.addVector(move);
