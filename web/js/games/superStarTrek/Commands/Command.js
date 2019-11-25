@@ -222,6 +222,17 @@ export class Command {
         return Terminal.joinGrid(grid, "    ");
     }
 
+    async getInt(terminal, question) {
+        let valid = false;
+        let response;
+        do {
+            response = await terminal.ask(question);
+            response = Number.parseInt(response);
+            valid = !Number.isNaN(response);
+        } while (!valid);
+        return response;
+    }
+
     /**
      * Ask a yes / no question get a boolean answer
      * @param terminal

@@ -11,8 +11,8 @@ export class MoveCommand extends Command {
         this.player = player;
         this.galaxy = galaxy;
         this.regex = regexifier(this.abbreviation, this.name);
-        this.addMode('manual', 'manual',  'm', 'manual');
-        this.addMode('automatic', 'automatic',  'a', 'automatic');
+        this.addMode('manual', 'manual', 'm', 'manual');
+        this.addMode('automatic', 'automatic', 'a', 'automatic');
         this.options.addOption('impulse', 'i', 'impulse');
         this.useImpulse = false;
         this._info = `
@@ -159,12 +159,132 @@ much too slow to use except in emergencies.`;
         // for collisions
     }
 
+    async runInteractive() {
+        // which mode
+        let automatic = await this.getConfirmation(this.terminal, `Would you like to specify your destination?`);
+        if (automatic) {
+            let quadX, quadY, sectorX, sectorY;
+            // get destination
+            let differentQuadrant = await this.getConfirmation(this.terminal, 'Would you like to move to a different quadrant?');
+            let coordinates;
+            // get coordinates
+            if (differentQuadrant) {
+                // get quad x y, sector x y
+                quadX = await this.getInt(this.terminal, `Quadrant x?`);
+                quadY = await this.getInt(this.terminal, `Quadrant y?`);
+                sectorX = await this.getInt(this.terminal, 'Sector x?');
+                sectorY = await this.getInt(this.terminal, 'Sector y?');
+                coordinates = Coordinates.convert(quadX, quadY, sectorX, sectorY, this.galaxy);
+
+            } else {
+                sectorX = await this.getInt(this.terminal, 'Sector x?');
+                sectorY = await this.getInt(this.terminal, 'Sector y?');
+                coordinates = Coordinates.convert1(this.player.gameObject.quadrant, sectorX, sectorY, this.galaxy);
+            }
+            // use impulse ?
+            this.useImpulse = await this.getConfirmation(this.terminal, 'Would you like to use impulse engines instead of the warp drive?');
+            return this.validateCoordinatesAndMove(coordinates, true);
+        }
+        let manual = await this.getConfirmation(this.terminal, `Would you like to specify your displacement?`);
+        if (manual) {
+            // get displacement
+            let deltaX = 0;
+            let deltaY = 0;
+
+            // deltaX
+            let right = await this.getConfirmation(this.terminal, 'Would you like to move right?');
+            if(right) {
+                deltaX = await this.getInt(this.terminal, 'How many sectors?');
+            } else {
+                let left = await this.getConfirmation(this.terminal, 'Would you like to move left?');
+                if(left) {
+                    deltaX = -1 * await this.getInt(this.terminal, 'How many sectors?');
+                } else {
+                    deltaX = 0;
+                }
+            }
+
+            // deltaY
+            let up = await this.getConfirmation(this.terminal, 'Would you like to move up?');
+            if(up) {
+                deltaY = -1 * await this.getInt(this.terminal, 'How many sectors?');
+            } else {
+                let down = await this.getConfirmation(this.terminal, 'Would you like to move down?');
+                if(down) {
+                    deltaY = await this.getInt(this.terminal, 'How many sectors?');
+                } else {
+                    deltaY = 0;
+                }
+            }
+
+            // use impulse ?
+            this.useImpulse = await this.getConfirmation(this.terminal, 'Would you like to use impulse engines instead of the warp drive?');
+
+            // calculate the destination
+            let move = Vector.make(deltaX, deltaY);
+            let coordinates = this.player.gameObject.coordinates.addVector(move);
+            return this.validateCoordinatesAndMove(coordinates, true);
+        } else {
+            let cancel = await this.getConfirmation(this.terminal, "Cancel Command?");
+            if (cancel) return;
+            return this.runInteractive();
+        }
+    }
+
+    async validateCoordinatesAndMove(coordinates, confirm = false) {
+        if (!this.galaxy.areValidCoordinates(coordinates)) {
+            this.terminal.printLine("Those coordinates aren't valid, Captain.");
+            return this.runInteractive();
+        }
+        let destination = this.galaxy.getSector(coordinates);
+
+        // now that we have a target destination check that it exists
+        if (!destination || !(destination instanceof Sector)) {
+            console.error(destination);
+            console.error("should be a Sector.");
+            this.terminal.printLine('Beg pardon, Captain?');
+            return this.runInteractive();
+        }
+
+        if(confirm) {
+            let c = destination.center;
+            let l = `Quadrant ${c.userQuadrantX} - ${c.userQuadrantY}, Sector ${c.userSectorX} - ${c.userSectorY}`;
+            let y = await this.getConfirmation(this.terminal, `Move to ${l} ?`);
+            if(!y) {
+                let cancel = await this.getConfirmation(this.terminal, "Cancel Command?");
+                if (cancel) return;
+                return this.runInteractive();
+            }
+        }
+
+        // now check that there's nothing already there
+        // if there's something there, move us to an adjacent sector in the quadrant if possible
+        // todo:: add ramming
+        if (destination.isFull()) {
+            let newDestination = destination.quadrant.getNearestEmptySectorAdjacentTo(destination);
+            if (!newDestination) {
+                this.terminal.printLine(`Computer error Captain, can't move there.`);
+                console.error(`can't find adjacent sector`);
+                return this.runInteractive();
+            }
+            let thing = destination.container.getAllGameObjects().filter(obj => obj.collider)[0];
+            this.terminal.printLine(`Sulu - "We managed to avoid the ${thing.name} at ${thing.gameObject.printSectorLocation()}."`);
+            destination = newDestination;
+        }
+        return this.moveTo(destination);
+    }
+
     async run() {
-        // todo:: if args.length = 0 then interactive mode
         // sort out our target Sector to move to depending on the chosen mode
         // modes : manual and automatic
         // remove mode option from arguments, if provided
         let args = this.terminal.getArguments();
+        if (args.length === 0) {
+            return this.runInteractive();
+        }
+
+        //todo:: check if impulse or warp drive is damaged
+
         let {manual, automatic} = this.parseMode(args);
         let {impulse} = this.options.parseOption(args);
         this.useImpulse = impulse;
@@ -174,14 +294,15 @@ much too slow to use except in emergencies.`;
         // validate ints
         args = args.map(str => Number.parseInt(str)).filter(num => !Number.isNaN(num));
 
+        // get coordinates
         let coordinates;
         if (manual) {
-            if(args.length === 0) {
+            if (args.length === 0) {
                 this.terminal.printLine("Beg pardon, Captain?");
-                return;
+                return this.runInteractive();
             }
             let deltaX, deltaY;
-            if(args.length === 1) {
+            if (args.length === 1) {
                 deltaX = args[0];
                 deltaY = 0;
             } else {
@@ -189,14 +310,13 @@ much too slow to use except in emergencies.`;
                 deltaY = args[1];
             }
             // args are in terms of sectors
-            if(deltaX === 0 && deltaY === 0) {
-                return;
+            if (deltaX === 0 && deltaY === 0) {
+                this.terminal.printLine("Beg pardon, Captain?");
+                return this.runInteractive();
             }
-
-            debugger;
             // calculate the destination
             let move = Vector.make(deltaX, deltaY);
-            coordinates =  this.player.gameObject.coordinates.addVector(move);
+            coordinates = this.player.gameObject.coordinates.addVector(move);
         } else if (automatic) {
             // parse args <quadY> <quadX> <sectorY> <sectorX>
             // or just <sectorY> <sectorX>
@@ -217,44 +337,11 @@ much too slow to use except in emergencies.`;
                 coordinates = Coordinates.convert1(quadrant, sectorX, sectorY, this.galaxy);
             } else {
                 this.terminal.printLine("Beg pardon, Captain?");
-                return;
+                return this.runInteractive();
             }
         }
 
-        if (!this.galaxy.areValidCoordinates(coordinates)) {
-            this.terminal.printLine("Beg pardon, Captain?");
-            return;
-        }
-        let destination = this.galaxy.getSector(coordinates);
 
-        // now that we have a target destination check that it exists
-        if (!destination || !(destination instanceof Sector)) {
-            console.error(destination);
-            console.error("should be a Sector.");
-            this.terminal.printLine('Beg pardon, Captain?');
-            return;
-        }
-
-        // now check that there's nothing already there
-        // if there's something there, move us to an adjacent sector in the quadrant if possible
-        // todo:: add ramming
-        if (destination.isFull()) {
-            let newDestination = destination.quadrant.getNearestEmptySectorAdjacentTo(destination);
-            if (!newDestination) {
-                this.terminal.printLine(`Computer error Captain, can't move there.`);
-                console.error(`can't find adjacent sector`);
-                return;
-            }
-            let thing = destination.container.getAllGameObjects().filter(obj => obj.collider)[0];
-            this.terminal.printLine(`Sulu - "We managed to avoid the ${thing.name} at ${thing.gameObject.printSectorLocation()}."`);
-            destination = newDestination;
-        }
-
-        try {
-            await this.moveTo(destination);
-        } catch (e) {
-            console.error(e);
-            throw e;
-        }
+        return this.validateCoordinatesAndMove(coordinates);
     }
 }

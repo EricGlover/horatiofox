@@ -77,6 +77,8 @@ export class Coordinates {
         return deltaQ * galaxy.quadrantLength + deltaS;
     }
 
+
+
     // make coordinates from user coordinates
     // user coordinates are 1 based and centered
     // could be floats ???
