@@ -42,7 +42,7 @@ export default class Enterprise {
         // devices
         this.phasers = new Phasers(this, this.powerGrid);
 
-        this.photons = new PhotonTorpedoLauncher(this, 10, 10);
+        this.photons = new PhotonTorpedoLauncher(this, 10, 10, 3);
         this.shields = new Shields(this, 2500, this.powerGrid);
 
         this.shortRangeSensors = new Device(this, shortRangeSensorType);

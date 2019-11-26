@@ -34,6 +34,7 @@ class OptionsComponent {
         this.parent.options = this;
         this.options = {}; // name => {regex: /regex/, matches: string[]}
     }
+
     // makes an option for you
     addOption(name, ...matchingStrs) {
         this.options[name] = {
@@ -46,7 +47,7 @@ class OptionsComponent {
     // is true
     // returns map of options {optionName => found, ...}
     parseOption(args) {
-        if(typeof args === 'string') args = args.split(" ");
+        if (typeof args === 'string') args = args.split(" ");
         let matched = {};
         Object.keys(this.options).forEach(prop => {
             matched[prop] = args.some(str => this.options[prop].regex.test(str));
@@ -75,7 +76,7 @@ class Mode {
     }
 
     addRequiredDevice(...devices) {
-        if(devices.some(d => !(d instanceof Device))) throw new Error('Mode requires devices be passed in.');
+        if (devices.some(d => !(d instanceof Device))) throw new Error('Mode requires devices be passed in.');
         this.requiredDevices.push(...devices);
     }
 
@@ -85,7 +86,7 @@ class Mode {
 
     getDamagedDeviceError() {
         let damaged = this.requiredDevices.filter(d => d.isDamaged());
-        if(damaged.length > 1) {
+        if (damaged.length > 1) {
             return `Required devices are damaged : ${damaged.map(d => d.name).join(", ")} .`;
         } else if (damaged.length === 1) {
             return `Required device is damaged : ${damaged[0].name}.`;
@@ -111,7 +112,7 @@ export class Command {
     }
 
     addRequiredDevice(...devices) {
-        if(devices.some(d => !(d instanceof Device))) throw new Error('Command requires devices be passed in.');
+        if (devices.some(d => !(d instanceof Device))) throw new Error('Command requires devices be passed in.');
         this.requiredDevices.push(...devices);
     }
 
@@ -121,7 +122,7 @@ export class Command {
 
     getDamagedDeviceError() {
         let damaged = this.requiredDevices.filter(d => d.isDamaged());
-        if(damaged.length > 1) {
+        if (damaged.length > 1) {
             return `Required devices are damaged : ${damaged.map(d => d.name).join(", ")} .`;
         } else if (damaged.length === 1) {
             return `Required device is damaged : ${damaged[0].name}.`;
@@ -229,8 +230,27 @@ export class Command {
             response = await terminal.ask(question);
             response = Number.parseInt(response);
             valid = !Number.isNaN(response);
+            if (!valid) {
+                terminal.printLine("Please provide an integer value.");
+            }
         } while (!valid);
         return response;
+    }
+
+    async getFloats(terminal, question, n) {
+        let valid = false;
+        let floats;
+        do {
+            let response = await terminal.ask(question);
+            response = response.split(' ').map(n => Number.parseFloat(n)).filter(n => !Number.isNaN(n));
+            if (response.length < n) {
+                terminal.printLine(`Please provide ${n} space separated number(s) (decimal or integer).`);
+            } else {
+                valid = true;
+                floats = response;
+            }
+        } while (!valid);
+        return floats;
     }
 
     /**

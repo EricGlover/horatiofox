@@ -40,11 +40,12 @@ class Torpedo {
 
 
 export class PhotonTorpedoLauncher extends Device {
-    constructor(parent, count = 0, capacity = 0) {
+    constructor(parent, count = 0, capacity = 0, maxBurst = 1) {
         super(parent, photonTorpedoLauncherType);
         this.terminal = terminal;
         this._capacity = capacity;
         this._torpedoes = count;
+        this.maxBurst = maxBurst;
     }
 
     addTorpedoes(n) {
