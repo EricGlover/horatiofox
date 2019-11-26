@@ -67,12 +67,13 @@ class OptionsComponent {
 }
 
 class Mode {
-    constructor(name, regex, matches, requiredDevices = []) {
+    constructor(name, regex, matches, isDefault = false, requiredDevices = []) {
         this.name = name;
         this.regex = regex;
         this.matches = matches;
         this.requiredDevices = requiredDevices;
         this.options = new OptionsComponent(this);
+        this.isDefault = isDefault;
     }
 
     addRequiredDevice(...devices) {
@@ -142,8 +143,8 @@ export class Command {
     // name <string> name to display to user in help menu
     // propName <string> propName to be returned with this.getMode()
     // ...matchingStrings strings that match this mode
-    addMode(name, propName, ...matchingStrs) {
-        this.modes[name] = new Mode(name, optionRegexifier(...matchingStrs), matchingStrs);
+    addMode(name, propName, isDefault, ...matchingStrs) {
+        this.modes[name] = new Mode(name, optionRegexifier(...matchingStrs), matchingStrs, isDefault);
         return this.modes[name];
     }
 
@@ -192,32 +193,29 @@ export class Command {
 
     makeInfo() {
         let arr = [
-            ['Abbreviation', this.abbreviation],
-            ['Name', this.name],
-            ['Full Name', this.fullName]
+            ['Abbreviation', this.abbreviation, ''],
+            ['Name', this.name, ''],
+            ['Full Name', this.fullName, ''],
+            ['', '', '']
         ];
         if (Object.keys(this.modes).length > 0) {
             let rows = [
-                ['Modes', '']
+                ['Modes', 'Aliases', 'Is Default']
             ];
             Object.entries(this.modes).forEach(([k, v], i) => {
-                rows.push([`  ${i + 1}) ${k}`, v.matches.join(", ")]);
+                rows.push([`  ${i + 1}) ${k}`, v.matches.join(", "), v.isDefault ? 'Yes' : 'No']);
             });
             arr.push(...rows);
-            // let row = ['Modes', Object.keys(this.modes).join(", ")];
-            // arr.push(row);
         }
 
         if (Object.keys(this.options.options).length > 0) {
             let rows = [
-                ['Options', '']
+                ['Options', '', '']
             ];
             Object.entries(this.options.options).forEach(([k, v], i) => {
-                rows.push([`  ${i + 1}) ${k}`, v.matches.join(", ")]);
+                rows.push([`  ${i + 1}) ${k}`, v.matches.join(", "), '']);
             });
             arr.push(...rows);
-            // let row = ['Options', Object.keys(this.options).join(", ")];
-            // arr.push(row);
         }
         let grid = Terminal.formatGrid(arr, false, null, true);
         return Terminal.joinGrid(grid, "    ");
@@ -237,7 +235,7 @@ export class Command {
         return response;
     }
 
-    async getFloats(terminal, question, n) {
+    async getFloats(terminal, question, n = 1) {
         let valid = false;
         let floats;
         do {

@@ -8,13 +8,13 @@ export class ShieldsCommand extends Command {
         this.player = player;
         this.regex = regexifier(this.abbreviation, this.name, this.fullName);
         this.addRequiredDevice(this.player.shields);
-        this.upMode = this.addMode("up", "up");
+        this.upMode = this.addMode("up", "up", false, 'up', 'u');
         this.upMode.addRequiredDevice(this.player.shields);
-        this.downMode = this.addMode("down", "down", "do", "d");
+        this.downMode = this.addMode("down", "down", false, "down", "do", "d");
         this.downMode.addRequiredDevice(this.player.shields);
-        this.chargeMode = this.addMode("charge", "charge", "ch", "c");
+        this.chargeMode = this.addMode("charge", "charge", false, "charge", "ch", "c");
         this.chargeMode.addRequiredDevice(this.player.shields, this.player.powerGrid);
-        this.drainMode = this.addMode("drain", "drain", "dr");
+        this.drainMode = this.addMode("drain", "drain",  false, "drain", "dr");
         this.drainMode.addRequiredDevice(this.player.shields, this.player.powerGrid);
         this._info = `  
 Full commands:  SHIELDS UP
@@ -128,7 +128,7 @@ are up) and have essentially the same effect as phaser hits.`;
                     }
                     // calculate the max you can transfer (remaining capacity, or shield energy, whichever's smaller)
                     let remainingCap = powerGrid.capacity - powerGrid.energy;
-                    let shieldEnergy = shields.energy;
+                    let shieldEnergy = shields.units;
                     let maxAmount = Math.min(remainingCap, shieldEnergy);
                     this.terminal.printLine(`Ship can be charged ${remainingCap.toFixed(2)} units. Shield energy is currently ${shieldEnergy.toFixed(2)} units.`);
                     this.terminal.printLine(`The maximum amount of energy you can transfer to the ship is ${maxAmount.toFixed(2)}.`);
@@ -265,6 +265,7 @@ are up) and have essentially the same effect as phaser hits.`;
             up = response.up;
             down = response.down;
             charge = response.charge;
+            drain = response.drain;
             amount = response.amount;
         }
 

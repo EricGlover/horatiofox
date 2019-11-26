@@ -11,8 +11,8 @@ export class MoveCommand extends Command {
         this.player = player;
         this.galaxy = galaxy;
         this.regex = regexifier(this.abbreviation, this.name);
-        this.addMode('manual', 'manual', 'm', 'manual');
-        this.addMode('automatic', 'automatic', 'a', 'automatic');
+        this.addMode('manual', 'manual', false, 'm', 'manual');
+        this.addMode('automatic', 'automatic', true, 'a', 'automatic');
         this.options.addOption('impulse', 'i', 'impulse');
         this.useImpulse = false;
         this._info = `
@@ -193,11 +193,11 @@ much too slow to use except in emergencies.`;
 
             // deltaX
             let right = await this.getConfirmation(this.terminal, 'Would you like to move right?');
-            if(right) {
+            if (right) {
                 deltaX = await this.getInt(this.terminal, 'How many sectors?');
             } else {
                 let left = await this.getConfirmation(this.terminal, 'Would you like to move left?');
-                if(left) {
+                if (left) {
                     deltaX = -1 * await this.getInt(this.terminal, 'How many sectors?');
                 } else {
                     deltaX = 0;
@@ -206,11 +206,11 @@ much too slow to use except in emergencies.`;
 
             // deltaY
             let up = await this.getConfirmation(this.terminal, 'Would you like to move up?');
-            if(up) {
+            if (up) {
                 deltaY = -1 * await this.getInt(this.terminal, 'How many sectors?');
             } else {
                 let down = await this.getConfirmation(this.terminal, 'Would you like to move down?');
-                if(down) {
+                if (down) {
                     deltaY = await this.getInt(this.terminal, 'How many sectors?');
                 } else {
                     deltaY = 0;
@@ -246,11 +246,11 @@ much too slow to use except in emergencies.`;
             return this.runInteractive();
         }
 
-        if(confirm) {
+        if (confirm) {
             let c = destination.center;
             let l = `Quadrant ${c.userQuadrantX} - ${c.userQuadrantY}, Sector ${c.userSectorX} - ${c.userSectorY}`;
             let y = await this.getConfirmation(this.terminal, `Move to ${l} ?`);
-            if(!y) {
+            if (!y) {
                 let cancel = await this.getConfirmation(this.terminal, "Cancel Command?");
                 if (cancel) return;
                 return this.runInteractive();

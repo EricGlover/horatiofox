@@ -1,6 +1,7 @@
 // then add the no option (if no appears anywh  ere then don't raise shields using high speed control)
 import {Command, regexifier, ATTACK_COMMAND} from "./Command.js";
 import {AbstractEnemy} from "../Enemies/Enemies.js";
+import {Utility} from "../utils/Utility";
 
 export class PhasersCommand extends Command {
     constructor(game, terminal, player) {
@@ -9,11 +10,10 @@ export class PhasersCommand extends Command {
         this.terminal = terminal;
         this.player = player;
         this.options.addOption("no", "n", "no");
-        this.addMode("automatic", 'auto', "a", "auto", "automatic");
-        this.addMode("manual", 'manual',"m", "man", "manual");
+        this.addMode("automatic", 'auto', true, "a", "auto", "automatic");
+        this.addMode("manual", 'manual', false, "m", "man", "manual");
         this._info = `
 Full commands:  PHASERS AUTOMATIC [AMOUNT TO FIRE] (NO)
-                PHASERS [AMOUNT TO FIRE] (NO)
                 PHASERS MANUAL (NO) [AMOUNT 1] [AMOUNT 2]...[AMOUNT N]
 
 Phasers are energy weapons. As you fire phasers at Klingons, you
@@ -74,21 +74,273 @@ specifying the (no) option, shields are not raised after firing.
 Phasers have no effect on starbases (which are shielded) or on stars.`;
     }
 
+    async runInteractive() {
+        let shieldControl = 200;
+        let useShieldControl = this.player.shields.up;
+        let leaveShieldsDown;
+        if (this.player.shields.up) {
+            leaveShieldsDown = await this.getConfirmation(this.terminal, `Would you like to leave shields down after firing?`);
+            if (leaveShieldsDown) {
+                shieldControl -= 50;
+                this.terminal.printLine(`Fast Shield Control will only cost ${shieldControl} units.`);
+            } else {
+                this.terminal.printLine(`Fast Shield Control will cost ${shieldControl} units.`);
+            }
+        } else {
+            shieldControl = 0;
+            leaveShieldsDown = true;
+        }
+
+        // would you like to target
+        let manual = await this.getConfirmation(this.terminal, `Would you like to specify your targets?`);
+        if (manual) {
+            // enemy name at x - y : amount to fire to kill
+            let enemyArr = this.getEnemiesByDistance();
+            let targets = [];
+            let total = shieldControl;
+
+            // get amount to fire at each enemy
+            for (let i = 0; i < enemyArr.length; i++) {
+                let enemyInfo = enemyArr[i];
+                let valid = false;
+                let amount;
+                let remainingEnergy = this.player.powerGrid.energy - total;
+                let remainingEnergyStr = Utility.ceilFloatAtFixedPoint(remainingEnergy, 1).toFixed(1);
+                do {
+                    if (total > 0) {
+                        this.terminal.printLine(`Total energy = ${total}. Remaining Energy ${remainingEnergyStr}.`);
+                    } else {
+                        this.terminal.printLine(`Remaining Energy ${remainingEnergyStr}.`);
+                    }
+
+                    let locationString = `${enemyInfo.coordinates.userSectorX} - ${enemyInfo.coordinates.userSectorY}`;
+                    let killAmount = Utility.ceilFloatAtFixedPoint(enemyInfo.amount, 1);
+                    let response = await this.terminal.ask(`Amount to fire at ${enemyInfo.name} at ${locationString} (${killAmount.toFixed(1)} would kill) : `);
+                    response = response.trim();
+                    if (response == 0) {        // if blank or zero skip
+                        valid = true;
+                        amount = 0;
+                    } else {    // if negative or nan show error
+                        response = Number.parseFloat(response);
+                        if (Number.isNaN(response) || response < 0) {
+                            this.terminal.printLine("Please provide a positive number of units to fire. Zero or blank will skip the enemy.");
+                        } else if (response > remainingEnergy) {
+                            this.terminal.printLine(`We only have ${remainingEnergyStr} units available.`);
+                        } else {
+                            valid = true;
+                            amount = response;
+                        }
+                    }
+                } while (!valid);
+                // add target
+                if (amount > 0) {
+                    enemyInfo.amount = amount;
+                    targets.push(enemyInfo);
+                    total += amount;
+                }
+            }
+
+            if (targets.length === 0) {
+                let again = await this.getConfirmation(this.terminal, `You didn't specify a target. Try again? `);
+                if (again) return this.runInteractive();
+                return;
+            }
+
+            // over heat warning
+            if (total - shieldControl > this.player.phasers.overheatThreshold) {
+                let go = await this.getConfirmation(this.terminal, `Firing ${total} could overheat our phasers, continue?`);
+                if (!go) {
+                    let goAgain = await this.getConfirmation(this.terminal, `Try again?`);
+                    if (goAgain) return this.runInteractive();
+                    return;
+                }
+            }
+            // todo: confirm ?
+            this.terminal.printLine("Firing phasers.");
+
+            // fast shield control
+            if (this.player.shields.up) this.fastShieldControl(leaveShieldsDown);
+
+            // have our player fire away
+            this.player.firePhasersMultiTarget(targets, false);
+        } else {
+            // get amount to fire then use the run auto method
+            let amountToFire;
+            let valid = false;
+            do {
+                let energyStr = Utility.ceilFloatAtFixedPoint(this.player.powerGrid.energy, 1).toFixed(1);
+                this.terminal.printLine(`Available Energy ${energyStr}`);
+                let response = await this.getFloats(this.terminal, `How much would you like to fire?`, 1);
+                response = response[0];
+                if(response <= 0) {
+                    let cancel = await this.getConfirmation(this.terminal, `Cancel Command?`);
+                    if(cancel) return;
+                }
+                if(response + shieldControl > this.player.powerGrid.energy) {
+                    this.terminal.printLine(`We only have ${energyStr} energy available.`);
+                } else {
+                    valid = true;
+                    amountToFire = response;
+                }
+            } while (!valid);
+
+            // over heat warning
+            if (amountToFire - shieldControl > this.player.phasers.overheatThreshold) {
+                let go = await this.getConfirmation(this.terminal, `Firing ${amountToFire} could overheat our phasers, continue?`);
+                if (!go) {
+                    let goAgain = await this.getConfirmation(this.terminal, `Try again?`);
+                    if (goAgain) return this.runInteractive();
+                    return;
+                }
+            }
+            // todo: confirm ?
+            this.terminal.printLine("Firing phasers.");
+
+            return this.runAuto(amountToFire, useShieldControl, shieldControl, leaveShieldsDown);
+        }
+    }
+
+    fastShieldControl(noOption = false) {
+        if (this.player.shields.up) {
+            this.terminal.printLine(`Weapons Officer Sulu-  "High-speed shield control enabled, sir."`);
+            // do fast shield control
+            this.player.shields.lower();
+            // lower shields
+            if (noOption) {
+                // leave shields down
+                this.player.powerGrid.useEnergy(200);
+            } else {
+                this.player.shields.raise();    // costs 50
+                this.player.powerGrid.useEnergy(150);
+            }
+        }
+    }
+
+    getEnemiesByDistance() {
+        let enemies = this.player.gameObject.quadrant.container.getGameObjectsOfType(AbstractEnemy);
+        let enemyArr = [];
+        enemies.forEach(e => {
+            let distance = Galaxy.calculateDistance(e.gameObject.sector, this.player.gameObject.sector);
+            //calculate kill shot
+            let energy = this.player.phasers.calculateSureKill(distance, e.collider.health);
+            enemyArr.push({
+                enemy: e,
+                distance: distance,
+                amount: energy,
+                name: e.name,
+                coordinates: e.gameObject.coordinates
+            });
+        });
+        enemyArr.sort((a, b) => a.distance - b.distance);
+        return enemyArr;
+    }
+
+    async runManual(amounts, useShieldControl, shieldControlEnergy, noOption) {
+        // get amounts (phasers manual ...n
+        let toFire = amounts.map(str => Number.parseInt(str));
+
+        // parse, and check for errors
+        let hasParseErrors = toFire.some(n => Number.isNaN(n));
+        if (hasParseErrors) {
+            this.terminal.printLine(`Try again.`);
+            return this.runInteractive();
+        }
+        // filter out 0 values and negatives because they're pointless
+        toFire = toFire.filter(n => n > 0);
+
+        // check that we have that much energy to fire
+        let total = toFire.reduce((carry, n) => carry + n, 0) + shieldControlEnergy;
+        if (total > this.player.powerGrid.energy) {
+            this.terminal.printLine(`Units available = ${this.player.powerGrid.energy}.`);
+            return this.runInteractive();
+        }
+
+        // sort entries by distance
+        let enemyArr = this.getEnemiesByDistance();
+
+        // if they specified more targets than
+        if (enemyArr.length < toFire.length) {
+            this.terminal.printLine(`There are only ${enemyArr.length} enemies here.`);
+            return this.runInteractive();
+        }
+
+        // now grab the entries that we're going to fire at
+        let targetArray = [];
+        for (let i = 0; i < toFire.length; i++) {
+            let enemyEntry = enemyArr[i];
+            enemyEntry.amount = toFire[i];
+            targetArray.push(enemyEntry);
+        }
+
+        // fast shield control
+        this.fastShieldControl(noOption);
+
+        // have our player fire away
+        this.player.firePhasersMultiTarget(targetArray, false);
+    }
+
+    async runAuto(amount, useShieldControl, shieldControlEnergy, noOption) {
+        // in automatic mode the ship automatically fires kill shots
+        // at each target, closest first, until the energy amount
+        // specified is expended
+        if (Number.isNaN(amount)) {
+            this.terminal.printLine(`Try again.`);
+            return this.runInteractive();
+        } else if (amount <= 0) {
+            this.terminal.printLine(`Can't fire ${amount}, specify an amount greater than 0.`);
+            return this.runInteractive();
+        } else if (amount + shieldControlEnergy > this.player.powerGrid.energy) {
+            this.terminal.printLine(`We only have units available = ${this.player.powerGrid.energy}.`);
+            return this.runInteractive();
+        }
+        // sort entries by distance
+        let enemyArr = this.getEnemiesByDistance();
+
+        // fire kill shots until the amount of energy to use is exhausted
+        // add the entries into toFire, until we run out of energy
+        let toFire = [];
+        let amountToFire = amount;
+        for (let i = 0; amount > 0 && i < enemyArr.length; i++) {
+            let {amount} = enemyArr[i];
+            if (amountToFire < amount) {
+                amount = amountToFire;
+            }
+            // amount = Math.ceil(amount);
+            amountToFire -= amount;
+            enemyArr[i].amount = amount;
+            toFire.push(enemyArr[i]);
+            if (amountToFire <= 0) {
+                break;
+            }
+        }
+        this.fastShieldControl(noOption);
+
+        this.player.firePhasersMultiTarget(toFire);
+
+        // fire excess energy into space
+        if (amountToFire > 0) {
+            this.terminal.echo(`Firing ${amountToFire.toFixed(2)} excess units into space.`);
+            this.player.powerGrid.useEnergy(amountToFire);
+        }
+    }
+
     run() {
         // find enemies to fire upon, check that we can fire on something
         let quadrant = this.player.gameObject.quadrant;
-        let playerSector = this.player.gameObject.sector;
         let enemies = quadrant.container.getGameObjectsOfType(AbstractEnemy);
         if (enemies.length === 0) {
-            this.terminal.printLine("No enemies to fire upon.");
-            return;
+            // this.terminal.printLine("No enemies to fire upon.");
+            // return;
         }
 
         // figure out the mode
         let args = this.terminal.getArguments();
+        if(args.length === 0) {
+            return this.runInteractive();
+        }
+
         let {auto, manual} = this.parseMode(args);
         let {no} = this.options.parseOption(args);
-        let noOption = no;
 
         // automatic is assumed
         let amounts = [];
@@ -100,139 +352,16 @@ Phasers have no effect on starbases (which are shielded) or on stars.`;
         }
 
         let shieldControl = 200;
-        // if(no) shieldControl = 150;
+        if (no) shieldControl -= 50;
+        let useShieldControl = this.player.shields.up;
+        if (!useShieldControl) shieldControl = 0;
 
         // strip out the options
         if (auto) {
-            // in automatic mode the ship automatically fires kill shots
-            // at each target, closest first, until the energy amount
-            // specified is expended
             let amount = Number.parseInt(amounts[0]);
-            if (Number.isNaN(amount)) {
-                this.terminal.printLine(`Try again.`);
-                return;
-            } else if (amount <= 0) {
-                this.terminal.printLine(`Can't fire ${amount}, specify an amount greater than 0.`);
-                return;
-            } else if (amount + shieldControl > this.player.powerGrid.energy) {
-                this.terminal.printLine(`Units available = ${this.player.powerGrid.energy}.`);
-                return;
-            }
-            // sort entries by distance
-            let enemyArr = [];
-            enemies.forEach(e => {
-                let distance = Galaxy.calculateDistance(e.gameObject.sector, playerSector);
-                //calculate kill shot
-                let energy = this.player.phasers.calculateSureKill(distance, e.collider.health);
-                enemyArr.push({
-                    enemy: e,
-                    distance: distance,
-                    amount: energy
-                });
-            });
-            enemyArr.sort((a, b) => a.distance - b.distance);
-            // fire kill shots until the amount of energy to use is exhausted
-            // add the entries into toFire, until we run out of energy
-            let toFire = [];
-            let amountToFire = amount;
-            for (let i = 0; amount > 0 && i < enemyArr.length; i++) {
-                let {amount} = enemyArr[i];
-                if (amountToFire < amount) {
-                    amount = amountToFire;
-                }
-                // amount = Math.ceil(amount);
-                amountToFire -= amount;
-                enemyArr[i].amount = amount;
-                toFire.push(enemyArr[i]);
-                if (amountToFire <= 0) {
-                    break;
-                }
-            }
-            // fast shield control
-            if (this.player.shields.up) {
-                this.terminal.printLine(`Weapons Officer Sulu-  "High-speed shield control enabled, sir."`);
-                // do fast shield control
-                this.player.shields.lower();
-                // lower shields
-                if (noOption) {
-                    // leave shields down
-                    this.player.powerGrid.useEnergy(200);
-                } else {
-                    this.player.shields.raise();    // costs 50
-                    this.player.powerGrid.useEnergy(150);
-                }
-            }
-
-            this.player.firePhasersMultiTarget(toFire);
-
-            // fire excess energy into space
-            if (amountToFire > 0) {
-                this.terminal.echo(`Firing ${amountToFire.toFixed(2)} excess units into space.`);
-                this.player.powerGrid.useEnergy(amountToFire);
-            }
-            //
+            return this.runAuto(amount, useShieldControl, shieldControl, no);
         } else if (manual) {
-            // get amounts (phasers manual ...n
-            let toFire = amounts.map(str => Number.parseInt(str));
-
-            // parse, and check for errors
-            let hasParseErrors = toFire.some(n => Number.isNaN(n));
-            if (hasParseErrors) {
-                this.terminal.printLine(`Try again.`);
-                return;
-            }
-            // filter out 0 values and negatives because they're pointless
-            toFire = toFire.filter(n => n > 0);
-
-            // check that we have that much energy to fire
-            let total = toFire.reduce((carry, n) => carry + n, 0);
-            if (total + shieldControl > this.player.powerGrid.energy) {
-                this.terminal.printLine(`Units available = ${this.player.powerGrid.energy}.`);
-                return;
-            }
-
-            // if they specified more targets than
-            if (enemies.length < toFire.length) {
-                this.terminal.printLine(`There are only ${enemies.length} enemies here.`);
-                return;
-            }
-
-            // sort entries by distance
-            let enemyArr = [];
-            enemies.forEach(e => {
-                enemyArr.push({
-                    enemy: e,
-                    distance: Galaxy.calculateDistance(e.gameObject.sector, playerSector),
-                    amount: null
-                });
-            });
-            enemyArr.sort((a, b) => a.distance - b.distance);
-
-            // now grab the entries that we're going to fire at
-            let targetArray = [];
-            for (let i = 0; i < toFire.length; i++) {
-                let enemyEntry = enemyArr[i];
-                enemyEntry.amount = toFire[i];
-                targetArray.push(enemyEntry);
-            }
-
-            // fast shield control
-            if (this.player.shields.up) {
-                this.terminal.printLine(`Weapons Officer Sulu-  "High-speed shield control enabled, sir."`);
-                // do fast shield control
-                this.player.shields.shieldsDown();
-                // lower shields
-                if (noOption) {
-                    // leave shields down
-                    this.player.powerGrid.useEnergy(200);
-                } else {
-                    this.player.shieldsUp();    // costs 50
-                    this.player.powerGrid.useEnergy(150);
-                }
-            }
-
-            // have our player fire away
-            this.player.firePhasersMultiTarget(targetArray, false);
+            return this.runManual(amounts, useShieldControl, shieldControl, no);
         }
     }
 }

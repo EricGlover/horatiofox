@@ -497,9 +497,13 @@ Good Luck!
 
             // now it's the ai's turn, start shooting if we're in combat
             if (inCombat && !justArrivedIntoCombat) {
-                this.player.gameObject.quadrant.container.getGameObjectsOfType(AbstractEnemy).forEach(enemy => {
-                    enemy.ai.takeTurn();
-                });
+                try {
+                    this.player.gameObject.quadrant.container.getGameObjectsOfType(AbstractEnemy).forEach(enemy => {
+                        enemy.ai.takeTurn();
+                    });
+                } catch(e) {
+                    console.error(e);
+                }
             }
             wasInCombat = inCombat;
             this.terminal.print();

@@ -14,13 +14,13 @@ export class RepairCommand extends Command {
         this.terminal = terminal;
         this.player = player;
         this.game = game;
-        this._setRepairMode = this.addMode("mode", "setRepairMode", "m", "mode");
+        this._setRepairMode = this.addMode("mode", "setRepairMode", false, "m", "mode");
         this._setRepairMode.options.addOption('even', 'e', 'even');
         this._setRepairMode.options.addOption('least', 'l', 'least');
         this._setRepairMode.options.addOption('most', 'm', 'most');
         this._setRepairMode.options.addOption('priority', 'p', 'priority');
-        this._setRepairPriorityMode = this.addMode('priority', "setRepairPriority", "set-priority", "p", "priority");
-        this._repairDeviceMode = this.addMode("device", 'device', 'd', 'device');
+        this._setRepairPriorityMode = this.addMode('priority', "setRepairPriority", false, "set-priority", "p", "priority");
+        this._repairDeviceMode = this.addMode("device", 'device', false, 'd', 'device');
         this._info = `
 When your systems are damaged your repair crews will run about the ship repairing systems. This happens 
 when time elapses; for example, by using the rest command, or by moving about the galaxy.

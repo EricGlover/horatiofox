@@ -10,9 +10,9 @@ import Menu from "./Menu.js";
 import {terminal, pane1, pane2} from './Terminal.js';
 import Tests from './Tests.js';
 
-export const DEBUG = true;
+export const DEBUG = false;
 const RUN_TESTS = false;
-export const LAST_UPDATED_AT = "Nov 18 2019";
+export const LAST_UPDATED_AT = "Nov 26 2019";
 import Screen from "./utils/Screen.js";
 
 $(document).ready(function () {

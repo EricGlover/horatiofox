@@ -56,16 +56,16 @@ adjacent quadrants.`;
             let response = await this.getInt(this.terminal, `How many photon torpedoes would you like to fire? (maximum of ${availableToFire}) : `);
             if (response > count) {
                 this.terminal.printLine(`You only have ${count} torpedoes available to fire.`);
-            }else if(response > burstAmount) {
+            } else if (response > burstAmount) {
                 this.terminal.printLine(`You can only fire ${burstAmount} at a time.`);
-            }  else if (response <= 0) {
+            } else if (response <= 0) {
                 let cancel = this.getConfirmation(this.terminal, 'Cancel Command?');
-                if(cancel) return;
+                if (cancel) return;
             } else {
                 valid = true;
                 amountToFire = response;
             }
-        } while(!valid);
+        } while (!valid);
 
         // get coordinates
         let coordinates = [];   // Coordinates[]
@@ -77,9 +77,9 @@ adjacent quadrants.`;
                 let floats = await this.getFloats(this.terminal, `Where would you like to fire torpedo #${i}? x y : `, 2);
                 // valid coordinates (check with galaxy, and check that they're in the same quadrant)
                 let c = Coordinates.convert1(this.player.gameObject.quadrant, floats[0], floats[1]);
-                if(!this.galaxy.areValidCoordinates(c)) {
+                if (!this.galaxy.areValidCoordinates(c)) {
                     this.terminal.printLine(`${floats[0]} - ${floats[1]} is outside the galaxy.`);
-                } else if(this.player.gameObject.quadrant !== this.galaxy.getQuadrant(c)) {
+                } else if (this.player.gameObject.quadrant !== this.galaxy.getQuadrant(c)) {
                     this.terminal.printLine(`${floats[0]} - ${floats[1]} is outside this quadrant.`);
                 } else {
                     coordinates.push(c);
@@ -87,7 +87,14 @@ adjacent quadrants.`;
                 }
             } while (!valid);
         }
-
+        // confirm
+        let locationStr = coordinates.map(c => `${c.userSectorXFloat.toFixed(1)} - ${c.userSectorYFloat.toFixed(1)}`).join(', ');
+        let yes = await this.getConfirmation(this.terminal, `Fire ${coordinates.length} torpedoes at : ${locationStr} ?`);
+        if (!yes) {
+            let cancel = await this.getConfirmation(this.terminal, 'Cancel Command?');
+            if (cancel) return;
+            return this.runInteractive();
+        }
         this.terminal.printLine("Firing torpedo(es)");
 
         // fire photon torpedoes
@@ -111,7 +118,7 @@ adjacent quadrants.`;
         let args = this.terminal.getArguments();
         args = args.map(arg => Number.parseFloat(arg)).filter(arg => !Number.isNaN(arg));
 
-        if(args.length === 0) {
+        if (args.length === 0) {
             return this.runInteractive();
         }
 
@@ -143,10 +150,10 @@ adjacent quadrants.`;
             let c = Coordinates.convert1(this.player.gameObject.quadrant, args[i], args[i + 1]);
 
             // validate coordinates (check with galaxy, check that they're in this quadrant)
-            if(!this.galaxy.areValidCoordinates(c)) {
+            if (!this.galaxy.areValidCoordinates(c)) {
                 this.terminal.printLine(`${args[i]} - ${args[i + 1]} is outside of the galaxy. Skipping.`);
                 number--;
-            } else if(this.player.gameObject.quadrant !== this.galaxy.getQuadrant(c)){
+            } else if (this.player.gameObject.quadrant !== this.galaxy.getQuadrant(c)) {
                 this.terminal.printLine(`${args[i]} - ${args[i + 1]} is outside of this quadrant. Skipping.`);
                 number--;
             } else {
@@ -154,7 +161,7 @@ adjacent quadrants.`;
             }
         }
 
-        if(number === 0 || coordinates.length === 0) {
+        if (number === 0 || coordinates.length === 0) {
             this.terminal.printLine(`All invalid coordinates, can't fire.`);
             return;
         }
